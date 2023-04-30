@@ -1,6 +1,7 @@
-import { AppShell, Box, Navbar } from "@mantine/core/"
+import { AppShell, Box, Text } from "@mantine/core/"
 import Head from "next/head"
-import CustomHeader from "@/components/CustomHeader"
+import MixJuiceHeader from "@/components/MixJuiceHeader"
+import MixJuiceNavbar from "@/components/MixJuiceNavbar"
 
 export default function Home() {
   return (
@@ -12,15 +13,11 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <AppShell
-          header={<CustomHeader />}
-          navbar={
-            <Navbar width={{ base: 250 }} zIndex={10}>
-              ナビゲーション
-            </Navbar>
-          }
-        >
+        <AppShell header={<MixJuiceHeader />} navbar={<MixJuiceNavbar />}>
           <Box>メインコンテンツ</Box>
+          <Text>フォントチェック</Text>
+          <Text>Font Check</Text>
+          <Text>Alphabetと日本語のミックス</Text>
         </AppShell>
       </main>
     </>
