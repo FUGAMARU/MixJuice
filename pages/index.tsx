@@ -13,7 +13,11 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <AppShell header={<MixJuiceHeader />} navbar={<MixJuiceNavbar />}>
+        <AppShell
+          header={<MixJuiceHeader />}
+          navbar={<MixJuiceNavbar />}
+          navbarOffsetBreakpoint="sm"
+        >
           <Box>メインコンテンツ</Box>
           <Text>フォントチェック</Text>
           <Text>Font Check</Text>

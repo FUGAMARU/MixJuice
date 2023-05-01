@@ -209,6 +209,39 @@
     aria-hidden "^1.1.3"
     tabbable "^6.0.1"
 
+"@fortawesome/fontawesome-common-types@6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.4.0.tgz#88da2b70d6ca18aaa6ed3687832e11f39e80624b"
+  integrity sha512-HNii132xfomg5QVZw0HwXXpN22s7VBHQBv9CeOu9tfJnhsWQNd2lmTNi8CSrnw5B+5YOmzu1UoPAyxaXsJ6RgQ==
+
+"@fortawesome/fontawesome-svg-core@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-6.4.0.tgz#3727552eff9179506e9203d72feb5b1063c11a21"
+  integrity sha512-Bertv8xOiVELz5raB2FlXDPKt+m94MQ3JgDfsVbrqNpLU9+UE2E18GKjLKw+d3XbeYPqg1pzyQKGsrzbw+pPaw==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.4.0"
+
+"@fortawesome/free-regular-svg-icons@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.4.0.tgz#cacc53bd8d832d46feead412d9ea9ce80a55e13a"
+  integrity sha512-ZfycI7D0KWPZtf7wtMFnQxs8qjBXArRzczABuMQqecA/nXohquJ5J/RCR77PmY5qGWkxAZDxpnUFVXKwtY/jPw==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.4.0"
+
+"@fortawesome/free-solid-svg-icons@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.4.0.tgz#48c0e790847fa56299e2f26b82b39663b8ad7119"
+  integrity sha512-kutPeRGWm8V5dltFP1zGjQOEAzaLZj4StdQhWVZnfGFCvAPVvHh8qk5bRrU4KXnRRRNni5tKQI9PBAdI6MP8nQ==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.4.0"
+
+"@fortawesome/react-fontawesome@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.2.0.tgz#d90dd8a9211830b4e3c08e94b63a0ba7291ddcf4"
+  integrity sha512-uHg75Rb/XORTtVt7OS9WoK8uM276Ufi7gCzshVWkUJbHhh3svsUUeqXerrM96Wm7fRiDzfKRwSoahhMIkGAYHw==
+  dependencies:
+    prop-types "^15.8.1"
+
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.8"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.8.tgz#03595ac2075a4dc0f191cc2131de14fbd7d410b9"
@@ -570,6 +603,11 @@ ajv@^6.10.0, ajv@^6.12.4:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
+
+animate.css@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/animate.css/-/animate.css-4.1.1.tgz#614ec5a81131d7e4dc362a58143f7406abd68075"
+  integrity sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==
 
 ansi-regex@^5.0.1:
   version "5.0.1"
@@ -1542,6 +1580,11 @@ grapheme-splitter@^1.0.4:
   resolved "https://registry.yarnpkg.com/grapheme-splitter/-/grapheme-splitter-1.0.4.tgz#9cf3a665c6247479896834af35cf1dbb4400767e"
   integrity sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==
 
+hamt_plus@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/hamt_plus/-/hamt_plus-1.0.2.tgz#e21c252968c7e33b20f6a1b094cd85787a265601"
+  integrity sha512-t2JXKaehnMb9paaYA7J0BX8QQAY8lwfQ9Gjf4pg/mk4krt+cmwmU652HOoWonf+7+EQV97ARPMhhVgU1ra2GhA==
+
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/has-bigints/-/has-bigints-1.0.2.tgz#0871bd3e3d51626f6ca0966668ba35d5602d6eaa"
@@ -2345,6 +2388,13 @@ readable-stream@~1.0.17, readable-stream@~1.0.27-1:
     inherits "~2.0.1"
     isarray "0.0.1"
     string_decoder "~0.10.x"
+
+recoil@^0.7.7:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/recoil/-/recoil-0.7.7.tgz#c5f2c843224384c9c09e4a62c060fb4c1454dc8e"
+  integrity sha512-8Og5KPQW9LwC577Vc7Ug2P0vQshkv1y3zG3tSSkWMqkWSwHmE+by06L8JtnGocjW6gcCvfwB3YtrJG6/tWivNQ==
+  dependencies:
+    hamt_plus "1.0.2"
 
 regenerator-runtime@^0.13.11:
   version "0.13.11"

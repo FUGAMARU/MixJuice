@@ -1,9 +1,21 @@
 import { Flex, Navbar, Space, Title } from "@mantine/core"
 import Image from "next/image"
+import { useRecoilValue } from "recoil"
+import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 
 const MixJuiceNavbar = () => {
+  const isOpened = useRecoilValue(navbarAtom)
+  const navbarClassName = useRecoilValue(navbarClassNameAtom)
+
   return (
-    <Navbar width={{ base: 250 }} p="sm" zIndex={10}>
+    <Navbar
+      className={navbarClassName}
+      width={{ base: 200, md: 250 }}
+      p="sm"
+      zIndex={10}
+      hiddenBreakpoint="sm"
+      hidden={!isOpened}
+    >
       <Navbar.Section>
         <Flex align="end">
           <Image
