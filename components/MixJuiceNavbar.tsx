@@ -1,11 +1,27 @@
-import { Flex, Navbar, Space, Title } from "@mantine/core"
+import { Flex, Navbar, Space, Stack, Title } from "@mantine/core"
 import Image from "next/image"
 import { useRecoilValue } from "recoil"
+import NavbarCheckbox from "./parts/NavbarCheckbox"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 
 const MixJuiceNavbar = () => {
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
+
+  /** 表示テスト用 */
+  const spotifyPlaylists = [
+    { label: "2020", color: "green" },
+    { label: "2021", color: "green" },
+    { label: "2022", color: "green" },
+    { label: "2023", color: "green" },
+    { label: "すげー長いプレイリストタイトル", color: "green" }
+  ]
+
+  const webdavFolders = [
+    { label: "/", color: "grape" },
+    { label: "/musics", color: "grape" },
+    { label: "/subfolder", color: "grape" }
+  ]
 
   return (
     <Navbar
@@ -29,8 +45,22 @@ const MixJuiceNavbar = () => {
             Spotify
           </Title>
         </Flex>
+
+        <Stack pl="md" py="xs" spacing="sm">
+          {spotifyPlaylists.map((playlist, idx) => {
+            return (
+              <NavbarCheckbox
+                key={idx}
+                label={playlist.label}
+                color={playlist.color}
+              />
+            )
+          })}
+        </Stack>
       </Navbar.Section>
-      <Space h="lg" />
+
+      <Space h="xs" />
+
       <Navbar.Section>
         <Flex align="center">
           <Image
@@ -44,6 +74,18 @@ const MixJuiceNavbar = () => {
             WebDav
           </Title>
         </Flex>
+
+        <Stack pl="md" pr="xs" py="xs" spacing="sm">
+          {webdavFolders.map((folder, idx) => {
+            return (
+              <NavbarCheckbox
+                key={idx}
+                label={folder.label}
+                color={folder.color}
+              />
+            )
+          })}
+        </Stack>
       </Navbar.Section>
     </Navbar>
   )
