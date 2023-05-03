@@ -10,11 +10,11 @@ const MixJuiceNavbar = () => {
 
   /** 表示テスト用 */
   const spotifyPlaylists = [
-    { label: "2020", color: "green" },
-    { label: "2021", color: "green" },
-    { label: "2022", color: "green" },
-    { label: "2023", color: "green" },
-    { label: "すげー長いプレイリストタイトル", color: "green" }
+    { label: "2020", color: "spotify" },
+    { label: "2021", color: "spotify" },
+    { label: "2022", color: "spotify" },
+    { label: "2023", color: "spotify" },
+    { label: "すげー長いプレイリストタイトル", color: "spotify" }
   ]
 
   const webdavFolders = [
