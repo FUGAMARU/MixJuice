@@ -100,6 +100,78 @@ const CustomFonts: React.FC = () => {
             fontWeight: 900,
             fontStyle: "normal"
           }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Thin.woff2)",
+            fontWeight: 100,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-ExtraLight.woff2)",
+            fontWeight: 200,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Light.woff2)",
+            fontWeight: 300,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Regular.woff2)",
+            fontWeight: 400,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Medium.woff2)",
+            fontWeight: 500,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-SemiBold.woff2)",
+            fontWeight: 600,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Bold.woff2)",
+            fontWeight: 700,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-ExtraBold.woff2)",
+            fontWeight: 800,
+            fontStyle: "normal"
+          }
+        },
+        {
+          "@font-face": {
+            fontFamily: "NotoSansJP",
+            src: "url(/fonts/NotoSansJP-Black.woff2)",
+            fontWeight: 900,
+            fontStyle: "normal"
+          }
         }
       ]}
     />

@@ -49,8 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
             ]
           },
           colorScheme: "light",
-          // Todo: Retinaディスプレイで見るとKazesawaがRegularでもちょい細いので不格好 → Noto Sans に統一する？
-          fontFamily: "GreycliffCF, Kazesawa"
+          fontFamily: "NotoSansJP, GreycliffCF, Kazesawa"
         }}
       >
         <CustomFonts />

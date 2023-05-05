@@ -40,7 +40,7 @@ const MixJuiceNavbar = () => {
   return (
     <Navbar
       className={navbarClassName}
-      width={{ base: 200, md: 250 }}
+      width={{ base: "60%", sm: "30%", lg: "20%" }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
       p="sm"
       zIndex={10}
@@ -56,7 +56,7 @@ const MixJuiceNavbar = () => {
             alt="spotify logo"
           />
           <Space w="xs" />
-          <Title order={3} sx={{ cursor: "default" }}>
+          <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
             Spotify
           </Title>
         </Flex>
@@ -83,7 +83,7 @@ const MixJuiceNavbar = () => {
             alt="server icon"
           />
           <Space w="xs" />
-          <Title order={3} sx={{ cursor: "default" }}>
+          <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
             WebDav
           </Title>
         </Flex>
@@ -101,7 +101,10 @@ const MixJuiceNavbar = () => {
         </Stack>
       </Navbar.Section>
 
-      <Navbar.Section pt="xs">
+      <Navbar.Section
+        pt="xs"
+        sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
+      >
         <Flex align="center">
           <BsClockHistory />
           <Space w="xs" />
