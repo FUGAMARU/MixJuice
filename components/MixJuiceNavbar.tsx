@@ -1,5 +1,14 @@
-import { Flex, Navbar, Space, Stack, Title } from "@mantine/core"
+import {
+  Flex,
+  Navbar,
+  Space,
+  Stack,
+  Title,
+  Text,
+  ScrollArea
+} from "@mantine/core"
 import Image from "next/image"
+import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
 import NavbarCheckbox from "./parts/NavbarCheckbox"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
@@ -10,6 +19,11 @@ const MixJuiceNavbar = () => {
 
   /** 表示テスト用 */
   const spotifyPlaylists = [
+    { label: "2020", color: "spotify" },
+    { label: "2021", color: "spotify" },
+    { label: "2022", color: "spotify" },
+    { label: "2023", color: "spotify" },
+    { label: "すげー長いプレイリストタイトル", color: "spotify" },
     { label: "2020", color: "spotify" },
     { label: "2021", color: "spotify" },
     { label: "2022", color: "spotify" },
@@ -27,12 +41,13 @@ const MixJuiceNavbar = () => {
     <Navbar
       className={navbarClassName}
       width={{ base: 200, md: 250 }}
+      height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
       p="sm"
       zIndex={10}
       hiddenBreakpoint="sm"
       hidden={!isOpened}
     >
-      <Navbar.Section>
+      <Navbar.Section grow component={ScrollArea}>
         <Flex align="end">
           <Image
             src="/spotify-logo.png"
@@ -57,11 +72,9 @@ const MixJuiceNavbar = () => {
             )
           })}
         </Stack>
-      </Navbar.Section>
 
-      <Space h="xs" />
+        <Space h="xs" />
 
-      <Navbar.Section>
         <Flex align="center">
           <Image
             src="/server-icon.svg"
@@ -86,6 +99,22 @@ const MixJuiceNavbar = () => {
             )
           })}
         </Stack>
+      </Navbar.Section>
+
+      <Navbar.Section pt="xs">
+        <Flex align="center">
+          <BsClockHistory />
+          <Space w="xs" />
+          <Text weight={600}>再生履歴</Text>
+        </Flex>
+
+        <Space h="xs" />
+
+        <Flex align="center">
+          <BsInfoCircle />
+          <Space w="xs" />
+          <Text weight={600}>MixJuiceについて</Text>
+        </Flex>
       </Navbar.Section>
     </Navbar>
   )
