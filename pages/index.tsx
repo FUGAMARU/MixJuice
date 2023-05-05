@@ -2,6 +2,7 @@ import { AppShell, Box, Text } from "@mantine/core/"
 import Head from "next/head"
 import MixJuiceHeader from "@/components/MixJuiceHeader"
 import MixJuiceNavbar from "@/components/MixJuiceNavbar"
+import Player from "@/components/parts/Player"
 
 export default function Home() {
   return (
@@ -17,7 +18,15 @@ export default function Home() {
           header={<MixJuiceHeader />}
           navbar={<MixJuiceNavbar />}
           navbarOffsetBreakpoint="sm"
+          styles={{
+            main: {
+              margin: "-1rem -1rem auto -1rem"
+            }
+          }}
         >
+          <Box w="100%" h={{ base: "15vh", md: "25vh" }}>
+            <Player />
+          </Box>
           <Box>メインコンテンツ</Box>
           <Text>フォントチェック</Text>
           <Text>Font Check</Text>

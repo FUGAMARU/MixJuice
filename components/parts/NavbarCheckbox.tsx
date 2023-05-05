@@ -32,6 +32,7 @@ const NavbarCheckbox: React.FC<Props> = ({ label, color }) => {
         },
         label: {
           cursor: "pointer",
+          fontWeight: 500,
           transition: isTouchDevice ? "" : "all .2s ease-in-out",
           "&:hover": isTouchDevice
             ? undefined

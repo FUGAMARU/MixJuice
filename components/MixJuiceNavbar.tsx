@@ -102,6 +102,8 @@ const MixJuiceNavbar = () => {
       </Navbar.Section>
 
       <Navbar.Section
+        mx="-0.8rem"
+        px="sm"
         pt="xs"
         sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
       >
