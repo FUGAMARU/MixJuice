@@ -3,101 +3,178 @@ import {
   Navbar,
   Space,
   Stack,
-  Title,
   Text,
-  ScrollArea
+  ScrollArea,
+  Input,
+  Button,
+  Group
 } from "@mantine/core"
-import Image from "next/image"
+import { useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
 import NavbarCheckbox from "../parts/NavbarCheckbox"
+import NavbarHeading from "../parts/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import useBreakPoints from "@/hooks/useBreakPoints"
+import useTouchDevice from "@/hooks/useTouchDevice"
+import { Playlist } from "@/types/Playlist"
 
 const MixJuiceNavbar = () => {
+  const { isTouchDevice } = useTouchDevice()
+  const { breakPoint } = useBreakPoints()
+  const navbarWidth = useMemo(() => {
+    if (breakPoint === "SmartPhone") return "60%"
+    if (breakPoint === "Tablet") return "30%"
+    if (breakPoint === "PC") return "20%"
+  }, [breakPoint])
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
 
   /** 表示テスト用 */
-  const spotifyPlaylists = [
-    { label: "2020", color: "spotify" },
-    { label: "2021", color: "spotify" },
-    { label: "2022", color: "spotify" },
-    { label: "2023", color: "spotify" },
-    { label: "すげー長いプレイリストタイトル", color: "spotify" },
-    { label: "2020", color: "spotify" },
-    { label: "2021", color: "spotify" },
-    { label: "2022", color: "spotify" },
-    { label: "2023", color: "spotify" },
-    { label: "すげー長いプレイリストタイトル", color: "spotify" }
-  ]
+  const [playlists, setPlaylists] = useState<Playlist[]>([
+    { id: "spotify-1", title: "2020", color: "spotify", checked: false },
+    { id: "spotify-2", title: "2021", color: "spotify", checked: false },
+    { id: "spotify-3", title: "2022", color: "spotify", checked: false },
+    { id: "spotify-4", title: "2023", color: "spotify", checked: false },
+    {
+      id: "spotify-5",
+      title: "すげー長いプレイリストタイトル",
+      color: "spotify",
+      checked: false
+    },
+    { id: "webdav-1", title: "/", color: "grape", checked: false },
+    { id: "webdav-2", title: "/musics", color: "grape", checked: false },
+    { id: "webdav-3", title: "/subfolder", color: "grape", checked: false }
+  ])
 
-  const webdavFolders = [
-    { label: "/", color: "grape" },
-    { label: "/musics", color: "grape" },
-    { label: "/subfolder", color: "grape" }
-  ]
+  const handleCheckboxClicked = (id: string) => {
+    setPlaylists(
+      playlists.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
+    )
+  }
+
+  const handleCheckboxControllerClicked = (to: boolean) => {
+    setPlaylists(
+      playlists.map(p => ({
+        ...p,
+        checked: to
+      }))
+    )
+  }
+
+  const handleProviderCheckboxControllerClicked = (
+    provider: string,
+    to: boolean
+  ) => {
+    setPlaylists(
+      playlists.map(p => ({
+        ...p,
+        checked: p.id.includes(provider.toLowerCase()) ? to : p.checked
+      }))
+    )
+  }
 
   return (
     <Navbar
       className={navbarClassName}
-      width={{ base: "60%", sm: "30%", lg: "20%" }}
+      width={{ base: navbarWidth }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
       p="sm"
       zIndex={10}
       hiddenBreakpoint="sm"
       hidden={!isOpened}
     >
+      <Navbar.Section pb="md">
+        <Stack>
+          <Input placeholder="🔍 楽曲を検索" />
+
+          <Button
+            ff="GreycliffCF"
+            fw={800}
+            variant="gradient"
+            gradient={{ from: "#2afadf", to: "#4c83ff" }}
+            sx={{
+              transition: "all .2s ease-in-out",
+              "&:hover": {
+                transform: isTouchDevice ? "" : "scale(1.02)"
+              }
+            }}
+            styles={{
+              label: {
+                fontSize: "1.1rem",
+                letterSpacing: "0.05rem"
+              }
+            }}
+          >
+            MIX!
+          </Button>
+
+          <Group grow position="center">
+            <Button
+              variant="light"
+              color="gray"
+              onClick={() => handleCheckboxControllerClicked(true)}
+            >
+              全選択
+            </Button>
+            <Button
+              variant="light"
+              color="gray"
+              onClick={() => handleCheckboxControllerClicked(false)}
+            >
+              全解除
+            </Button>
+          </Group>
+        </Stack>
+      </Navbar.Section>
+
       <Navbar.Section grow component={ScrollArea}>
-        <Flex align="end">
-          <Image
-            src="/spotify-logo.png"
-            height={28}
-            width={28}
-            alt="spotify logo"
-          />
-          <Space w="xs" />
-          <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
-            Spotify
-          </Title>
-        </Flex>
+        <NavbarHeading
+          icon="/spotify-logo.png"
+          provider="Spotify"
+          onClick={handleProviderCheckboxControllerClicked}
+        />
 
         <Stack pl="md" py="xs" spacing="sm">
-          {spotifyPlaylists.map((playlist, idx) => {
-            return (
-              <NavbarCheckbox
-                key={idx}
-                label={playlist.label}
-                color={playlist.color}
-              />
-            )
-          })}
+          {playlists
+            .filter(p => p.id.includes("spotify"))
+            .map((p, idx) => {
+              return (
+                <NavbarCheckbox
+                  key={idx}
+                  id={p.id}
+                  label={p.title}
+                  checked={p.checked}
+                  color={p.color}
+                  onClick={handleCheckboxClicked}
+                />
+              )
+            })}
         </Stack>
 
         <Space h="xs" />
 
-        <Flex align="center">
-          <Image
-            src="/server-icon.svg"
-            height={28}
-            width={28}
-            alt="server icon"
-          />
-          <Space w="xs" />
-          <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
-            WebDav
-          </Title>
-        </Flex>
+        <NavbarHeading
+          icon="/server-icon.svg"
+          provider="WebDav"
+          onClick={handleProviderCheckboxControllerClicked}
+        />
 
         <Stack pl="md" pr="xs" py="xs" spacing="sm">
-          {webdavFolders.map((folder, idx) => {
-            return (
-              <NavbarCheckbox
-                key={idx}
-                label={folder.label}
-                color={folder.color}
-              />
-            )
-          })}
+          {playlists
+            .filter(p => p.id.includes("webdav"))
+            .map((p, idx) => {
+              return (
+                <NavbarCheckbox
+                  key={idx}
+                  id={p.id}
+                  label={p.title}
+                  checked={p.checked}
+                  color={p.color}
+                  onClick={handleCheckboxClicked}
+                />
+              )
+            })}
         </Stack>
       </Navbar.Section>
 
@@ -107,7 +184,7 @@ const MixJuiceNavbar = () => {
         pt="xs"
         sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
       >
-        <Flex align="center">
+        <Flex align="center" sx={{ cursor: "pointer" }}>
           <BsClockHistory />
           <Space w="xs" />
           <Text weight={600}>再生履歴</Text>
@@ -115,7 +192,7 @@ const MixJuiceNavbar = () => {
 
         <Space h="xs" />
 
-        <Flex align="center">
+        <Flex align="center" sx={{ cursor: "pointer" }}>
           <BsInfoCircle />
           <Space w="xs" />
           <Text weight={600}>MixJuiceについて</Text>

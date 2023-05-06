@@ -1,4 +1,4 @@
-import { BackgroundImage, Flex, Box, Title, Space } from "@mantine/core"
+import { Flex, Box, Title, Space } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import Marquee from "react-easy-marquee"
@@ -8,33 +8,45 @@ type Props = {
   artist: string
   backgroundImage: string
   smaller: boolean
+  calculatedWidth: number
 }
 
 const MusicInfo: React.FC<Props> = ({
   title,
   artist,
   backgroundImage,
-  smaller
+  smaller,
+  calculatedWidth
 }) => {
-  const { ref: containerRef, width: containerWidth } =
-    useElementSize<HTMLDivElement>()
   const { ref: titleRef, width: titleWidth } =
     useElementSize<HTMLHeadingElement>()
   const { ref: artistRef, width: artistWidth } =
     useElementSize<HTMLHeadingElement>()
-  // 楽曲タイトルがはみ出たらMarquee
-  const isTitleMarquee = useMemo(
-    () => titleWidth > containerWidth,
-    [containerWidth, titleWidth]
+
+  /** padding分を考慮したMarquee切り替えのしきい値となる幅 (文字幅がこれを超えたらMarqueeが有効になる)*/
+  const marqueeThresholdWidth = useMemo(
+    () => calculatedWidth - 50,
+    [calculatedWidth]
   )
-  // アーティスト名がはみ出たらMarquee
+
+  const isTitleMarquee = useMemo(
+    () => titleWidth >= marqueeThresholdWidth,
+    [titleWidth, marqueeThresholdWidth]
+  )
+
   const isArtistMarquee = useMemo(
-    () => artistWidth > containerWidth,
-    [containerWidth, artistWidth]
+    () => artistWidth >= marqueeThresholdWidth,
+    [artistWidth, marqueeThresholdWidth]
   )
 
   return (
-    <BackgroundImage w="100%" h="100%" src={backgroundImage} ref={containerRef}>
+    <Box
+      w="100%"
+      h="100%"
+      sx={{
+        backgroundImage: `url(${backgroundImage})`
+      }}
+    >
       <Flex
         h="100%"
         w="100%"
@@ -48,8 +60,8 @@ const MusicInfo: React.FC<Props> = ({
           {/** Marqueeコンポーネントは重いのでpropsによる表示の切り替えはせず必要ない場合はそもそも表示させない */}
           {isTitleMarquee ? (
             <Marquee
-              width={`${containerWidth}px`}
-              height={smaller ? "1.7rem" : "2.5rem"}
+              width={`${marqueeThresholdWidth}px`}
+              height={smaller ? "1.5rem" : "2.5rem"}
               duration={20000}
               reverse
             >
@@ -58,17 +70,20 @@ const MusicInfo: React.FC<Props> = ({
                 pr="10rem"
                 order={smaller ? 3 : 1}
                 color="white"
+                display="inline-block"
                 sx={{ whiteSpace: "nowrap" }}
               >
                 {title}
               </Title>
             </Marquee>
           ) : (
-            <Box h={smaller ? "1.7rem" : "2.5rem"}>
+            <Box h={smaller ? "1.5rem" : "2.5rem"}>
               <Title
                 ref={titleRef}
+                h={smaller ? "1.5rem" : "2.5rem"}
                 order={smaller ? 3 : 1}
                 color="white"
+                display="inline-block"
                 sx={{ whiteSpace: "nowrap" }}
               >
                 {title}
@@ -76,12 +91,12 @@ const MusicInfo: React.FC<Props> = ({
             </Box>
           )}
 
-          <Space h="0.3rem" />
+          <Space h="0.5rem" />
 
           {isArtistMarquee ? (
             <Marquee
-              width={`${containerWidth}px`}
-              height={smaller ? "1.7rem" : "2.5rem"}
+              width={`${marqueeThresholdWidth}px`}
+              height={smaller ? "1.5rem" : "2.5rem"}
               duration={20000}
               reverse
             >
@@ -90,17 +105,19 @@ const MusicInfo: React.FC<Props> = ({
                 pr="10rem"
                 order={smaller ? 4 : 2}
                 color="white"
+                display="inline-block"
                 sx={{ whiteSpace: "nowrap" }}
               >
                 {`/ ${artist}`}
               </Title>
             </Marquee>
           ) : (
-            <Box h={smaller ? "1.7rem" : "2.5rem"}>
+            <Box h={smaller ? "1.5rem" : "2.5rem"}>
               <Title
                 ref={artistRef}
                 order={smaller ? 4 : 2}
                 color="white"
+                display="inline-block"
                 sx={{ whiteSpace: "nowrap" }}
               >
                 {`/ ${artist}`}
@@ -109,7 +126,7 @@ const MusicInfo: React.FC<Props> = ({
           )}
         </Box>
       </Flex>
-    </BackgroundImage>
+    </Box>
   )
 }
 

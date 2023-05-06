@@ -2,18 +2,30 @@ import { Checkbox } from "@mantine/core"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
 interface Props {
+  id: string
   label: string
   color: string
+  checked: boolean
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  onClick: (id: string) => void
 }
 
-const NavbarCheckbox: React.FC<Props> = ({ label, color }) => {
+const NavbarCheckbox: React.FC<Props> = ({
+  id,
+  label,
+  color,
+  checked,
+  onClick
+}) => {
   const { isTouchDevice } = useTouchDevice()
 
   return (
     <Checkbox
       label={label}
+      checked={checked}
       size="md"
       color={color}
+      onChange={() => onClick(id)}
       styles={theme => ({
         body: {
           cursor: "pointer"
@@ -39,7 +51,7 @@ const NavbarCheckbox: React.FC<Props> = ({ label, color }) => {
             : {
                 transform: "translateX(-4px)",
                 backgroundColor: theme.colors[color][0],
-                borderRadius: "10px"
+                borderRadius: "5px"
               }
         }
       })}
