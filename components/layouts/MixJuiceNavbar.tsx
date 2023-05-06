@@ -10,7 +10,7 @@ import {
 import Image from "next/image"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
-import NavbarCheckbox from "./parts/NavbarCheckbox"
+import NavbarCheckbox from "../parts/NavbarCheckbox"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 
 const MixJuiceNavbar = () => {

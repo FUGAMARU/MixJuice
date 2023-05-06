@@ -1,8 +1,7 @@
-import { AppShell, Box, Text } from "@mantine/core/"
+import { Box, Text } from "@mantine/core/"
 import Head from "next/head"
-import MixJuiceHeader from "@/components/MixJuiceHeader"
-import MixJuiceNavbar from "@/components/MixJuiceNavbar"
-import Player from "@/components/parts/Player"
+import Layout from "@/components/layouts/Layout"
+import Player from "@/components/templates/Player"
 
 export default function Home() {
   return (
@@ -13,26 +12,17 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <AppShell
-          header={<MixJuiceHeader />}
-          navbar={<MixJuiceNavbar />}
-          navbarOffsetBreakpoint="sm"
-          styles={{
-            main: {
-              margin: "-1rem -1rem auto -1rem"
-            }
-          }}
-        >
-          <Box w="100%" h={{ base: "15vh", md: "25vh" }}>
-            <Player />
-          </Box>
-          <Box>メインコンテンツ</Box>
-          <Text>フォントチェック</Text>
-          <Text>Font Check</Text>
-          <Text>Alphabetと日本語のミックス</Text>
-        </AppShell>
-      </main>
+
+      <Layout>
+        <Box w="100%" h={{ base: "15vh", md: "25vh" }}>
+          <Player />
+        </Box>
+
+        <Box>メインコンテンツ</Box>
+        <Text>フォントチェック</Text>
+        <Text>Font Check</Text>
+        <Text>Alphabetと日本語のミックス</Text>
+      </Layout>
     </>
   )
 }

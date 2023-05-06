@@ -6,6 +6,7 @@
     "prettier"
   ],
   "rules": {
+    "import/no-named-as-default": 0,
     "@typescript-eslint/no-unused-vars": "off",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
