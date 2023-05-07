@@ -77,7 +77,7 @@ const MusicInfo: React.FC<Props> = ({
               </Title>
             </Marquee>
           ) : (
-            <Box h={smaller ? "1.5rem" : "2.5rem"}>
+            <Flex h={smaller ? "1.5rem" : "2.5rem"} align="center">
               <Title
                 ref={titleRef}
                 h={smaller ? "1.5rem" : "2.5rem"}
@@ -88,7 +88,7 @@ const MusicInfo: React.FC<Props> = ({
               >
                 {title}
               </Title>
-            </Box>
+            </Flex>
           )}
 
           <Space h="0.5rem" />
@@ -112,7 +112,7 @@ const MusicInfo: React.FC<Props> = ({
               </Title>
             </Marquee>
           ) : (
-            <Box h={smaller ? "1.5rem" : "2.5rem"}>
+            <Flex h={smaller ? "1.5rem" : "2.5rem"} align="center">
               <Title
                 ref={artistRef}
                 order={smaller ? 4 : 2}
@@ -122,7 +122,7 @@ const MusicInfo: React.FC<Props> = ({
               >
                 {`/ ${artist}`}
               </Title>
-            </Box>
+            </Flex>
           )}
         </Box>
       </Flex>
