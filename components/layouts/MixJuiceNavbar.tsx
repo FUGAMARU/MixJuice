@@ -9,10 +9,14 @@ import {
   Button,
   Group
 } from "@mantine/core"
+import dynamic from "next/dynamic"
 import { useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
-import NavbarCheckbox from "../parts/NavbarCheckbox"
+const NavbarCheckbox = dynamic(
+  () => import("../parts/NavbarCheckbox").then(modules => modules.default),
+  { ssr: false }
+)
 import NavbarHeading from "../parts/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import useBreakPoints from "@/hooks/useBreakPoints"
