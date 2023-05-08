@@ -25,7 +25,7 @@ const MusicInfo: React.FC<Props> = ({
 
   /** padding分を考慮したMarquee切り替えのしきい値となる幅 (文字幅がこれを超えたらMarqueeが有効になる)*/
   const marqueeThresholdWidth = useMemo(
-    () => calculatedWidth - 50,
+    () => calculatedWidth - 30,
     [calculatedWidth]
   )
 
@@ -51,12 +51,13 @@ const MusicInfo: React.FC<Props> = ({
         h="100%"
         w="100%"
         align="center"
+        justify={isTitleMarquee ? "end" : ""}
         sx={{
           backdropFilter: "blur(10px)",
           background: `linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.0) 100%)`
         }}
       >
-        <Box pl={30}>
+        <Box pl={isTitleMarquee ? 0 : 30}>
           {/** Marqueeコンポーネントは重いのでpropsによる表示の切り替えはせず必要ない場合はそもそも表示させない */}
           {isTitleMarquee ? (
             <Marquee
