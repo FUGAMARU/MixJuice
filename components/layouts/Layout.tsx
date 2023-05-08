@@ -14,6 +14,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       navbarOffsetBreakpoint="sm"
       styles={{
         main: {
+          height: "100vh",
           margin: "-1rem -1rem auto -1rem"
         }
       }}

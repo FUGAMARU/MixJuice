@@ -39,8 +39,8 @@ const Player: React.FC = () => {
         />
 
         <MusicInfo
-          title={title2}
-          artist={artist2}
+          title={title}
+          artist={artist}
           backgroundImage={artworkUrl}
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}

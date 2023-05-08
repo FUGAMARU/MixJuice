@@ -1,6 +1,7 @@
 import { Box, Text } from "@mantine/core/"
 import Head from "next/head"
 import Layout from "@/components/layouts/Layout"
+import VercelShape from "@/components/parts/VercelShape"
 import Player from "@/components/templates/Player"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
@@ -16,16 +17,21 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      {/** 背景 */}
+      <VercelShape />
+
       <Layout>
         <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
           <Player />
         </Box>
 
-        <Box>メインコンテンツ</Box>
-        <Text>フォントチェック</Text>
-        <Text>Font Check</Text>
-        <Text>Alphabetと日本語のミックス</Text>
-        {breakPoint}
+        <Box p="md">
+          <Box>メインコンテンツ</Box>
+          <Text>フォントチェック</Text>
+          <Text>Font Check</Text>
+          <Text>Alphabetと日本語のミックス</Text>
+          {breakPoint}
+        </Box>
       </Layout>
     </>
   )
