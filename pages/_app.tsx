@@ -1,11 +1,47 @@
 import "@/styles/globals.css"
 import { MantineProvider } from "@mantine/core"
 import type { AppProps } from "next/app"
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
 import { RecoilRoot } from "recoil"
 import CustomFonts from "@/components/CustomFonts"
 import "animate.css"
+import VercelShape from "@/components/parts/VercelShape"
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+  const [isLoading, setLoading] = useState(true)
+
+  /** "/"にアクセスが来た場合実体の/mainにバレないようにリダイレクトさせる */
+  useEffect(() => {
+    switch (router.pathname) {
+      case "/":
+        router.push({ pathname: "/main", query: { from: "internal" } }, "/")
+        break
+      case "/main":
+        /** URL直打ちで/mainにアクセスされた場合はローディング画面のままになってしまうので一旦"/"にリダイレクトさせてから/mainにリダイレクトさせる */
+        if (router.query.from !== "internal") {
+          router.push("/")
+        }
+        break
+    }
+  }, [router])
+
+  useEffect(() => {
+    const handleStart = () => setLoading(true)
+    const handleStop = () => setLoading(false)
+
+    router.events.on("routeChangeStart", handleStart)
+    router.events.on("routeChangeComplete", handleStop)
+    router.events.on("routeChangeError", handleStop)
+
+    return () => {
+      router.events.off("routeChangeStart", handleStart)
+      router.events.off("routeChangeComplete", handleStop)
+      router.events.off("routeChangeError", handleStop)
+    }
+  }, [router])
+
   return (
     <RecoilRoot>
       <MantineProvider
@@ -53,7 +89,11 @@ export default function App({ Component, pageProps }: AppProps) {
         }}
       >
         <CustomFonts />
-        <Component {...pageProps} />
+
+        {/** 背景 */}
+        <VercelShape />
+
+        {isLoading ? <h1>Now Loading!!!</h1> : <Component {...pageProps} />}
       </MantineProvider>
     </RecoilRoot>
   )
