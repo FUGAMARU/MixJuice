@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { RecoilRoot } from "recoil"
 import CustomFonts from "@/components/CustomFonts"
 import "animate.css"
+import LoadingAnimation from "@/components/parts/LoadingAnimation"
 import VercelShape from "@/components/parts/VercelShape"
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -93,7 +94,7 @@ export default function App({ Component, pageProps }: AppProps) {
         {/** 背景 */}
         <VercelShape />
 
-        {isLoading ? <h1>Now Loading!!!</h1> : <Component {...pageProps} />}
+        {isLoading ? <LoadingAnimation /> : <Component {...pageProps} />}
       </MantineProvider>
     </RecoilRoot>
   )
