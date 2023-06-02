@@ -1,6 +1,7 @@
 import { Box, Text } from "@mantine/core/"
 import Head from "next/head"
 import Layout from "@/components/layouts/Layout"
+import MusicList from "@/components/templates/MusicList"
 import Player from "@/components/templates/Player"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
@@ -19,6 +20,10 @@ const Main = () => {
       <Layout>
         <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
           <Player />
+        </Box>
+
+        <Box w="100%" pt="md">
+          <MusicList />
         </Box>
 
         <Box p="md">
