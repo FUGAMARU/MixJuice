@@ -41,6 +41,7 @@ const MusicDetail: React.FC<Props> = ({ idx, artworkSrc, title, artist }) => {
         <Text
           fw={700}
           fz={setRespVal("1.1rem", "1.2rem", "1.2rem")}
+          lh={setRespVal("1.4rem", "1.5rem", "1.5rem")}
           sx={{
             overflow: "hidden",
             whiteSpace: "nowrap",
@@ -52,6 +53,7 @@ const MusicDetail: React.FC<Props> = ({ idx, artworkSrc, title, artist }) => {
 
         <Text
           fz={setRespVal("0.75rem", "0.85rem", "0.85rem")}
+          lh={setRespVal("1.4rem", "1.5rem", "1.5rem")}
           sx={{
             overflow: "hidden",
             whiteSpace: "nowrap",
