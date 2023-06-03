@@ -3,7 +3,7 @@ import { useElementSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import AlbumArtwork from "../parts/AlbumArtwork"
 import MusicInfo from "../parts/MusicInfo"
-import useBreakPoints from "@/hooks/useBreakPoints"
+import useBreakPoints from "@/app/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 
 const Player: React.FC = () => {

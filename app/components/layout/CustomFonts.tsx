@@ -1,3 +1,5 @@
+"use client"
+
 import { Global } from "@mantine/core"
 import React from "react"
 

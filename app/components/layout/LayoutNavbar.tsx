@@ -19,12 +19,12 @@ const NavbarCheckbox = dynamic(
 )*/
 import NavbarCheckbox from "../parts/NavbarCheckbox"
 import NavbarHeading from "../parts/NavbarHeading"
-import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import useBreakPoints from "@/hooks/useBreakPoints"
-import useTouchDevice from "@/hooks/useTouchDevice"
+import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
+import useBreakPoints from "@/app/hooks/useBreakPoints"
+import useTouchDevice from "@/app/hooks/useTouchDevice"
 import { Playlist } from "@/types/Playlist"
 
-const MixJuiceNavbar = () => {
+const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
   const { breakPoint } = useBreakPoints()
   const navbarWidth = useMemo(() => {
@@ -207,4 +207,4 @@ const MixJuiceNavbar = () => {
   )
 }
 
-export default MixJuiceNavbar
+export default LayoutNavbar

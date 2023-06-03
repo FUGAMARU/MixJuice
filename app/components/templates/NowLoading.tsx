@@ -1,7 +1,7 @@
 import Image from "next/image"
-import styles from "@/styles/LoadingAnimation.module.css"
+import styles from "@/styles/NowLoading.module.css"
 
-const LoadingAnimation: React.FC = () => {
+const NowLoading: React.FC = () => {
   return (
     <div className={styles.container}>
       <Image
@@ -15,4 +15,4 @@ const LoadingAnimation: React.FC = () => {
   )
 }
 
-export default LoadingAnimation
+export default NowLoading

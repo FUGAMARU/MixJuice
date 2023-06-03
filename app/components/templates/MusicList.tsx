@@ -1,4 +1,4 @@
-import { Divider, Stack } from "@mantine/core"
+import { Box, Divider, Stack } from "@mantine/core"
 import MusicDetail from "../parts/MusicDetail"
 
 const MusicList: React.FC = () => {
@@ -38,10 +38,10 @@ const MusicList: React.FC = () => {
   ]
 
   return (
-    <Stack w="100%" px="sm" spacing={0}>
+    <Stack px="sm" spacing={0}>
       {sampleData.map((data, idx) => {
         return (
-          <>
+          <Box key={idx}>
             {idx !== 0 && <Divider my="xs" />}
 
             <MusicDetail
@@ -50,7 +50,7 @@ const MusicList: React.FC = () => {
               title={data.title}
               artist={data.artist}
             />
-          </>
+          </Box>
         )
       })}
     </Stack>

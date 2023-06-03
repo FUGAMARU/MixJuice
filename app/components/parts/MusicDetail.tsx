@@ -1,6 +1,6 @@
 import { Box, Flex, Space, Text } from "@mantine/core"
 import Image from "next/image"
-import useBreakPoints from "@/hooks/useBreakPoints"
+import useBreakPoints from "@/app/hooks/useBreakPoints"
 
 type Props = {
   idx: number

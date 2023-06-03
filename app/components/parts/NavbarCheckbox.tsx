@@ -1,5 +1,5 @@
 import { Checkbox } from "@mantine/core"
-import useTouchDevice from "@/hooks/useTouchDevice"
+import useTouchDevice from "@/app/hooks/useTouchDevice"
 
 type Props = {
   id: string

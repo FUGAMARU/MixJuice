@@ -2,9 +2,9 @@ import { Box, Burger, Flex, Header, MediaQuery, Space } from "@mantine/core"
 import Image from "next/image"
 import { useCallback } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
-import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
 
-const MixJuiceHeader: React.FC = () => {
+const LayoutHeader: React.FC = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
 
@@ -53,4 +53,4 @@ const MixJuiceHeader: React.FC = () => {
   )
 }
 
-export default MixJuiceHeader
+export default LayoutHeader

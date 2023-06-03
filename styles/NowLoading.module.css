@@ -12,6 +12,10 @@
   align-items: center;
 }
 
+.container .fadeout {
+  animation: fadeout 0.5s ease-in-out forwards;
+}
+
 .container p {
   font-family: "seanbecker";
   color: #424242;
