@@ -15,12 +15,16 @@ type Props = {
 const Curtain: React.FC<Props> = ({ children }) => {
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")
+  const [isDisplay, setIsDisplay] = useState(true)
 
   useEffect(() => {
     ;(async () => {
       if (!isLoading) {
         await new Promise(resolve => setTimeout(resolve, 1500))
         setClassName("animate__animated animate__fadeOut")
+
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setIsDisplay(false)
       }
     })()
   }, [isLoading])
@@ -29,6 +33,7 @@ const Curtain: React.FC<Props> = ({ children }) => {
     <>
       <Box
         className={className}
+        display={isDisplay ? "block" : "none"}
         w="100%"
         h="100%"
         pos="absolute"
