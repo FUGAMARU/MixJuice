@@ -1,12 +1,14 @@
 import { Box, Burger, Flex, Header, MediaQuery, Space } from "@mantine/core"
 import Image from "next/image"
 import { useCallback } from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { connectAtom } from "@/app/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
 
 const LayoutHeader: React.FC = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
+  const isConnectPage = useRecoilValue(connectAtom)
 
   const handleBurgerClick = useCallback(() => {
     const prefix = "animate__animated animate__faster"
@@ -29,15 +31,17 @@ const LayoutHeader: React.FC = () => {
     >
       <Flex h="100%" px="lg" align="center" justify="space-between">
         <Box w="1.8rem">
-          <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-            <Burger
-              opened={isNavbarOpened}
-              onClick={handleBurgerClick}
-              size="sm"
-              color="#424242"
-              mr="xl"
-            />
-          </MediaQuery>
+          {!isConnectPage && (
+            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+              <Burger
+                opened={isNavbarOpened}
+                onClick={handleBurgerClick}
+                size="sm"
+                color="#424242"
+                mr="xl"
+              />
+            </MediaQuery>
+          )}
         </Box>
 
         <Image

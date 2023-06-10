@@ -1,11 +1,13 @@
 "use client"
 
 import { AppShell, Box } from "@mantine/core"
+import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
-import { useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import NowLoading from "../templates/NowLoading"
 import LayoutHeader from "./LayoutHeader"
 import LayoutNavbar from "./LayoutNavbar"
+import { connectAtom } from "@/app/atoms/connectAtom"
 import { loadingAtom } from "@/app/atoms/loadingAtom"
 
 type Props = {
@@ -13,6 +15,12 @@ type Props = {
 }
 
 const Curtain: React.FC<Props> = ({ children }) => {
+  const pathname = usePathname()
+  const [isConnectPage, setIsConnectPage] = useRecoilState(connectAtom)
+  useEffect(() => {
+    if (pathname === "/connect") setIsConnectPage(true)
+  }, [pathname, setIsConnectPage])
+
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")
   const [isDisplay, setIsDisplay] = useState(true)
@@ -49,7 +57,7 @@ const Curtain: React.FC<Props> = ({ children }) => {
 
       <AppShell
         header={<LayoutHeader />}
-        navbar={<LayoutNavbar />}
+        navbar={isConnectPage ? <></> : <LayoutNavbar />}
         navbarOffsetBreakpoint="sm"
         styles={{
           main: {
