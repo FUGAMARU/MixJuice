@@ -61,8 +61,9 @@ const Curtain: React.FC<Props> = ({ children }) => {
         navbarOffsetBreakpoint="sm"
         styles={{
           main: {
-            height: "100vh",
-            margin: "-1rem -1rem auto -1rem"
+            minHeight: "calc(100dvh + 15px)", // px指定の部分はLayoutNavbarのpaddingと一致させる
+            margin: "-1rem -1rem 0 -1rem",
+            background: "linear-gradient(to bottom, #ffffff, #d6dbdc)"
           }
         }}
       >

@@ -84,7 +84,7 @@ const LayoutNavbar = () => {
       className={navbarClassName}
       width={{ base: navbarWidth }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
-      p="sm"
+      p="15px" // AppShellのstyles.heightで使っている値と一致させる
       zIndex={10}
       hiddenBreakpoint="sm"
       hidden={!isOpened}
