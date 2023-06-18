@@ -17,8 +17,8 @@ const NavbarCheckbox = dynamic(
   () => import("../parts/NavbarCheckbox").then(modules => modules.default),
   { ssr: false }
 )*/
-import NavbarCheckbox from "../parts/NavbarCheckbox"
-import NavbarHeading from "../parts/NavbarHeading"
+import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
+import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
 import useBreakPoints from "@/app/hooks/useBreakPoints"
 import useTouchDevice from "@/app/hooks/useTouchDevice"
