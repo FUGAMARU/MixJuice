@@ -10,7 +10,6 @@ const WebDAVConnector: React.FC<Props> = ({ className }) => {
       className={className}
       w="100%"
       h="100%"
-      justify="center"
       align="center"
       bg="grape"
       sx={{

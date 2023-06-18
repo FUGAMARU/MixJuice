@@ -14,8 +14,7 @@ const SpotifyConnector: React.FC<Props> = ({ className, onBack }) => {
       className={className}
       w="100%"
       h="100%"
-      justify="start"
-      align="start"
+      align="center"
       sx={{
         animationTimingFunction: "ease-out"
       }}
