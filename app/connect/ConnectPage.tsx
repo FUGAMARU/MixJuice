@@ -1,18 +1,58 @@
 "use client"
 
-import { Box, Button, Flex, Text, Title } from "@mantine/core"
-import Image from "next/image"
-import { useEffect } from "react"
+import { Box, Flex } from "@mantine/core"
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState
+} from "react"
 import { useSetRecoilState } from "recoil"
 import { loadingAtom } from "../atoms/loadingAtom"
 import useBreakPoints from "../hooks/useBreakPoints"
+import ProviderSelector from "./views/ProviderSelector"
+import SpotifyConnector from "./views/SpotifyConnector"
+import WebDAVConnector from "./views/WebDAVConnector"
 
 const ConnectPage = () => {
-  const setIsLoading = useSetRecoilState(loadingAtom)
   const { setRespVal } = useBreakPoints()
+
+  const setIsLoading = useSetRecoilState(loadingAtom)
   useEffect(() => {
     setIsLoading(false)
   }, [setIsLoading])
+
+  const [isDisplayProviderSelector, setIsDisplayProviderSelector] =
+    useState(true)
+  const [isDisplaySpotifyConnector, setIsDisplaySpotifyConnector] =
+    useState(false)
+  const [isDisplayWebDAVConnector, setIsDisplayWebDAVConnector] =
+    useState(false)
+
+  const [providerSelectorClassName, setProviderSelectorClassName] = useState("")
+  const [spotifyConnectorClassName, setSpotifyConnectorClassName] = useState("")
+  const [webDAVConnectorClassName, setWebDAVConnectorClassName] = useState("")
+
+  // 接続先選択画面から各種サービス接続画面への遷移
+  const handleShowConnector = useCallback(
+    async (
+      classNameDispatcher: Dispatch<SetStateAction<string>>,
+      displayDispatcher: Dispatch<SetStateAction<boolean>>
+    ) => {
+      setProviderSelectorClassName(
+        "animate__animated animate__slideOutLeft animate__fast"
+      )
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setIsDisplayProviderSelector(false)
+
+      classNameDispatcher(
+        "animate__animated animate__slideInRight animate__fast"
+      )
+      displayDispatcher(true)
+    },
+    []
+  )
 
   return (
     <Flex h="100%" align="center" justify="center">
@@ -23,50 +63,37 @@ const ConnectPage = () => {
         bg="white"
         ta="center"
         sx={{
-          border: "solid",
-          borderWidth: "1px",
-          borderColor: "rgba(0, 0, 0, 0.1)",
-          borderRadius: "5px"
+          border: "solid 1px rgba(0, 0, 0, 0.1)",
+          borderRadius: "5px",
+          overflow: "hidden"
         }}
       >
-        <Flex w="100%" h="100%" justify="center" align="center">
-          <Box>
-            <Title size={setRespVal("1.2rem", "1.4rem", "1.4rem")}>
-              どのサービスと接続しますか？
-            </Title>
-            <Text size={setRespVal("0.8rem", "0.9rem", "0.9rem")}>
-              MixJuiceと関連サービスを紐づけましょう！
-            </Text>
+        <ProviderSelector
+          className={providerSelectorClassName}
+          isDisplay={isDisplayProviderSelector}
+          onShowSpotifyConnector={() =>
+            handleShowConnector(
+              setSpotifyConnectorClassName,
+              setIsDisplaySpotifyConnector
+            )
+          }
+          onShowWebDAVConnector={() =>
+            handleShowConnector(
+              setWebDAVConnectorClassName,
+              setIsDisplayWebDAVConnector
+            )
+          }
+        />
 
-            <Flex w="100%" mt="2rem" justify="space-around">
-              <Box>
-                <Image
-                  src="/spotify-logo.png"
-                  width={50}
-                  height={50}
-                  alt="spotify-logo"
-                />
-                <Title order={5}>Spotify</Title>
-                <Button mt="xs" color="spotify" variant="outline" size="xs">
-                  接続する
-                </Button>
-              </Box>
+        <SpotifyConnector
+          className={spotifyConnectorClassName}
+          isDisplay={isDisplaySpotifyConnector}
+        />
 
-              <Box>
-                <Image
-                  src="/server-icon.svg"
-                  width={50}
-                  height={50}
-                  alt="webdav-logo"
-                />
-                <Title order={5}>WebDav</Title>
-                <Button mt="xs" color="grape" variant="outline" size="xs">
-                  接続する
-                </Button>
-              </Box>
-            </Flex>
-          </Box>
-        </Flex>
+        <WebDAVConnector
+          className={webDAVConnectorClassName}
+          isDisplay={isDisplayWebDAVConnector}
+        />
       </Box>
     </Flex>
   )

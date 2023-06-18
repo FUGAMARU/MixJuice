@@ -16,7 +16,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="description"
-          content="Integrated music playback environment with Spotify and WebDav servers as resources."
+          content="Integrated music playback environment with Spotify and WebDAV servers as resources."
         />
       </head>
 

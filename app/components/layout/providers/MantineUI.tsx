@@ -49,7 +49,8 @@ const MantineUI: React.FC<Props> = ({ children }) => {
           ]
         },
         colorScheme: "light",
-        fontFamily: "NotoSansJP, GreycliffCF, Kazesawa"
+        fontFamily: "NotoSansJP, GreycliffCF, Kazesawa",
+        respectReducedMotion: false
       }}
     >
       {children}

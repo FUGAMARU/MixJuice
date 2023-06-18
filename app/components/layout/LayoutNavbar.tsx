@@ -161,7 +161,7 @@ const LayoutNavbar = () => {
 
         <NavbarHeading
           icon="/server-icon.svg"
-          provider="WebDav"
+          provider="WebDAV"
           onClick={handleProviderCheckboxControllerClicked}
         />
 
