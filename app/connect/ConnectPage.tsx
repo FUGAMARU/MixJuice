@@ -34,22 +34,39 @@ const ConnectPage = () => {
   const [spotifyConnectorClassName, setSpotifyConnectorClassName] = useState("")
   const [webDAVConnectorClassName, setWebDAVConnectorClassName] = useState("")
 
-  // 接続先選択画面から各種サービス接続画面への遷移
-  const handleShowConnector = useCallback(
+  // スライドによる画面遷移
+  const handleSlide = useCallback(
     async (
+      direction: "go" | "back",
       classNameDispatcher: Dispatch<SetStateAction<string>>,
       displayDispatcher: Dispatch<SetStateAction<boolean>>
     ) => {
-      setProviderSelectorClassName(
-        "animate__animated animate__slideOutLeft animate__fast"
-      )
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setIsDisplayProviderSelector(false)
+      switch (direction) {
+        case "go":
+          setProviderSelectorClassName(
+            "animate__animated animate__fadeOutLeft animate__fast"
+          )
+          await new Promise(resolve => setTimeout(resolve, 600))
+          setIsDisplayProviderSelector(false)
 
-      classNameDispatcher(
-        "animate__animated animate__slideInRight animate__fast"
-      )
-      displayDispatcher(true)
+          classNameDispatcher(
+            "animate__animated animate__slideInRight animate__fast"
+          )
+          displayDispatcher(true)
+          break
+        case "back":
+          classNameDispatcher(
+            "animate__animated animate__fadeOutRight animate__fast"
+          )
+          await new Promise(resolve => setTimeout(resolve, 600))
+          displayDispatcher(false)
+
+          setProviderSelectorClassName(
+            "animate__animated animate__slideInLeft animate__fast"
+          )
+          setIsDisplayProviderSelector(true)
+          break
+      }
     },
     []
   )
@@ -59,7 +76,8 @@ const ConnectPage = () => {
       <Box
         h="30rem"
         w={setRespVal("85%", "30rem", "30rem")}
-        p="md"
+        px="xl"
+        py="md"
         bg="white"
         ta="center"
         sx={{
@@ -72,13 +90,15 @@ const ConnectPage = () => {
           className={providerSelectorClassName}
           isDisplay={isDisplayProviderSelector}
           onShowSpotifyConnector={() =>
-            handleShowConnector(
+            handleSlide(
+              "go",
               setSpotifyConnectorClassName,
               setIsDisplaySpotifyConnector
             )
           }
           onShowWebDAVConnector={() =>
-            handleShowConnector(
+            handleSlide(
+              "go",
               setWebDAVConnectorClassName,
               setIsDisplayWebDAVConnector
             )
@@ -88,6 +108,13 @@ const ConnectPage = () => {
         <SpotifyConnector
           className={spotifyConnectorClassName}
           isDisplay={isDisplaySpotifyConnector}
+          onBack={() =>
+            handleSlide(
+              "back",
+              setSpotifyConnectorClassName,
+              setIsDisplaySpotifyConnector
+            )
+          }
         />
 
         <WebDAVConnector
