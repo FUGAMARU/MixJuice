@@ -105,22 +105,22 @@ const ConnectPage = () => {
           }
         />
 
-        <SpotifyConnector
-          className={spotifyConnectorClassName}
-          isDisplay={isDisplaySpotifyConnector}
-          onBack={() =>
-            handleSlide(
-              "back",
-              setSpotifyConnectorClassName,
-              setIsDisplaySpotifyConnector
-            )
-          }
-        />
+        {isDisplaySpotifyConnector && (
+          <SpotifyConnector
+            className={spotifyConnectorClassName}
+            onBack={() =>
+              handleSlide(
+                "back",
+                setSpotifyConnectorClassName,
+                setIsDisplaySpotifyConnector
+              )
+            }
+          />
+        )}
 
-        <WebDAVConnector
-          className={webDAVConnectorClassName}
-          isDisplay={isDisplayWebDAVConnector}
-        />
+        {isDisplayWebDAVConnector && (
+          <WebDAVConnector className={webDAVConnectorClassName} />
+        )}
       </Box>
     </Flex>
   )

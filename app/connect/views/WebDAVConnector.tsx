@@ -2,10 +2,9 @@ import { Flex } from "@mantine/core"
 
 type Props = {
   className?: string
-  isDisplay?: boolean
 }
 
-const WebDAVConnector: React.FC<Props> = ({ className, isDisplay = true }) => {
+const WebDAVConnector: React.FC<Props> = ({ className }) => {
   return (
     <Flex
       className={className}
@@ -15,7 +14,6 @@ const WebDAVConnector: React.FC<Props> = ({ className, isDisplay = true }) => {
       align="center"
       bg="grape"
       sx={{
-        display: isDisplay ? "flex" : "none",
         animationTimingFunction: "ease-out"
       }}
     >

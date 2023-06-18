@@ -5,15 +5,10 @@ import CircleStep from "@/app/components/parts/CircleStep"
 
 type Props = {
   className?: string
-  isDisplay?: boolean
   onBack: () => void
 }
 
-const SpotifyConnector: React.FC<Props> = ({
-  className,
-  isDisplay = true,
-  onBack
-}) => {
+const SpotifyConnector: React.FC<Props> = ({ className, onBack }) => {
   return (
     <Flex
       className={className}
@@ -22,7 +17,6 @@ const SpotifyConnector: React.FC<Props> = ({
       justify="start"
       align="start"
       sx={{
-        display: isDisplay ? "flex" : "none",
         animationTimingFunction: "ease-out"
       }}
     >
