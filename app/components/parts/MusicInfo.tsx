@@ -11,13 +11,13 @@ type Props = {
   calculatedWidth: number
 }
 
-const MusicInfo: React.FC<Props> = ({
+const MusicInfo = ({
   title,
   artist,
   backgroundImage,
   smaller,
   calculatedWidth
-}) => {
+}: Props) => {
   const { ref: titleRef, width: titleWidth } =
     useElementSize<HTMLHeadingElement>()
   const { ref: artistRef, width: artistWidth } =

@@ -1,7 +1,7 @@
 import { Box, Divider, Stack } from "@mantine/core"
 import MusicDetail from "../parts/MusicDetail"
 
-const MusicList: React.FC = () => {
+const MusicList = () => {
   const sampleData = [
     {
       artworkSrc:

@@ -9,12 +9,12 @@ type Props = {
   onShowWebDAVConnector: () => void
 }
 
-const ProviderSelector: React.FC<Props> = ({
+const ProviderSelector = ({
   className,
   isDisplay = true,
   onShowSpotifyConnector,
   onShowWebDAVConnector
-}) => {
+}: Props) => {
   const { setRespVal } = useBreakPoints()
 
   return (

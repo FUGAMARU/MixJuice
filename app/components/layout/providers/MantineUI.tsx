@@ -6,7 +6,7 @@ type Props = {
   children: React.ReactNode
 }
 
-const MantineUI: React.FC<Props> = ({ children }) => {
+const MantineUI = ({ children }: Props) => {
   return (
     <MantineProvider
       withGlobalStyles

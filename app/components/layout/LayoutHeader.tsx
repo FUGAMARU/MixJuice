@@ -5,7 +5,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/app/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
 
-const LayoutHeader: React.FC = () => {
+const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
   const isConnectPage = useRecoilValue(connectAtom)

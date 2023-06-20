@@ -10,13 +10,7 @@ type Props = {
   onClick: (id: string) => void
 }
 
-const NavbarCheckbox: React.FC<Props> = ({
-  id,
-  label,
-  color,
-  checked,
-  onClick
-}) => {
+const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
   const { isTouchDevice } = useTouchDevice()
 
   return (

@@ -3,7 +3,7 @@
 import { Global } from "@mantine/core"
 import React from "react"
 
-const CustomFonts: React.FC = () => {
+const CustomFonts = () => {
   return (
     <Global
       styles={[

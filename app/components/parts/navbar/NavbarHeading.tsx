@@ -9,7 +9,7 @@ type Props = {
   onClick: (provider: string, to: boolean) => void
 }
 
-const NavbarHeading: React.FC<Props> = ({ icon, provider, onClick }) => {
+const NavbarHeading = ({ icon, provider, onClick }: Props) => {
   return (
     <Flex align="center" justify="space-between">
       <Flex align="end">

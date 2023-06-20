@@ -4,7 +4,7 @@ type Props = {
   className?: string
 }
 
-const WebDAVConnector: React.FC<Props> = ({ className }) => {
+const WebDAVConnector = ({ className }: Props) => {
   return (
     <Flex
       className={className}

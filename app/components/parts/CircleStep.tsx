@@ -4,7 +4,7 @@ type Props = {
   step: number
 }
 
-const CircleStep: React.FC<Props> = ({ step }) => {
+const CircleStep = ({ step }: Props) => {
   return (
     <Flex
       w="2rem"

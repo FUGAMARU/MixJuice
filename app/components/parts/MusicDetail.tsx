@@ -9,7 +9,7 @@ type Props = {
   artist: string
 }
 
-const MusicDetail: React.FC<Props> = ({ idx, artworkSrc, title, artist }) => {
+const MusicDetail = ({ idx, artworkSrc, title, artist }: Props) => {
   const { setRespVal } = useBreakPoints()
 
   return (

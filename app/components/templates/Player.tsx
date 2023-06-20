@@ -6,7 +6,7 @@ import MusicInfo from "../parts/MusicInfo"
 import useBreakPoints from "@/app/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 
-const Player: React.FC = () => {
+const Player = () => {
   const { breakPoint } = useBreakPoints()
   const {
     ref: containerRef,

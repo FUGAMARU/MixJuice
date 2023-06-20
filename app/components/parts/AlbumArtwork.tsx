@@ -10,7 +10,7 @@ type Props = {
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
 }
 
-const AlbumArtwork: React.FC<Props> = ({ size, src, smaller }) => {
+const AlbumArtwork = ({ size, src, smaller }: Props) => {
   /** プレイヤーコントロールホバー時アニメーション管理 */
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
   const [isPlayerControlShown, setPlayerControlShown] = useState(false)

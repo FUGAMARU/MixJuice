@@ -6,7 +6,7 @@ type Props = {
   children: React.ReactNode
 }
 
-const Recoil: React.FC<Props> = ({ children }) => {
+const Recoil = ({ children }: Props) => {
   return <RecoilRoot>{children}</RecoilRoot>
 }
 

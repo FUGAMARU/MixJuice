@@ -8,7 +8,7 @@ type Props = {
   onBack: () => void
 }
 
-const SpotifyConnector: React.FC<Props> = ({ className, onBack }) => {
+const SpotifyConnector = ({ className, onBack }: Props) => {
   return (
     <Flex
       className={className}

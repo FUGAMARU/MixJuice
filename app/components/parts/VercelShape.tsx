@@ -1,6 +1,6 @@
 import styles from "@/styles/VercelShape.module.css"
 
-const VercelShape: React.FC = () => {
+const VercelShape = () => {
   return (
     <div className={styles.container}>
       <div className={styles.shape1} />

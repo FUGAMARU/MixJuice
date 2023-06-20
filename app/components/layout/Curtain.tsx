@@ -14,7 +14,7 @@ type Props = {
   children: React.ReactNode
 }
 
-const Curtain: React.FC<Props> = ({ children }) => {
+const Curtain = ({ children }: Props) => {
   const pathname = usePathname()
   const [isConnectPage, setIsConnectPage] = useRecoilState(connectAtom)
   useEffect(() => {
