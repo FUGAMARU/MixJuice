@@ -1,9 +1,9 @@
 import { Box, Flex } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
 import { useMemo } from "react"
-import AlbumArtwork from "../parts/AlbumArtwork"
-import MusicInfo from "../parts/MusicInfo"
-import useBreakPoints from "@/app/hooks/useBreakPoints"
+import AlbumArtwork from "../../components/parts/AlbumArtwork"
+import MusicInfo from "../../components/parts/MusicInfo"
+import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 
 const Player = () => {

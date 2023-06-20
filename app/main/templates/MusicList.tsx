@@ -1,5 +1,5 @@
 import { Box, Divider, Stack } from "@mantine/core"
-import MusicDetail from "../parts/MusicDetail"
+import MusicDetail from "../../components/parts/MusicDetail"
 
 const MusicList = () => {
   const sampleData = [

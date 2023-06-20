@@ -9,11 +9,11 @@ import {
   useState
 } from "react"
 import { useSetRecoilState } from "recoil"
-import { loadingAtom } from "../atoms/loadingAtom"
-import useBreakPoints from "../hooks/useBreakPoints"
 import ProviderSelector from "./views/ProviderSelector"
 import SpotifyConnector from "./views/SpotifyConnector"
 import WebDAVConnector from "./views/WebDAVConnector"
+import { loadingAtom } from "@/atoms/loadingAtom"
+import useBreakPoints from "@/hooks/useBreakPoints"
 
 const ConnectPage = () => {
   const { setRespVal } = useBreakPoints()

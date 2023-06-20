@@ -11,6 +11,14 @@ const nextConfig = {
       "is1-ssl.mzstatic.com",
       "ro69-bucket.s3.amazonaws.com"
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/",
+        destination: "/main"
+      }
+    ]
   }
 }
 

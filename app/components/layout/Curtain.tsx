@@ -4,11 +4,11 @@ import { AppShell, Box } from "@mantine/core"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
-import NowLoading from "../templates/NowLoading"
 import LayoutHeader from "./LayoutHeader"
 import LayoutNavbar from "./LayoutNavbar"
-import { connectAtom } from "@/app/atoms/connectAtom"
-import { loadingAtom } from "@/app/atoms/loadingAtom"
+import NowLoading from "./NowLoading"
+import { connectAtom } from "@/atoms/connectAtom"
+import { loadingAtom } from "@/atoms/loadingAtom"
 
 type Props = {
   children: React.ReactNode

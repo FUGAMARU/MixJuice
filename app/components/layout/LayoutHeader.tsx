@@ -2,8 +2,8 @@ import { Box, Burger, Flex, Header, MediaQuery, Space } from "@mantine/core"
 import Image from "next/image"
 import { useCallback } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { connectAtom } from "@/app/atoms/connectAtom"
-import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
+import { connectAtom } from "@/atoms/connectAtom"
+import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)

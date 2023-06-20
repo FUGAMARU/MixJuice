@@ -1,6 +1,6 @@
 import { Flex, Box, Title, Button, Text } from "@mantine/core"
 import Image from "next/image"
-import useBreakPoints from "@/app/hooks/useBreakPoints"
+import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
   className?: string

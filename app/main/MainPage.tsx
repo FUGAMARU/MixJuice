@@ -3,10 +3,10 @@
 import { Box, Text } from "@mantine/core"
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
-import { loadingAtom } from "./atoms/loadingAtom"
-import MusicList from "@/app/components/templates/MusicList"
-import Player from "@/app/components/templates/Player"
-import useBreakPoints from "@/app/hooks/useBreakPoints"
+import { loadingAtom } from "../../atoms/loadingAtom"
+import MusicList from "@/app/main/templates/MusicList"
+import Player from "@/app/main/templates/Player"
+import useBreakPoints from "@/hooks/useBreakPoints"
 
 const MainPage = () => {
   const { breakPoint, setRespVal } = useBreakPoints()

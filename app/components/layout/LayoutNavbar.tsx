@@ -19,9 +19,9 @@ const NavbarCheckbox = dynamic(
 )*/
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
-import { navbarAtom, navbarClassNameAtom } from "@/app/atoms/navbarAtom"
-import useBreakPoints from "@/app/hooks/useBreakPoints"
-import useTouchDevice from "@/app/hooks/useTouchDevice"
+import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import useBreakPoints from "@/hooks/useBreakPoints"
+import useTouchDevice from "@/hooks/useTouchDevice"
 import { Playlist } from "@/types/Playlist"
 
 const LayoutNavbar = () => {
