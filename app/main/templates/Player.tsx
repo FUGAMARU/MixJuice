@@ -1,8 +1,10 @@
 import { Box, Flex } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
+import { useSetRecoilState } from "recoil"
 import AlbumArtwork from "../../components/parts/AlbumArtwork"
 import MusicInfo from "../../components/parts/MusicInfo"
+import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 
@@ -13,6 +15,11 @@ const Player = () => {
     height: containerHeight,
     width: containerWidth
   } = useElementSize()
+
+  const setPlayerHeight = useSetRecoilState(playerHeightAtom)
+  useEffect(() => {
+    setPlayerHeight(containerHeight)
+  }, [containerHeight, setPlayerHeight])
 
   /** 横幅がタブレットサイズ以上か */
   const isSmallerThanTablet = useMemo(

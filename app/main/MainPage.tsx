@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Text } from "@mantine/core"
+import { Box } from "@mantine/core"
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
@@ -22,15 +22,22 @@ const MainPage = () => {
         <Player />
       </Box>
 
-      <Box w="100%" pt="md">
+      <Box w="100%">
         <MusicList />
       </Box>
 
-      <Box p="md">
-        <Box>メインコンテンツ</Box>
-        <Text>フォントチェック</Text>
-        <Text>Font Check</Text>
-        <Text>Alphabetと日本語のミックス</Text>
+      <Box
+        w="6rem"
+        p="xs"
+        ta="center"
+        pos="absolute"
+        bottom={15}
+        right={15}
+        bg="white"
+        c="#0a83ff"
+        fz="xs"
+        sx={{ borderRadius: "20px", boxShadow: "0 0 4px rgba(0, 0, 0, 0.2);" }}
+      >
         {breakPoint}
       </Box>
     </>

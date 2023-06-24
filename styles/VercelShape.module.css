@@ -12,10 +12,6 @@
 }
 
 .shape1 {
-  /*position: absolute;
-  top: 50%;
-  right: 0;
-  z-index: -1;*/
   width: 25rem;
   height: 21rem;
   border-radius: 50%;
@@ -24,10 +20,6 @@
 }
 
 .shape2 {
-  /*position: absolute;
-  top: 50%;
-  right: 5rem;
-  z-index: 1;*/
   width: 15rem;
   height: 11rem;
   background: conic-gradient(

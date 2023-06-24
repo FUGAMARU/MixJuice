@@ -1,13 +1,14 @@
 import "@/styles/globals.css"
 import "animate.css"
 import Curtain from "./components/layout/Curtain"
+import VercelShape from "./components/layout/VercelShape"
 import MantineUI from "./components/layout/providers/MantineUI"
 import Recoil from "./components/layout/providers/Recoil"
 import CustomFonts from "@/app/components/layout/CustomFonts"
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="ja">
+    <html lang="ja" style={{ overflowY: "hidden" }}>
       <head>
         <title>MixJuice</title>
         <link rel="icon" href="/favicon.ico" />
@@ -26,10 +27,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
             <CustomFonts />
 
             {/** 背景 */}
-            {/*<VercelShape />*/}
-
-            {/*<div className={styles.shape1} />
-            <div className={styles.shape2} />*/}
+            <VercelShape />
 
             <Curtain>{children}</Curtain>
           </MantineUI>
