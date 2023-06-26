@@ -39,6 +39,8 @@ export const getAccessToken = async (code: string) => {
     code_verifier: codeVerifier
   } = JSON.parse(tmp)
 
+  localStorage.setItem("spotify_client_id", clientId)
+
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code: code,

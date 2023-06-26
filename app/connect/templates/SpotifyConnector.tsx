@@ -26,7 +26,6 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   }, [])
 
   const handleSigninButtonClick = useCallback(async () => {
-    localStorage.setItem("spotify_client_id", clientId)
     const args = await getCode(clientId, redirectUri)
     router.push(`https://accounts.spotify.com/authorize?${args}`)
   }, [clientId, redirectUri, router])
