@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react"
 import { IoIosArrowBack } from "react-icons/io"
 import CircleStep from "@/app/components/parts/CircleStep"
 
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { getCode } from "@/utils/spotify-api"
 
@@ -33,7 +34,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const [isPlaylistSelectButtonDisabled, setIsPlaylistSelectButtonDisabled] =
     useState(true)
   useEffect(() => {
-    const spotifyAccessToken = localStorage.getItem("spotify_access_token")
+    const spotifyAccessToken = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
+    )
     if (spotifyAccessToken) {
       // nullチェックと空文字チェックを兼ねているのでifを使っている
       setIsPlaylistSelectButtonDisabled(false)
@@ -43,7 +46,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   }, [])
 
   useEffect(() => {
-    const clientId = localStorage.getItem("spotify_client_id")
+    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
     if (clientId !== null) setClientId(clientId)
   }, [])
 

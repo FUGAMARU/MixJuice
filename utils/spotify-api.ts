@@ -1,5 +1,36 @@
 import axios from "axios"
-import { generateCodeChallenge, generateRandomString } from "@/utils/pkce"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { Pkce } from "@/types/Pkce"
+
+/** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
+
+/** Code Verifierの生成 */
+export const generateRandomString = (length: number) => {
+  let text = ""
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+  }
+  return text
+}
+
+/** Code Challengeの生成 */
+export const generateCodeChallenge = async (codeVerifier: string) => {
+  const base64urlEncode = (str: string) =>
+    btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(codeVerifier)
+  const digest = await window.crypto.subtle.digest("SHA-256", data)
+
+  return base64urlEncode(
+    Array.from(new Uint8Array(digest))
+      .map(byte => String.fromCharCode(byte))
+      .join("")
+  )
+}
 
 export const getCode = async (clientId: string, redirectUri: string) => {
   const codeVerifier = generateRandomString(128)
@@ -9,41 +40,35 @@ export const getCode = async (clientId: string, redirectUri: string) => {
   const scope =
     "user-read-private user-read-email playlist-read-private playlist-read-collaborative"
 
-  const tmp = {
-    code_verifier: codeVerifier,
-    client_id: clientId,
-    redirect_uri: redirectUri
-  }
-  localStorage.setItem("tmp", JSON.stringify(tmp))
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.PKCE_CONFIG,
+    JSON.stringify({ codeVerifier, clientId, redirectUri } as Pkce)
+  )
 
   return new URLSearchParams({
     response_type: "code",
     client_id: clientId,
-    scope: scope,
+    scope,
     redirect_uri: redirectUri,
-    state: state,
+    state,
     code_challenge_method: "S256",
     code_challenge: codeChallenge
   })
 }
 
 export const getAccessToken = async (code: string) => {
-  const tmp = localStorage.getItem("tmp")
+  const pkce = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
 
-  if (tmp === null)
+  if (pkce === null)
     throw Error("アクセストークン取得に必要な情報が存在しません")
 
-  const {
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    code_verifier: codeVerifier
-  } = JSON.parse(tmp)
+  const { clientId, redirectUri, codeVerifier } = JSON.parse(pkce) as Pkce
 
-  localStorage.setItem("spotify_client_id", clientId)
+  localStorage.setItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID, clientId)
 
   const body = new URLSearchParams({
     grant_type: "authorization_code",
-    code: code,
+    code,
     redirect_uri: redirectUri,
     client_id: clientId,
     code_verifier: codeVerifier
@@ -56,7 +81,11 @@ export const getAccessToken = async (code: string) => {
       }
     })
 
-    localStorage.setItem("spotify_access_token", res.data.access_token)
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN,
+      res.data.access_token
+    )
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
   } catch (e) {
     throw Error("アクセストークンの取得に失敗しました")
   }

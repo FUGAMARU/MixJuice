@@ -1,6 +1,7 @@
 import { Flex, Box, Title, Button, Text } from "@mantine/core"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
@@ -20,7 +21,9 @@ const ProviderSelector = ({
 
   const [isSettingUpSpotify, setIsSettingUpSpotify] = useState(false)
   useEffect(() => {
-    const spotifyAccessToken = localStorage.getItem("spotify_access_token")
+    const spotifyAccessToken = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
+    )
     // TODO: プレイリストが1つも選択されていないという条件を追加する
     if (spotifyAccessToken) {
       // nullチェックと空文字チェックを兼ねているのでifを使っている
