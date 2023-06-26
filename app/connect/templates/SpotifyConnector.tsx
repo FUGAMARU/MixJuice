@@ -2,6 +2,7 @@ import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
 import CircleStep from "@/app/components/parts/CircleStep"
 
@@ -31,18 +32,17 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     router.push(`https://accounts.spotify.com/authorize?${args}`)
   }, [clientId, redirectUri, router])
 
-  const [isPlaylistSelectButtonDisabled, setIsPlaylistSelectButtonDisabled] =
-    useState(true)
+  const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(true)
   useEffect(() => {
     const spotifyAccessToken = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
     )
     if (spotifyAccessToken) {
       // nullチェックと空文字チェックを兼ねているのでifを使っている
-      setIsPlaylistSelectButtonDisabled(false)
+      setIsSpotifySignedIn(true)
       return
     }
-    setIsPlaylistSelectButtonDisabled(true)
+    setIsSpotifySignedIn(false)
   }, [])
 
   useEffect(() => {
@@ -107,10 +107,12 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           </Title>
         </Flex>
 
-        <Box
+        <Flex
           ml="1rem"
           pl="2rem"
           py="0.2rem"
+          align="center"
+          gap="xs"
           ta="left"
           sx={{ borderLeft: "solid 1px #d1d1d1" }}
         >
@@ -123,7 +125,11 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           >
             Spotifyでサインイン
           </Button>
-        </Box>
+
+          {isSpotifySignedIn && (
+            <AiFillCheckCircle size="1.3rem" color="#2ad666" />
+          )}
+        </Flex>
 
         <Flex align="center">
           <CircleStep step={3} />
@@ -141,7 +147,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           <Button
             className={styles.transition}
             variant="outline"
-            disabled={isPlaylistSelectButtonDisabled}
+            disabled={!isSpotifySignedIn}
           >
             プレイリストを選択
           </Button>
