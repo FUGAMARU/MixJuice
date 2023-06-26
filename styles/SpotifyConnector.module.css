@@ -1,0 +1,8 @@
+.clientId input:focus {
+  outline: 0;
+  border: solid 1px #14b852;
+}
+
+.transition {
+  transition: all 0.2s ease-out;
+}

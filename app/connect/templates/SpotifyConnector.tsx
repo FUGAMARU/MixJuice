@@ -1,7 +1,12 @@
 import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 import { IoIosArrowBack } from "react-icons/io"
 import CircleStep from "@/app/components/parts/CircleStep"
+
+import styles from "@/styles/SpotifyConnector.module.css"
+import { getCode } from "@/utils/spotify-api"
 
 type Props = {
   className?: string
@@ -9,6 +14,40 @@ type Props = {
 }
 
 const SpotifyConnector = ({ className, onBack }: Props) => {
+  const router = useRouter()
+  const [clientId, setClientId] = useState("")
+
+  /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
+  const [redirectUri, setRedirectUri] = useState("")
+  useEffect(() => {
+    const currentURL = window.location.href
+    const url = new URL(currentURL)
+    setRedirectUri(`${url.protocol}//${url.host}/callback/spotify`)
+  }, [])
+
+  const handleSigninButtonClick = useCallback(async () => {
+    localStorage.setItem("spotify_client_id", clientId)
+    const args = await getCode(clientId, redirectUri)
+    router.push(`https://accounts.spotify.com/authorize?${args}`)
+  }, [clientId, redirectUri, router])
+
+  const [isPlaylistSelectButtonDisabled, setIsPlaylistSelectButtonDisabled] =
+    useState(true)
+  useEffect(() => {
+    const spotifyAccessToken = localStorage.getItem("spotify_access_token")
+    if (spotifyAccessToken) {
+      // nullチェックと空文字チェックを兼ねているのでifを使っている
+      setIsPlaylistSelectButtonDisabled(false)
+      return
+    }
+    setIsPlaylistSelectButtonDisabled(true)
+  }, [])
+
+  useEffect(() => {
+    const clientId = localStorage.getItem("spotify_client_id")
+    if (clientId !== null) setClientId(clientId)
+  }, [])
+
   return (
     <Flex
       className={className}
@@ -50,9 +89,12 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
 
         <Box ml="1rem" py="0.2rem" sx={{ borderLeft: "solid 1px #d1d1d1" }}>
           <Input
+            className={styles.clientId}
             pl="2rem"
             placeholder="例: 8a94eb5c826471928j1jfna81920k0b7"
             sx={{ boxSizing: "border-box" }}
+            value={clientId}
+            onChange={e => setClientId(e.currentTarget.value)}
           />
         </Box>
 
@@ -70,7 +112,13 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           ta="left"
           sx={{ borderLeft: "solid 1px #d1d1d1" }}
         >
-          <Button color="spotify" variant="outline">
+          <Button
+            className={styles.transition}
+            color="spotify"
+            variant="outline"
+            disabled={clientId === ""}
+            onClick={handleSigninButtonClick}
+          >
             Spotifyでサインイン
           </Button>
         </Box>
@@ -88,7 +136,13 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           py="0.2rem"
           ta="left"
         >
-          <Button variant="outline">プレイリストを選択</Button>
+          <Button
+            className={styles.transition}
+            variant="outline"
+            disabled={isPlaylistSelectButtonDisabled}
+          >
+            プレイリストを選択
+          </Button>
         </Box>
 
         <Flex

@@ -17,6 +17,14 @@ const nextConfig = {
       {
         source: "/",
         destination: "/main"
+      },
+      {
+        source: "/spotify-token",
+        destination: "https://accounts.spotify.com/api/token"
+      },
+      {
+        source: "/spotify-api/:path*",
+        destination: "https://api.spotify.com/v1/:path*"
       }
     ]
   }
