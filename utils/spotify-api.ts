@@ -1,4 +1,4 @@
-import axios, { isAxiosError } from "axios"
+import axios from "axios"
 import { generateCodeChallenge, generateRandomString } from "@/utils/pkce"
 
 export const getCode = async (clientId: string, redirectUri: string) => {
@@ -56,12 +56,6 @@ export const getAccessToken = async (code: string) => {
 
     localStorage.setItem("spotify_access_token", res.data.access_token)
   } catch (e) {
-    if (
-      isAxiosError(e) &&
-      e.response?.data.error_description === "Invalid authorization code"
-    )
-      return // 何故かアクセストークンの取得処理が2回走るので、このエラーだけはスルーする。
-
     throw Error("アクセストークンの取得に失敗しました")
   }
 }

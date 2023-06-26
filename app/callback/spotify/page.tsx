@@ -1,12 +1,13 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { getAccessToken } from "@/utils/spotify-api"
 
 const SpotifyApiCallbackPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const hasApiCalledRef = useRef(false)
 
   const handleGetAccessToken = useCallback(async (code: string) => {
     try {
@@ -18,6 +19,9 @@ const SpotifyApiCallbackPage = () => {
 
   useEffect(() => {
     ;(async () => {
+      if (hasApiCalledRef.current) return
+      hasApiCalledRef.current = true
+
       try {
         if (searchParams === null)
           throw new Error("パラメーターが指定されていません")
@@ -32,7 +36,7 @@ const SpotifyApiCallbackPage = () => {
         router.push("/connect")
       }
     })()
-  }, [handleGetAccessToken, router, searchParams])
+  }, [searchParams, router, handleGetAccessToken])
 }
 
 export default SpotifyApiCallbackPage
