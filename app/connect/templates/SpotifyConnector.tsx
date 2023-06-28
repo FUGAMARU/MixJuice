@@ -1,7 +1,7 @@
 import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
 import CircleStep from "@/app/components/parts/CircleStep"
@@ -50,6 +50,14 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     if (clientId !== null) setClientId(clientId)
   }, [])
 
+  const handleClientIdInputChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, "") // 半角英数字以外を削除
+      setClientId(filteredValue)
+    },
+    []
+  )
+
   return (
     <Flex
       className={className}
@@ -96,7 +104,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
             placeholder="例: 8a94eb5c826471928j1jfna81920k0b7"
             sx={{ boxSizing: "border-box" }}
             value={clientId}
-            onChange={e => setClientId(e.currentTarget.value)}
+            onChange={handleClientIdInputChange}
           />
         </Box>
 
