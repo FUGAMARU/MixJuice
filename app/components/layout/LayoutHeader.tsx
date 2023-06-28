@@ -4,6 +4,7 @@ import { useCallback } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { HEADER_HEIGHT } from "@/constants/ElementSize"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
@@ -25,7 +26,7 @@ const LayoutHeader = () => {
 
   return (
     <Header
-      height={50}
+      height={HEADER_HEIGHT}
       zIndex={999}
       sx={theme => ({ boxShadow: theme.shadows.sm })}
     >

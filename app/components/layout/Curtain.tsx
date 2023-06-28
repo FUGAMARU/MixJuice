@@ -9,6 +9,7 @@ import LayoutNavbar from "./LayoutNavbar"
 import NowLoading from "./NowLoading"
 import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { NAVBAR_PADDING } from "@/constants/ElementSpace"
 
 type Props = {
   children: React.ReactNode
@@ -61,8 +62,8 @@ const Curtain = ({ children }: Props) => {
         navbarOffsetBreakpoint="sm"
         styles={{
           main: {
-            minHeight: "calc(100dvh + 15px)", // px指定の部分はLayoutNavbarのpaddingと一致させる
-            margin: "-1rem -1rem 0 -1rem"
+            minHeight: `calc(100dvh + ${NAVBAR_PADDING}px)`,
+            margin: "-1rem -1rem 0" // この1remはMantineによって自動的に設定されるAppShellのpaddingを打ち消すため
           }
         }}
       >

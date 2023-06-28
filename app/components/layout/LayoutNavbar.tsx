@@ -20,6 +20,7 @@ const NavbarCheckbox = dynamic(
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { NAVBAR_PADDING } from "@/constants/ElementSpace"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { Playlist } from "@/types/Playlist"
@@ -84,7 +85,7 @@ const LayoutNavbar = () => {
       className={navbarClassName}
       width={{ base: navbarWidth }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
-      p="15px" // AppShellのstyles.heightで使っている値と一致させる
+      p={`${NAVBAR_PADDING}px`}
       zIndex={10}
       hiddenBreakpoint="sm"
       hidden={!isOpened}
