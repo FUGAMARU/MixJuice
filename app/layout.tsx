@@ -8,7 +8,7 @@ import CustomFonts from "@/app/components/layout/CustomFonts"
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="ja" style={{ overflowY: "hidden" }}>
+    <html lang="ja">
       <head>
         <title>MixJuice</title>
         <link rel="icon" href="/favicon.ico" />

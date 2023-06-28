@@ -82,7 +82,7 @@ const MusicList = () => {
   )
 
   return (
-    <Box h={scrollAreaHeight} px="sm" py="md" sx={{ overflow: "auto" }}>
+    <Box h={scrollAreaHeight} px="sm" py="md" sx={{ overflowY: "auto" }}>
       {sampleData.map((data, idx) => {
         return (
           <Box key={idx}>
