@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import MusicDetail from "../../components/parts/MusicDetail"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
-import { HEADER_HEIGHT } from "@/constants/ElementSize"
+import { HEADER_HEIGHT } from "@/constants/Styling"
 
 const MusicList = () => {
   const sampleData = [

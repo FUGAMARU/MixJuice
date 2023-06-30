@@ -9,7 +9,7 @@ import LayoutNavbar from "./LayoutNavbar"
 import NowLoading from "./NowLoading"
 import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
-import { NAVBAR_PADDING } from "@/constants/ElementSpace"
+import { NAVBAR_PADDING } from "@/constants/Styling"
 
 type Props = {
   children: React.ReactNode

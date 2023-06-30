@@ -1,6 +1,7 @@
 import { Flex, Space, Title } from "@mantine/core"
 import Image from "next/image"
 import { BiCheckboxChecked, BiCheckboxMinus } from "react-icons/bi"
+import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
 type Props = {
   icon: string
@@ -22,13 +23,13 @@ const NavbarHeading = ({ icon, provider, onClick }: Props) => {
 
       <Flex pr="md" align="center">
         <BiCheckboxChecked
-          color="#424242"
+          color={TEXT_COLOR_DEFAULT}
           size="1.5rem"
           style={{ cursor: "pointer" }}
           onClick={() => onClick(provider, true)}
         />
         <BiCheckboxMinus
-          color="#424242"
+          color={TEXT_COLOR_DEFAULT}
           size="1.5rem"
           style={{ cursor: "pointer" }}
           onClick={() => onClick(provider, false)}

@@ -20,7 +20,7 @@ const NavbarCheckbox = dynamic(
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import { NAVBAR_PADDING } from "@/constants/ElementSpace"
+import { NAVBAR_PADDING } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { Playlist } from "@/types/Playlist"

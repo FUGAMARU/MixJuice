@@ -1,6 +1,7 @@
 "use client"
 
 import { MantineProvider } from "@mantine/core"
+import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
 type Props = {
   children: React.ReactNode
@@ -15,22 +16,22 @@ const MantineUI = ({ children }: Props) => {
         components: {
           Box: {
             defaultProps: {
-              color: "#424242"
+              color: TEXT_COLOR_DEFAULT
             }
           },
           Flex: {
             defaultProps: {
-              color: "#424242"
+              color: TEXT_COLOR_DEFAULT
             }
           },
           Text: {
             defaultProps: {
-              color: "#424242"
+              color: TEXT_COLOR_DEFAULT
             }
           },
           Title: {
             defaultProps: {
-              color: "#424242"
+              color: TEXT_COLOR_DEFAULT
             }
           }
         },
