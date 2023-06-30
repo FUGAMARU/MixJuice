@@ -4,7 +4,7 @@ import { useCallback } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import { HEADER_HEIGHT } from "@/constants/ElementSize"
+import { HEADER_HEIGHT, TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
@@ -27,7 +27,7 @@ const LayoutHeader = () => {
   return (
     <Header
       height={HEADER_HEIGHT}
-      zIndex={999}
+      zIndex={10}
       sx={theme => ({ boxShadow: theme.shadows.sm })}
     >
       <Flex h="100%" px="lg" align="center" justify="space-between">
@@ -38,7 +38,7 @@ const LayoutHeader = () => {
                 opened={isNavbarOpened}
                 onClick={handleBurgerClick}
                 size="sm"
-                color="#424242"
+                color={TEXT_COLOR_DEFAULT}
                 mr="xl"
               />
             </MediaQuery>

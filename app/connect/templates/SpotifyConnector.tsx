@@ -1,11 +1,12 @@
 import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
+import CheckboxListModal from "@/app/components/parts/CheckboxListModal"
 import CircleStep from "@/app/components/parts/CircleStep"
-
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { getCode } from "@/utils/spotify-api"
@@ -18,6 +19,11 @@ type Props = {
 const SpotifyConnector = ({ className, onBack }: Props) => {
   const router = useRouter()
   const [clientId, setClientId] = useState("")
+  const [
+    isPlaylistSelectorOpened,
+    { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
+  ] = useDisclosure(false)
+  const [selectedPlaylist, setSelectedPlaylist] = useState<string[]>([])
 
   /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
   const [redirectUri, setRedirectUri] = useState("")
@@ -156,6 +162,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
             className={styles.transition}
             variant="outline"
             disabled={!isSpotifySignedIn}
+            onClick={onPlaylistSelectorOpen}
           >
             プレイリストを選択
           </Button>
@@ -174,6 +181,14 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           </Text>
         </Flex>
       </Stack>
+
+      <CheckboxListModal
+        opened={isPlaylistSelectorOpened}
+        onClose={onPlaylistSelectorClose}
+        title="MixJuiceで使用するプレイリストを選択"
+        color="spotify"
+        dispath={setSelectedPlaylist}
+      />
     </Flex>
   )
 }
