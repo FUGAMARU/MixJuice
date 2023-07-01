@@ -8,8 +8,9 @@ import { IoIosArrowBack } from "react-icons/io"
 import CheckboxListModal from "@/app/components/parts/CheckboxListModal"
 import CircleStep from "@/app/components/parts/CircleStep"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import useSpotifyApi from "@/hooks/useSpotifyApi"
 import styles from "@/styles/SpotifyConnector.module.css"
-import { getCode } from "@/utils/spotify-api"
+import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 
 type Props = {
   className?: string
@@ -18,27 +19,21 @@ type Props = {
 
 const SpotifyConnector = ({ className, onBack }: Props) => {
   const router = useRouter()
-  const [clientId, setClientId] = useState("")
   const [
     isPlaylistSelectorOpened,
     { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
   ] = useDisclosure(false)
+  const { redirectUri, getCode, getPlaylists } = useSpotifyApi()
   const [selectedPlaylist, setSelectedPlaylist] = useState<string[]>([])
 
-  /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
-  const [redirectUri, setRedirectUri] = useState("")
+  const [clientId, setClientId] = useState("")
   useEffect(() => {
-    const currentURL = window.location.href
-    const url = new URL(currentURL)
-    setRedirectUri(`${url.protocol}//${url.host}/callback/spotify`)
+    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
+    if (clientId !== null) setClientId(clientId)
   }, [])
 
-  const handleSigninButtonClick = useCallback(async () => {
-    const args = await getCode(clientId, redirectUri)
-    router.push(`https://accounts.spotify.com/authorize?${args}`)
-  }, [clientId, redirectUri, router])
-
-  const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(true)
+  /** localStorageにアクセストークンがあるかでSpotifyにログイン済みかどうかを判定 */
+  const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false)
   useEffect(() => {
     const spotifyAccessToken = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
@@ -51,11 +46,6 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     setIsSpotifySignedIn(false)
   }, [])
 
-  useEffect(() => {
-    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
-    if (clientId !== null) setClientId(clientId)
-  }, [])
-
   const handleClientIdInputChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, "") // 半角英数字以外を削除
@@ -63,6 +53,22 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     },
     []
   )
+
+  const handleSigninButtonClick = useCallback(async () => {
+    const args = await getCode(clientId, redirectUri)
+    router.push(`https://accounts.spotify.com/authorize?${args}`)
+  }, [clientId, redirectUri, router, getCode])
+
+  const [playlists, setPlaylists] = useState<CheckboxListModalItem[]>([])
+  const handleClickSelectPlaylistButton = useCallback(async () => {
+    try {
+      const spotifyPlaylists = await getPlaylists()
+      setPlaylists(spotifyPlaylists)
+      onPlaylistSelectorOpen()
+    } catch (e) {
+      if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
+    }
+  }, [getPlaylists, onPlaylistSelectorOpen])
 
   return (
     <Flex
@@ -162,7 +168,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
             className={styles.transition}
             variant="outline"
             disabled={!isSpotifySignedIn}
-            onClick={onPlaylistSelectorOpen}
+            onClick={handleClickSelectPlaylistButton}
           >
             プレイリストを選択
           </Button>
@@ -186,6 +192,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         opened={isPlaylistSelectorOpened}
         onClose={onPlaylistSelectorClose}
         title="MixJuiceで使用するプレイリストを選択"
+        items={playlists}
         color="spotify"
         dispath={setSelectedPlaylist}
       />

@@ -2,20 +2,24 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
-import { getAccessToken } from "@/utils/spotify-api"
+import useSpotifyApi from "@/hooks/useSpotifyApi"
 
 const SpotifyApiCallbackPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { getAccessToken } = useSpotifyApi()
   const hasApiCalledRef = useRef(false)
 
-  const handleGetAccessToken = useCallback(async (code: string) => {
-    try {
-      await getAccessToken(code)
-    } catch (e) {
-      throw e
-    }
-  }, [])
+  const handleGetAccessToken = useCallback(
+    async (code: string) => {
+      try {
+        await getAccessToken(code)
+      } catch (e) {
+        throw e
+      }
+    },
+    [getAccessToken]
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -30,8 +34,7 @@ const SpotifyApiCallbackPage = () => {
 
         await handleGetAccessToken(code)
       } catch (e) {
-        //TODO: ちゃんとしたエラー表示を実装する
-        if (e instanceof Error) alert(e.message)
+        if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
       } finally {
         router.push("/connect")
       }

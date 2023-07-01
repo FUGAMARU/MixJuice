@@ -1,11 +1,13 @@
 import { Checkbox, Modal, ScrollArea, Stack } from "@mantine/core"
 import { ChangeEvent, SetStateAction, Dispatch } from "react"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 
 type Props = {
   opened: boolean
   onClose: () => void
   title: string
+  items: CheckboxListModalItem[]
   color: string
   dispath: Dispatch<SetStateAction<string[]>>
 }
@@ -14,6 +16,7 @@ const CheckboxListModal = ({
   opened,
   onClose,
   title,
+  items,
   color,
   dispath
 }: Props) => {
@@ -25,11 +28,6 @@ const CheckboxListModal = ({
     }
     dispath(prevValues => prevValues.filter(v => v !== value))
   }
-
-  const playlists = Array.from(
-    { length: 30 },
-    (_, index) => `playlist${index + 1}`
-  )
 
   return (
     <Modal
@@ -43,42 +41,13 @@ const CheckboxListModal = ({
     >
       <ScrollArea.Autosize mah="30rem" pb="md">
         <Stack>
-          <Checkbox
-            label="プレイリスト1"
-            value="playlist01"
-            color={color}
-            onChange={handleCheckboxChange}
-            styles={{ label: { color: TEXT_COLOR_DEFAULT } }}
-          />
-          <Checkbox
-            label="プレイリスト2"
-            value="playlist02"
-            color={color}
-            onChange={handleCheckboxChange}
-            styles={{ label: { color: TEXT_COLOR_DEFAULT } }}
-          />
-          <Checkbox
-            label="すごい長いプレイリスト名すごい長いプレイリスト名すごい長いプレイリスト名すごい長いプレイリスト名すごい長いプレイリスト名すごい長いプレイリスト名"
-            value="playlist03"
-            color={color}
-            onChange={handleCheckboxChange}
-            styles={{ label: { color: TEXT_COLOR_DEFAULT } }}
-          />
-          <Checkbox
-            label="プレイリスト4"
-            value="playlist04"
-            color={color}
-            onChange={handleCheckboxChange}
-            styles={{ label: { color: TEXT_COLOR_DEFAULT } }}
-          />
-          {playlists.map(playlist => (
+          {items.map(item => (
             <Checkbox
-              key={playlist}
-              label={playlist}
-              value={playlist}
+              key={item.id}
+              label={item.name}
+              value={item.id}
               color={color}
               onChange={handleCheckboxChange}
-              styles={{ label: { color: TEXT_COLOR_DEFAULT } }}
             />
           ))}
         </Stack>

@@ -1,4 +1,4 @@
-export type Playlist = {
+export type NavbarItem = {
   id: string
   title: string
   color: string

@@ -12,18 +12,13 @@ import {
 import { useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
-/*import dynamic from "next/dynamic"
-const NavbarCheckbox = dynamic(
-  () => import("../parts/NavbarCheckbox").then(modules => modules.default),
-  { ssr: false }
-)*/
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useTouchDevice from "@/hooks/useTouchDevice"
-import { Playlist } from "@/types/Playlist"
+import { NavbarItem } from "@/types/NavbarItem"
 
 const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
@@ -37,7 +32,7 @@ const LayoutNavbar = () => {
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
 
   /** 表示テスト用 */
-  const [playlists, setPlaylists] = useState<Playlist[]>([
+  const [playlists, setPlaylists] = useState<NavbarItem[]>([
     { id: "spotify-1", title: "2020", color: "spotify", checked: false },
     { id: "spotify-2", title: "2021", color: "spotify", checked: false },
     { id: "spotify-3", title: "2022", color: "spotify", checked: false },
