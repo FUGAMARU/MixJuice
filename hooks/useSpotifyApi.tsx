@@ -14,6 +14,7 @@ const useSpotifyApi = () => {
     const url = new URL(currentURL)
     setRedirectUri(`${url.protocol}//${url.host}/callback/spotify`)
   }, [])
+
   /** Code Verifierの生成 */
   const generateRandomString = useCallback((length: number) => {
     let text = ""
@@ -70,12 +71,14 @@ const useSpotifyApi = () => {
   )
 
   const getAccessToken = useCallback(async (code: string) => {
-    const pkce = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
+    const pkceConfig = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
 
-    if (pkce === null)
+    if (pkceConfig === null)
       throw Error("アクセストークン取得に必要な情報が存在しません")
 
-    const { clientId, redirectUri, codeVerifier } = JSON.parse(pkce) as Pkce
+    const { clientId, redirectUri, codeVerifier } = JSON.parse(
+      pkceConfig
+    ) as Pkce
 
     localStorage.setItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID, clientId)
 
@@ -98,13 +101,65 @@ const useSpotifyApi = () => {
         LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN,
         res.data.access_token
       )
+      setAccessToken(res.data.access_token)
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN,
+        res.data.refresh_token
+      )
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN_EXPIRES_AT,
+        (Math.floor(Date.now() / 1000) + Number(res.data.expires_in)).toString()
+      )
       localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
     } catch (e) {
       throw Error("アクセストークンの取得に失敗しました")
     }
   }, [])
 
-  const [accessToken, setAccessToken] = useState("")
+  const refreshAccessToken = useCallback(async () => {
+    console.log("🟦DEBUG: アクセストークンを更新します")
+
+    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
+    const refreshToken = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
+    )
+
+    if (clientId === null) throw Error("ClientIDが見つかりませんでした")
+    if (refreshToken === null)
+      throw Error("リフレッシュトークンが見つかりませんでした")
+
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      client_id: clientId
+    })
+
+    try {
+      const res = await axios.post("/spotify-token", body, {
+        headers: {
+          ContentType: "application/x-www-form-urlencoded"
+        }
+      })
+
+      const accessToken = res.data.access_token as string
+
+      localStorage.setItem(LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN, accessToken)
+      setAccessToken(accessToken)
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN_EXPIRES_AT,
+        (Math.floor(Date.now() / 1000) + Number(res.data.expires_in)).toString()
+      )
+
+      return accessToken
+    } catch {
+      // TODO: Spotifyの認証に関連する情報をlocalStorageから削除する
+      throw Error(
+        "アクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
+      )
+    }
+  }, [])
+
+  const [accessToken, setAccessToken] = useState<string | undefined>()
   useEffect(() => {
     setAccessToken(
       localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN) || ""
@@ -123,6 +178,64 @@ const useSpotifyApi = () => {
       }),
     [accessToken]
   )
+
+  useEffect(() => {
+    /** リクエストインターセプター */
+    spotifyApi.interceptors.request.use(
+      async config => {
+        /** リクエスト送信前処理 */
+        if (typeof accessToken === "undefined")
+          return Promise.reject(
+            new Error("アクセストークンが設定されていません")
+          )
+
+        const tokenExpiresAt = localStorage.getItem(
+          LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN_EXPIRES_AT
+        )
+
+        if (tokenExpiresAt === null)
+          return Promise.reject(
+            new Error("アクセストークンの有効期限が設定されていません")
+          )
+
+        const offset = 60 // 単位: 秒 | トークンのリフレッシュは期限を迎えるより少し前に行う
+        const isExpired =
+          Number(tokenExpiresAt) - offset < Math.floor(Date.now() / 1000)
+        if (isExpired) {
+          try {
+            const newAccessToken = await refreshAccessToken()
+            config.headers.Authorization = `Bearer ${newAccessToken}`
+            return config
+          } catch (e) {
+            return Promise.reject(e)
+          }
+        }
+
+        config.headers.Authorization = `Bearer ${accessToken}`
+        return config
+      },
+      error => {
+        /** リクエストエラーの処理 */
+        console.log("🟥ERROR: リクエストエラー")
+        console.log(error)
+        return Promise.reject(error)
+      }
+    )
+
+    /** レスポンスインターセプター */
+    spotifyApi.interceptors.response.use(
+      response => {
+        /** レスポンス正常 (ステータスコードが2xx) */
+        return response
+      },
+      error => {
+        /** レスポンス異常 (ステータスコードが2xx以外) */
+        console.log("🟥ERROR: レスポンスエラー")
+        console.log(error)
+        return Promise.reject(error)
+      }
+    )
+  }, [accessToken, refreshAccessToken, spotifyApi])
 
   /** https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists */
   const getPlaylists = useCallback(async () => {
@@ -148,7 +261,7 @@ const useSpotifyApi = () => {
 
         if (res.data.next === null) break
       }
-    } catch (e) {
+    } catch {
       throw Error("プレイリストの取得に失敗しました")
     }
 
@@ -157,8 +270,6 @@ const useSpotifyApi = () => {
 
   return {
     redirectUri,
-    generateRandomString,
-    generateCodeChallenge,
     getCode,
     getAccessToken,
     getPlaylists
