@@ -60,6 +60,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       setPlaylists(playlists)
       onPlaylistSelectorOpen()
     } catch (e) {
+      console.log("🟥ERROR: ", e)
       if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
     }
   }, [getPlaylists, onPlaylistSelectorOpen])

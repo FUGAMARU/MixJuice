@@ -94,7 +94,8 @@ const useSpotifyApi = () => {
 
         if (res.data.next === null) break
       }
-    } catch {
+    } catch (e) {
+      console.log("🟥ERROR: ", e)
       throw Error("プレイリストの取得に失敗しました")
     }
 

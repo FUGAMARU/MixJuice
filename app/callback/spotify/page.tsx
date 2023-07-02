@@ -34,6 +34,7 @@ const SpotifyApiCallbackPage = () => {
 
         await handleGetAccessToken(code)
       } catch (e) {
+        console.log("🟥ERROR: ", e)
         if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
       } finally {
         router.push("/connect")

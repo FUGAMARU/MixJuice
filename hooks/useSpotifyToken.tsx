@@ -157,7 +157,8 @@ const useSpotifyToken = () => {
       )
 
       return accessToken
-    } catch {
+    } catch (e) {
+      console.log("🟥ERROR: ", e)
       // TODO: Spotifyの認証に関連する情報をlocalStorageから削除する
       throw Error(
         "アクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
