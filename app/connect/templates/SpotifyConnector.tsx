@@ -9,6 +9,7 @@ import CircleStep from "@/app/components/parts/CircleStep"
 import CheckboxListModal from "@/app/components/templates/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useSpotifyToken from "@/hooks/useSpotifyToken"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 
@@ -23,7 +24,8 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     isPlaylistSelectorOpened,
     { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
   ] = useDisclosure(false)
-  const { redirectUri, getCode, getPlaylists } = useSpotifyApi()
+  const { redirectUri, getCode } = useSpotifyToken()
+  const { getPlaylists } = useSpotifyApi()
   const [selectedPlaylist, setSelectedPlaylist] = useState<string[]>([])
 
   const [clientId, setClientId] = useState("")

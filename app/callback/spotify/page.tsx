@@ -2,12 +2,12 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
-import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useSpotifyToken from "@/hooks/useSpotifyToken"
 
 const SpotifyApiCallbackPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { getAccessToken } = useSpotifyApi()
+  const { getAccessToken } = useSpotifyToken()
   const hasApiCalledRef = useRef(false)
 
   const handleGetAccessToken = useCallback(
