@@ -2,9 +2,10 @@ import { Box, Divider } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import { useRecoilValue } from "recoil"
-import MusicDetail from "../../components/parts/MusicDetail"
+import ListItem from "../../components/parts/ListItem"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { HEADER_HEIGHT } from "@/constants/Styling"
+import useBreakPoints from "@/hooks/useBreakPoints"
 
 const MusicList = () => {
   const sampleData = [
@@ -74,6 +75,7 @@ const MusicList = () => {
     }
   ]
 
+  const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const playerHeight = useRecoilValue(playerHeightAtom)
   const scrollAreaHeight = useMemo(
@@ -82,17 +84,22 @@ const MusicList = () => {
   )
 
   return (
-    <Box h={scrollAreaHeight} px="sm" py="md" sx={{ overflowY: "auto" }}>
+    <Box
+      h={scrollAreaHeight}
+      px={setRespVal("0.4rem", "0.5rem", "2rem")}
+      py="md"
+      sx={{ overflowY: "auto" }}
+    >
       {sampleData.map((data, idx) => {
         return (
           <Box key={idx}>
             {idx !== 0 && <Divider my="xs" />}
 
-            <MusicDetail
+            <ListItem
               idx={idx + 1}
-              artworkSrc={data.artworkSrc}
+              imgSrc={data.artworkSrc}
               title={data.title}
-              artist={data.artist}
+              subText={` / ${data.artist}`}
             />
           </Box>
         )

@@ -9,7 +9,10 @@ const nextConfig = {
       "m.media-amazon.com",
       "i.scdn.co",
       "is1-ssl.mzstatic.com",
-      "ro69-bucket.s3.amazonaws.com"
+      "ro69-bucket.s3.amazonaws.com",
+      "mosaic.scdn.co",
+      "wrapped-images.spotifycdn.com",
+      "lineup-images.scdn.co"
     ]
   },
   async rewrites() {

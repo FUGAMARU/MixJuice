@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
-import CheckboxListModal from "@/app/components/parts/CheckboxListModal"
 import CircleStep from "@/app/components/parts/CircleStep"
+import CheckboxListModal from "@/app/components/templates/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import styles from "@/styles/SpotifyConnector.module.css"
@@ -62,8 +62,8 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const [playlists, setPlaylists] = useState<CheckboxListModalItem[]>([])
   const handleClickSelectPlaylistButton = useCallback(async () => {
     try {
-      const spotifyPlaylists = await getPlaylists()
-      setPlaylists(spotifyPlaylists)
+      const playlists = await getPlaylists()
+      setPlaylists(playlists)
       onPlaylistSelectorOpen()
     } catch (e) {
       if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する

@@ -1,32 +1,41 @@
-import { Box, Flex, Space, Text } from "@mantine/core"
+import { Box, Flex, Text } from "@mantine/core"
 import Image from "next/image"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
-type Props = {
-  idx: number
-  artworkSrc: string
+type Detail = {
+  imgSrc: string
   title: string
-  artist: string
+  subText: string
 }
 
-const MusicDetail = ({ idx, artworkSrc, title, artist }: Props) => {
+type Props =
+  | ({
+      idx?: number
+      noIndex: true
+    } & Detail)
+  | ({
+      idx: number
+      noIndex?: false
+    } & Detail)
+
+const ListItem = ({ idx, noIndex = false, imgSrc, title, subText }: Props) => {
   const { setRespVal } = useBreakPoints()
 
   return (
-    <Flex px={setRespVal("0.4rem", "0.5rem", "2rem")} align="center">
-      <Text miw="1rem" ta="center" ff="GreycliffCF" fz="1.1rem">
-        {idx}
-      </Text>
-
-      <Space w="md" />
+    <Flex align="center" gap="md">
+      {!noIndex && (
+        <Text miw="1rem" ta="center" ff="GreycliffCF" fz="1.1rem">
+          {idx}
+        </Text>
+      )}
 
       <Box w="3.5rem" h="3.5rem">
         <Image
           // 高さ・幅はとりあえず指定しないといけないので適当に指定
           height={250}
           width={250}
-          src={artworkSrc}
-          alt="album artwork"
+          src={imgSrc}
+          alt="list item image"
           style={{
             objectFit: "contain",
             height: "100%",
@@ -34,8 +43,6 @@ const MusicDetail = ({ idx, artworkSrc, title, artist }: Props) => {
           }}
         />
       </Box>
-
-      <Space w="md" />
 
       <Box sx={{ flex: 1, overflow: "hidden" }}>
         <Text
@@ -60,11 +67,11 @@ const MusicDetail = ({ idx, artworkSrc, title, artist }: Props) => {
             textOverflow: "ellipsis"
           }}
         >
-          / {artist}
+          {subText}
         </Text>
       </Box>
     </Flex>
   )
 }
 
-export default MusicDetail
+export default ListItem
