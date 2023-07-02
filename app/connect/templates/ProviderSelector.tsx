@@ -1,8 +1,7 @@
 import { Flex, Box, Title, Button, Text } from "@mantine/core"
 import Image from "next/image"
-import { useEffect, useState } from "react"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 
 type Props = {
   className?: string
@@ -18,20 +17,7 @@ const ProviderSelector = ({
   onShowWebDAVConnector
 }: Props) => {
   const { setRespVal } = useBreakPoints()
-
-  const [isSettingUpSpotify, setIsSettingUpSpotify] = useState(false)
-  useEffect(() => {
-    const spotifyAccessToken = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
-    )
-    // TODO: プレイリストが1つも選択されていないという条件を追加する
-    if (spotifyAccessToken) {
-      // nullチェックと空文字チェックを兼ねているのでifを使っている
-      setIsSettingUpSpotify(true)
-      return
-    }
-    setIsSettingUpSpotify(false)
-  }, [])
+  const { settingState: spotifySettingState } = useSpotifySettingState()
 
   return (
     <Flex
@@ -64,11 +50,15 @@ const ProviderSelector = ({
             <Button
               mt="xs"
               color="spotify"
-              variant="outline"
+              variant={spotifySettingState === "none" ? "outline" : "filled"}
               size="xs"
               onClick={onShowSpotifyConnector}
             >
-              {isSettingUpSpotify ? "設定を再開する" : "接続する"}
+              {spotifySettingState === "done"
+                ? "設定する"
+                : spotifySettingState === "setting"
+                ? "設定を再開する"
+                : "接続する"}
             </Button>
           </Box>
 

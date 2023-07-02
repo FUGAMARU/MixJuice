@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
+import { useRecoilState } from "recoil"
 import CircleStep from "@/app/components/parts/CircleStep"
 import CheckboxListModal from "@/app/components/templates/CheckboxListModal"
+import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
@@ -26,26 +29,15 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   ] = useDisclosure(false)
   const { redirectUri, getCode } = useSpotifyToken()
   const { getPlaylists } = useSpotifyApi()
-  const [selectedPlaylist, setSelectedPlaylist] = useState<string[]>([])
+  const { settingState } = useSpotifySettingState()
+  const [selectedPlaylists, setSelectedPlaylists] = useRecoilState(
+    selectedSpotifyPlaylistsAtom
+  )
 
   const [clientId, setClientId] = useState("")
   useEffect(() => {
     const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
     if (clientId !== null) setClientId(clientId)
-  }, [])
-
-  /** localStorageにアクセストークンがあるかでSpotifyにログイン済みかどうかを判定 */
-  const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false)
-  useEffect(() => {
-    const spotifyAccessToken = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
-    )
-    if (spotifyAccessToken) {
-      // nullチェックと空文字チェックを兼ねているのでifを使っている
-      setIsSpotifySignedIn(true)
-      return
-    }
-    setIsSpotifySignedIn(false)
   }, [])
 
   const handleClientIdInputChange = useCallback(
@@ -148,9 +140,16 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
             Spotifyでサインイン
           </Button>
 
-          {isSpotifySignedIn && (
-            <AiFillCheckCircle size="1.3rem" color="#2ad666" />
-          )}
+          <AiFillCheckCircle
+            size="1.3rem"
+            color="#2ad666"
+            style={{
+              display:
+                settingState === "setting" || settingState === "done"
+                  ? "block"
+                  : "none"
+            }} // &&を使うと何故かうまくいかなかったのでインラインスタイルで対応
+          />
         </Flex>
 
         <Flex align="center">
@@ -160,21 +159,29 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           </Title>
         </Flex>
 
-        <Box
+        <Flex
           ml="1rem"
           pl="calc(2rem + 1px)" // 左にborderが無いのでその分右にずらす
           py="0.2rem"
+          align="center"
+          gap="xs"
           ta="left"
         >
           <Button
             className={styles.transition}
             variant="outline"
-            disabled={!isSpotifySignedIn}
+            disabled={settingState === "none"}
             onClick={handleClickSelectPlaylistButton}
           >
             プレイリストを選択
           </Button>
-        </Box>
+
+          <AiFillCheckCircle
+            size="1.3rem"
+            color="#2ad666"
+            style={{ display: settingState === "done" ? "block" : "none" }}
+          />
+        </Flex>
 
         <Flex
           pt="lg"
@@ -196,7 +203,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         title="MixJuiceで使用するプレイリストを選択"
         items={playlists}
         color="spotify"
-        dispath={setSelectedPlaylist}
+        dispath={setSelectedPlaylists}
       />
     </Flex>
   )
