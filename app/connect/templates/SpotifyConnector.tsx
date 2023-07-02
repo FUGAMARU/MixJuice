@@ -9,6 +9,7 @@ import { useRecoilState } from "recoil"
 import CircleStep from "@/app/components/parts/CircleStep"
 import CheckboxListModal from "@/app/components/templates/CheckboxListModal"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
+import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
@@ -60,8 +61,8 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       setPlaylists(playlists)
       onPlaylistSelectorOpen()
     } catch (e) {
-      console.log("🟥ERROR: ", e)
       if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
+      if (e instanceof SpotifyAuthError) alert(e.message) // TODO: モーダルを閉じたら/connectに飛ばす (ここに処理が来る段階で既にSpotifyの認証情報は削除済み)
     }
   }, [getPlaylists, onPlaylistSelectorOpen])
 

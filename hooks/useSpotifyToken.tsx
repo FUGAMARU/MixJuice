@@ -2,6 +2,7 @@ import axios from "axios"
 import { useState, useEffect, useCallback } from "react"
 import { useSetRecoilState } from "recoil"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
+import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Pkce } from "@/types/Pkce"
 
@@ -113,11 +114,18 @@ const useSpotifyToken = () => {
 
         localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
       } catch (e) {
+        console.log("🟥ERROR: ", e)
         throw Error("アクセストークンの取得に失敗しました")
       }
     },
     [setAccessToken]
   )
+
+  const deleteAuthConfig = useCallback(() => {
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN)
+    setAccessToken(undefined)
+  }, [setAccessToken])
 
   const refreshAccessToken = useCallback(async () => {
     console.log("🟦DEBUG: アクセストークンを更新します")
@@ -127,9 +135,12 @@ const useSpotifyToken = () => {
       LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
     )
 
-    if (clientId === null) throw Error("ClientIDが見つかりませんでした")
-    if (refreshToken === null)
-      throw Error("リフレッシュトークンが見つかりませんでした")
+    if (clientId === null || refreshToken === null) {
+      deleteAuthConfig()
+      throw new SpotifyAuthError(
+        "アクセストークンの更新に必要な情報が存在しませんでした。Spotifyに再ログインしてください。"
+      )
+    }
 
     const body = new URLSearchParams({
       grant_type: "refresh_token",
@@ -159,12 +170,12 @@ const useSpotifyToken = () => {
       return accessToken
     } catch (e) {
       console.log("🟥ERROR: ", e)
-      // TODO: Spotifyの認証に関連する情報をlocalStorageから削除する
-      throw Error(
+      deleteAuthConfig()
+      throw new SpotifyAuthError(
         "アクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
-  }, [setAccessToken])
+  }, [setAccessToken, deleteAuthConfig])
 
   return {
     redirectUri,
