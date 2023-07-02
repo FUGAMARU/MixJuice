@@ -57,7 +57,7 @@ const ProviderSelector = ({
               {spotifySettingState === "done"
                 ? "設定する"
                 : spotifySettingState === "setting"
-                ? "設定を再開する"
+                ? "接続を再開する"
                 : "接続する"}
             </Button>
           </Box>
