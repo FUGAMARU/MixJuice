@@ -38,7 +38,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const [isSpotifySignedIn, setIsSpotifySignedIn] = useState(false)
   useEffect(() => {
     const spotifyAccessToken = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
+      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
     )
     if (spotifyAccessToken) {
       // nullチェックと空文字チェックを兼ねているのでifを使っている

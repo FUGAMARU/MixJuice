@@ -22,7 +22,7 @@ const ProviderSelector = ({
   const [isSettingUpSpotify, setIsSettingUpSpotify] = useState(false)
   useEffect(() => {
     const spotifyAccessToken = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN
+      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
     )
     // TODO: プレイリストが1つも選択されていないという条件を追加する
     if (spotifyAccessToken) {

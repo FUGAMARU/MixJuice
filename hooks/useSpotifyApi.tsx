@@ -1,11 +1,13 @@
 import axios from "axios"
 import { useCallback, useEffect, useMemo } from "react"
+import { useRecoilValue } from "recoil"
 import useSpotifyToken from "./useSpotifyToken"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 
 const useSpotifyApi = () => {
-  const { accessToken, refreshAccessToken } = useSpotifyToken()
+  const accessToken = useRecoilValue(spotifyAccessTokenAtom)
+  const { refreshAccessToken } = useSpotifyToken()
 
   const spotifyApi = useMemo(
     () =>
@@ -13,7 +15,7 @@ const useSpotifyApi = () => {
         baseURL: "/spotify-api",
         headers: {
           ContentType: "application/json",
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken?.token}`
         },
         responseType: "json"
       }),
@@ -25,24 +27,15 @@ const useSpotifyApi = () => {
     spotifyApi.interceptors.request.use(
       async config => {
         /** リクエスト送信前処理 */
-        if (typeof accessToken === "undefined")
-          return Promise.reject(
-            new Error("アクセストークンが設定されていません")
-          )
 
-        const tokenExpiresAt = localStorage.getItem(
-          LOCAL_STORAGE_KEYS.SPOTIFY_ACCESS_TOKEN_EXPIRES_AT
-        )
-
-        if (tokenExpiresAt === null)
-          return Promise.reject(
-            new Error("アクセストークンの有効期限が設定されていません")
-          )
-
-        const offset = 60 // 単位: 秒 | トークンのリフレッシュは期限を迎えるより少し前に行う
-        const isExpired =
-          Number(tokenExpiresAt) - offset < Math.floor(Date.now() / 1000)
-        if (isExpired) {
+        const offset = 60 // 単位: 秒 | アクセストークンのリフレッシュは期限を迎えるより少し前に行う
+        /** accessTokenがundefined、もしくはoffsetを考慮した上でアクセストークンの有効期限を迎えた場合はリフレッシュトークンを用いてアクセストークンをリフレッシュする
+         * accessTokenがundefinedになる例: Spotifyにログイン済みの状態で、新しくMixJuiceを開いた場合
+         */
+        const shouldRefreshAccessToken =
+          typeof accessToken === "undefined" ||
+          Number(accessToken.expiresAt) - offset < Math.floor(Date.now() / 1000)
+        if (shouldRefreshAccessToken) {
           try {
             const newAccessToken = await refreshAccessToken()
             config.headers.Authorization = `Bearer ${newAccessToken}`
@@ -52,7 +45,6 @@ const useSpotifyApi = () => {
           }
         }
 
-        config.headers.Authorization = `Bearer ${accessToken}`
         return config
       },
       error => {
