@@ -10,15 +10,17 @@ import {
   Group,
   Box
 } from "@mantine/core"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
-import { useRecoilValue } from "recoil"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
+import { musicListAtom } from "@/atoms/musicListAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { NavbarItem } from "@/types/NavbarItem"
@@ -33,6 +35,7 @@ const LayoutNavbar = () => {
   }, [breakPoint])
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
+  const { getPlaylistTracks } = useSpotifyApi()
 
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<NavbarItem[]>([])
   const [webdavPlaylists, setWebdavPlaylists] = useState<NavbarItem[]>([])
@@ -58,7 +61,7 @@ const LayoutNavbar = () => {
     )
   }, [])
 
-  const handleCheckboxClicked = (id: string) => {
+  const handleCheckboxClick = (id: string) => {
     setSpotifyPlaylists(prev =>
       prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
     )
@@ -67,12 +70,12 @@ const LayoutNavbar = () => {
     )
   }
 
-  const handleCheckboxControllerClicked = (to: boolean) => {
+  const handleCheckboxControllerClick = (to: boolean) => {
     setSpotifyPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
     setWebdavPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
   }
 
-  const handleProviderCheckboxControllerClicked = (
+  const handleProviderCheckboxControllerClick = (
     provider: string,
     to: boolean
   ) => {
@@ -85,6 +88,23 @@ const LayoutNavbar = () => {
         break
     }
   }
+
+  const setMusicList = useSetRecoilState(musicListAtom)
+  const handleMixButtonClick = useCallback(async () => {
+    const checkedSpotifyPlaylistsTracksFlattenShuffled = await Promise.all(
+      spotifyPlaylists
+        .filter(p => p.checked === true)
+        .map(p => getPlaylistTracks(p.id))
+    )
+      .then(checkedSpotifyPlaylistsTracks =>
+        checkedSpotifyPlaylistsTracks.flat()
+      )
+      .then(checkedSpotifyPlaylistsTracksFlatten =>
+        checkedSpotifyPlaylistsTracksFlatten.sort(() => Math.random() - 0.5)
+      )
+
+    setMusicList(checkedSpotifyPlaylistsTracksFlattenShuffled)
+  }, [getPlaylistTracks, setMusicList, spotifyPlaylists])
 
   return (
     <Navbar
@@ -117,6 +137,7 @@ const LayoutNavbar = () => {
                 letterSpacing: "0.05rem"
               }
             }}
+            onClick={handleMixButtonClick}
           >
             MIX!
           </Button>
@@ -125,14 +146,14 @@ const LayoutNavbar = () => {
             <Button
               variant="light"
               color="gray"
-              onClick={() => handleCheckboxControllerClicked(true)}
+              onClick={() => handleCheckboxControllerClick(true)}
             >
               全選択
             </Button>
             <Button
               variant="light"
               color="gray"
-              onClick={() => handleCheckboxControllerClicked(false)}
+              onClick={() => handleCheckboxControllerClick(false)}
             >
               全解除
             </Button>
@@ -147,7 +168,7 @@ const LayoutNavbar = () => {
               <NavbarHeading
                 icon="/spotify-logo.png"
                 provider="Spotify"
-                onClick={handleProviderCheckboxControllerClicked}
+                onClick={handleProviderCheckboxControllerClick}
               />
 
               <Stack pl="md" py="xs" spacing="sm">
@@ -159,7 +180,7 @@ const LayoutNavbar = () => {
                       label={p.title}
                       checked={p.checked}
                       color={p.color}
-                      onClick={handleCheckboxClicked}
+                      onClick={handleCheckboxClick}
                     />
                   )
                 })}
@@ -172,7 +193,7 @@ const LayoutNavbar = () => {
               <NavbarHeading
                 icon="/server-icon.svg"
                 provider="WebDAV"
-                onClick={handleProviderCheckboxControllerClicked}
+                onClick={handleProviderCheckboxControllerClick}
               />
 
               <Stack pl="md" pr="xs" py="xs" spacing="sm">
@@ -184,7 +205,7 @@ const LayoutNavbar = () => {
                       label={p.title}
                       checked={p.checked}
                       color={p.color}
-                      onClick={handleCheckboxClicked}
+                      onClick={handleCheckboxClick}
                     />
                   )
                 })}

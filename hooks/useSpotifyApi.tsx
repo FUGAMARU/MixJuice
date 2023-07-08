@@ -1,76 +1,14 @@
-import axios from "axios"
-import { useCallback, useEffect, useMemo } from "react"
-import { useRecoilValue } from "recoil"
-import useSpotifyToken from "./useSpotifyToken"
-import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
+import { useCallback } from "react"
+import { spotifyApi } from "@/app/components/layout/providers/Startup"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
+import { MusicListItem } from "@/types/MusicListItem"
+import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const useSpotifyApi = () => {
-  const accessToken = useRecoilValue(spotifyAccessTokenAtom)
-  const { refreshAccessToken } = useSpotifyToken()
-
-  const spotifyApi = useMemo(
-    () =>
-      axios.create({
-        baseURL: "/spotify-api",
-        headers: {
-          ContentType: "application/json",
-          Authorization: `Bearer ${accessToken?.token}`
-        },
-        responseType: "json"
-      }),
-    [accessToken]
-  )
-
-  useEffect(() => {
-    /** リクエストインターセプター */
-    spotifyApi.interceptors.request.use(
-      async config => {
-        /** リクエスト送信前処理 */
-
-        const offset = 60 // 単位: 秒 | アクセストークンのリフレッシュは期限を迎えるより少し前に行う
-        /** accessTokenがundefined、もしくはoffsetを考慮した上でアクセストークンの有効期限を迎えた場合はリフレッシュトークンを用いてアクセストークンをリフレッシュする
-         * accessTokenがundefinedになる例: Spotifyにログイン済みの状態で、新しくMixJuiceを開いた場合
-         */
-        const shouldRefreshAccessToken =
-          typeof accessToken === "undefined" ||
-          Number(accessToken.expiresAt) - offset < Math.floor(Date.now() / 1000)
-        if (shouldRefreshAccessToken) {
-          try {
-            const newAccessToken = await refreshAccessToken()
-            config.headers.Authorization = `Bearer ${newAccessToken}`
-            return config
-          } catch (e) {
-            return Promise.reject(e)
-          }
-        }
-
-        return config
-      },
-      error => {
-        /** リクエストエラーの処理 */
-        console.log("🟥ERROR: リクエストエラー")
-        console.log(error)
-        return Promise.reject(error)
-      }
-    )
-
-    /** レスポンスインターセプター */
-    spotifyApi.interceptors.response.use(
-      response => {
-        /** レスポンス正常 (ステータスコードが2xx) */
-        return response
-      },
-      error => {
-        /** レスポンス異常 (ステータスコードが2xx以外) */
-        console.log("🟥ERROR: レスポンスエラー")
-        console.log(error)
-        return Promise.reject(error)
-      }
-    )
-  }, [accessToken, refreshAccessToken, spotifyApi])
-
-  /** https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists */
+  /**
+   * ログイン中ユーザーのプレイリスト一覧を取得する
+   * https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists
+   */
   const getPlaylists = useCallback(async () => {
     let playlists: CheckboxListModalItem[] = []
 
@@ -100,9 +38,51 @@ const useSpotifyApi = () => {
     }
 
     return playlists
-  }, [spotifyApi])
+  }, [])
 
-  return { getPlaylists }
+  /**
+   * プレイリストのトラック一覧を取得する
+   * https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
+   */
+  const getPlaylistTracks = useCallback(async (playlistId: string) => {
+    let tracks: MusicListItem[] = []
+
+    try {
+      while (true) {
+        const res = await spotifyApi.get(`/playlists/${playlistId}/tracks`, {
+          params: {
+            limit: 50,
+            offset: tracks.length,
+            market: "JP",
+            fields:
+              "next, items(track(album(images),artists(name),name,id,uri))" // nextの指定を忘れると無限ループになってしまう
+          }
+        })
+
+        const obj: MusicListItem[] = res.data.items
+          .filter(
+            (item: SpotifyApiTrack) => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
+          )
+          .map((item: SpotifyApiTrack) => ({
+            id: item.track.id,
+            title: item.track.name,
+            artist: item.track.artists.map(artist => artist.name).join("・"),
+            imgSrc: item.track.album.images[0].url
+          }))
+
+        tracks = [...tracks, ...obj]
+
+        if (res.data.next === null) break
+      }
+    } catch (e) {
+      console.log("🟥ERROR: ", e)
+      throw Error("プレイリストに存在する楽曲の取得に失敗しました")
+    }
+
+    return tracks
+  }, [])
+
+  return { getPlaylists, getPlaylistTracks }
 }
 
 export default useSpotifyApi

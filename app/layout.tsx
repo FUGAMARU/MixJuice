@@ -4,6 +4,7 @@ import Curtain from "./components/layout/Curtain"
 import VercelShape from "./components/layout/VercelShape"
 import MantineUI from "./components/layout/providers/MantineUI"
 import Recoil from "./components/layout/providers/Recoil"
+import Startup from "./components/layout/providers/Startup"
 import CustomFonts from "@/app/components/layout/CustomFonts"
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
@@ -24,12 +25,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body>
         <Recoil>
           <MantineUI>
-            <CustomFonts />
+            <Startup>
+              <CustomFonts />
+              {/** 背景 */}
+              <VercelShape />
 
-            {/** 背景 */}
-            <VercelShape />
-
-            <Curtain>{children}</Curtain>
+              <Curtain>{children}</Curtain>
+            </Startup>
           </MantineUI>
         </Recoil>
       </body>

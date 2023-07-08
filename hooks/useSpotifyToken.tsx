@@ -122,7 +122,6 @@ const useSpotifyToken = () => {
   )
 
   const deleteAuthConfig = useCallback(() => {
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
     localStorage.removeItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN)
     setAccessToken(undefined)
   }, [setAccessToken])
