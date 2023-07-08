@@ -7,17 +7,20 @@ import {
   ScrollArea,
   Input,
   Button,
-  Group
+  Group,
+  Box
 } from "@mantine/core"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue } from "recoil"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useTouchDevice from "@/hooks/useTouchDevice"
+import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { NavbarItem } from "@/types/NavbarItem"
 
 const LayoutNavbar = () => {
@@ -31,48 +34,56 @@ const LayoutNavbar = () => {
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
 
-  /** 表示テスト用 */
-  const [playlists, setPlaylists] = useState<NavbarItem[]>([
-    { id: "spotify-1", title: "2020", color: "spotify", checked: false },
-    { id: "spotify-2", title: "2021", color: "spotify", checked: false },
-    { id: "spotify-3", title: "2022", color: "spotify", checked: false },
-    { id: "spotify-4", title: "2023", color: "spotify", checked: false },
-    {
-      id: "spotify-5",
-      title: "すげー長いプレイリストタイトル",
-      color: "spotify",
-      checked: false
-    },
-    { id: "webdav-1", title: "/", color: "grape", checked: false },
-    { id: "webdav-2", title: "/musics", color: "grape", checked: false },
-    { id: "webdav-3", title: "/subfolder", color: "grape", checked: false }
-  ])
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState<NavbarItem[]>([])
+  const [webdavPlaylists, setWebdavPlaylists] = useState<NavbarItem[]>([])
+
+  /** 選択済みSpotifyプレイリスト読み込み */
+  useEffect(() => {
+    const localStorageSelectedSpotifyPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
+    if (localStorageSelectedSpotifyPlaylists === null) return
+
+    const parsed = JSON.parse(
+      localStorageSelectedSpotifyPlaylists
+    ) as LocalStorageSpotifySelectedPlaylists[]
+
+    setSpotifyPlaylists(
+      parsed.map(p => ({
+        id: p.id,
+        title: p.title,
+        color: "spotify",
+        checked: false
+      }))
+    )
+  }, [])
 
   const handleCheckboxClicked = (id: string) => {
-    setPlaylists(
-      playlists.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
+    setSpotifyPlaylists(prev =>
+      prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
+    )
+    setWebdavPlaylists(prev =>
+      prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
     )
   }
 
   const handleCheckboxControllerClicked = (to: boolean) => {
-    setPlaylists(
-      playlists.map(p => ({
-        ...p,
-        checked: to
-      }))
-    )
+    setSpotifyPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
+    setWebdavPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
   }
 
   const handleProviderCheckboxControllerClicked = (
     provider: string,
     to: boolean
   ) => {
-    setPlaylists(
-      playlists.map(p => ({
-        ...p,
-        checked: p.id.includes(provider.toLowerCase()) ? to : p.checked
-      }))
-    )
+    switch (provider) {
+      case "spotify":
+        setSpotifyPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
+        break
+      case "webdav":
+        setWebdavPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
+        break
+    }
   }
 
   return (
@@ -130,52 +141,56 @@ const LayoutNavbar = () => {
       </Navbar.Section>
 
       <Navbar.Section grow component={ScrollArea}>
-        <NavbarHeading
-          icon="/spotify-logo.png"
-          provider="Spotify"
-          onClick={handleProviderCheckboxControllerClicked}
-        />
+        <Stack spacing="xs">
+          {spotifyPlaylists.length > 0 && (
+            <Box>
+              <NavbarHeading
+                icon="/spotify-logo.png"
+                provider="Spotify"
+                onClick={handleProviderCheckboxControllerClicked}
+              />
 
-        <Stack pl="md" py="xs" spacing="sm">
-          {playlists
-            .filter(p => p.id.includes("spotify"))
-            .map((p, idx) => {
-              return (
-                <NavbarCheckbox
-                  key={idx}
-                  id={p.id}
-                  label={p.title}
-                  checked={p.checked}
-                  color={p.color}
-                  onClick={handleCheckboxClicked}
-                />
-              )
-            })}
-        </Stack>
+              <Stack pl="md" py="xs" spacing="sm">
+                {spotifyPlaylists.map((p, idx) => {
+                  return (
+                    <NavbarCheckbox
+                      key={idx}
+                      id={p.id}
+                      label={p.title}
+                      checked={p.checked}
+                      color={p.color}
+                      onClick={handleCheckboxClicked}
+                    />
+                  )
+                })}
+              </Stack>
+            </Box>
+          )}
 
-        <Space h="xs" />
+          {webdavPlaylists.length > 0 && (
+            <Box>
+              <NavbarHeading
+                icon="/server-icon.svg"
+                provider="WebDAV"
+                onClick={handleProviderCheckboxControllerClicked}
+              />
 
-        <NavbarHeading
-          icon="/server-icon.svg"
-          provider="WebDAV"
-          onClick={handleProviderCheckboxControllerClicked}
-        />
-
-        <Stack pl="md" pr="xs" py="xs" spacing="sm">
-          {playlists
-            .filter(p => p.id.includes("webdav"))
-            .map((p, idx) => {
-              return (
-                <NavbarCheckbox
-                  key={idx}
-                  id={p.id}
-                  label={p.title}
-                  checked={p.checked}
-                  color={p.color}
-                  onClick={handleCheckboxClicked}
-                />
-              )
-            })}
+              <Stack pl="md" pr="xs" py="xs" spacing="sm">
+                {webdavPlaylists.map((p, idx) => {
+                  return (
+                    <NavbarCheckbox
+                      key={idx}
+                      id={p.id}
+                      label={p.title}
+                      checked={p.checked}
+                      color={p.color}
+                      onClick={handleCheckboxClicked}
+                    />
+                  )
+                })}
+              </Stack>
+            </Box>
+          )}
         </Stack>
       </Navbar.Section>
 

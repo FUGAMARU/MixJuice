@@ -16,6 +16,7 @@ import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
+import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 
 type Props = {
   className?: string
@@ -74,17 +75,30 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
 
     if (localStorageSelectedPlaylists === null) return
 
-    setSelectedPlaylists(JSON.parse(localStorageSelectedPlaylists))
+    const parsed = JSON.parse(
+      localStorageSelectedPlaylists
+    ) as LocalStorageSpotifySelectedPlaylists[]
+
+    setSelectedPlaylists(parsed.map(obj => obj.id))
   }, [setSelectedPlaylists])
 
   useEffect(() => {
     if (selectedPlaylists.length === 0) return
 
+    const linkedSelectedPlaylists: LocalStorageSpotifySelectedPlaylists[] =
+      selectedPlaylists.map(id => {
+        const item = playlists.find(obj => obj.id === id)
+        return {
+          id: id,
+          title: item?.name || ""
+        }
+      })
+
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS,
-      JSON.stringify(selectedPlaylists)
+      JSON.stringify(linkedSelectedPlaylists)
     )
-  }, [selectedPlaylists])
+  }, [selectedPlaylists, playlists])
 
   return (
     <Flex

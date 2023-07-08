@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 
 const useSpotifySettingState = () => {
   const selectedPlaylists = useRecoilValue(selectedSpotifyPlaylistsAtom)
@@ -29,7 +30,11 @@ const useSpotifySettingState = () => {
 
     if (
       (localStorageSelectedPlaylists === null ||
-        JSON.parse(localStorageSelectedPlaylists).length === 0) &&
+        (
+          JSON.parse(
+            localStorageSelectedPlaylists
+          ) as LocalStorageSpotifySelectedPlaylists[]
+        ).length === 0) &&
       selectedPlaylists.length === 0
     ) {
       setSettingState("setting")
