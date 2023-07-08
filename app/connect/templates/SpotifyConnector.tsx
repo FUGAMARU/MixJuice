@@ -31,9 +31,6 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const { redirectUri, getCode } = useSpotifyToken()
   const { getPlaylists } = useSpotifyApi()
   const { settingState } = useSpotifySettingState()
-  const [selectedPlaylists, setSelectedPlaylists] = useRecoilState(
-    selectedSpotifyPlaylistsAtom
-  )
 
   const [clientId, setClientId] = useState("")
   useEffect(() => {
@@ -65,6 +62,29 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       if (e instanceof SpotifyAuthError) alert(e.message) // TODO: モーダルを閉じたら/connectに飛ばす (ここに処理が来る段階で既にSpotifyの認証情報は削除済み)
     }
   }, [getPlaylists, onPlaylistSelectorOpen])
+
+  /** 遷移してきた時に過去に選択したプレイリストにチェックを入れておき、プレイリストが選択される度にlocalStorageを更新する */
+  const [selectedPlaylists, setSelectedPlaylists] = useRecoilState(
+    selectedSpotifyPlaylistsAtom
+  )
+  useEffect(() => {
+    const localStorageSelectedPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
+
+    if (localStorageSelectedPlaylists === null) return
+
+    setSelectedPlaylists(JSON.parse(localStorageSelectedPlaylists))
+  }, [setSelectedPlaylists])
+
+  useEffect(() => {
+    if (selectedPlaylists.length === 0) return
+
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS,
+      JSON.stringify(selectedPlaylists)
+    )
+  }, [selectedPlaylists])
 
   return (
     <Flex
@@ -203,8 +223,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         opened={isPlaylistSelectorOpened}
         onClose={onPlaylistSelectorClose}
         title="MixJuiceで使用するプレイリストを選択"
-        items={playlists}
         color="spotify"
+        items={playlists}
+        checkedValues={selectedPlaylists}
         dispath={setSelectedPlaylists}
       />
     </Flex>

@@ -18,13 +18,20 @@ const useSpotifySettingState = () => {
     const refreshToken = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
     )
+    const localStorageSelectedPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
 
     if (refreshToken === null) {
       setSettingState("none")
       return
     }
 
-    if (selectedPlaylists.length === 0) {
+    if (
+      (localStorageSelectedPlaylists === null ||
+        JSON.parse(localStorageSelectedPlaylists).length === 0) &&
+      selectedPlaylists.length === 0
+    ) {
       setSettingState("setting")
       return
     }

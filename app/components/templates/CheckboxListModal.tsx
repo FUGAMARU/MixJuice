@@ -9,8 +9,9 @@ type Props = {
   opened: boolean
   onClose: () => void
   title: string
-  items: CheckboxListModalItem[]
   color: string
+  items: CheckboxListModalItem[]
+  checkedValues: string[]
   dispath: Dispatch<SetStateAction<string[]>>
 }
 
@@ -18,8 +19,9 @@ const CheckboxListModal = ({
   opened,
   onClose,
   title,
-  items,
   color,
+  items,
+  checkedValues,
   dispath
 }: Props) => {
   const { setRespVal } = useBreakPoints()
@@ -52,6 +54,7 @@ const CheckboxListModal = ({
           {items.map(item => (
             <Flex key={item.id} align="center" gap="md">
               <Checkbox
+                checked={checkedValues.includes(item.id)}
                 value={item.id}
                 color={color}
                 onChange={handleCheckboxChange}
