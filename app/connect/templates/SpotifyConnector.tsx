@@ -105,6 +105,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           pb="sm"
           justify="center"
           align="center"
+          gap="0.3rem"
           sx={{ borderBottom: "solid 1px #d1d1d1" }}
         >
           <Image
@@ -113,14 +114,12 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
             height={25}
             alt="spotify-logo"
           />
-          <Title ml="0.3rem" order={4}>
-            Spotifyと接続する
-          </Title>
+          <Title order={4}>Spotifyと接続する</Title>
         </Flex>
 
-        <Flex align="center">
+        <Flex align="center" gap="xs">
           <CircleStep step={1} />
-          <Title ml="xs" order={4} ta="left" sx={{ flex: 1 }}>
+          <Title order={4} ta="left" sx={{ flex: 1 }}>
             Client IDを入力する
           </Title>
         </Flex>
@@ -136,9 +135,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           />
         </Box>
 
-        <Flex align="center">
+        <Flex align="center" gap="xs">
           <CircleStep step={2} />
-          <Title ml="xs" order={4} ta="left" sx={{ flex: 1 }}>
+          <Title order={4} ta="left" sx={{ flex: 1 }}>
             OAuth認証を行う
           </Title>
         </Flex>
@@ -174,9 +173,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           />
         </Flex>
 
-        <Flex align="center">
+        <Flex align="center" gap="xs">
           <CircleStep step={3} />
-          <Title ml="xs" order={4} ta="left" sx={{ flex: 1 }}>
+          <Title order={4} ta="left" sx={{ flex: 1 }}>
             MixJuiceで使用するプレイリストを選択する
           </Title>
         </Flex>
