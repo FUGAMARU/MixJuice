@@ -1,4 +1,4 @@
-import { Box, Divider } from "@mantine/core"
+import { Box, Divider, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import { useRecoilValue } from "recoil"
@@ -25,6 +25,12 @@ const MusicList = () => {
       py="md"
       sx={{ overflowY: "auto" }}
     >
+      {musicList.length === 0 && (
+        <Text ta="center" fz={setRespVal("xs", "sm", "sm")}>
+          プレイリストを選択して『MIX!』ボタンを押してみましょう！
+        </Text>
+      )}
+
       {musicList.map((data, idx) => {
         return (
           <Box key={idx}>
