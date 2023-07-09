@@ -1,5 +1,5 @@
-import { Modal, Stack, Box, Flex, Checkbox } from "@mantine/core"
-import { ChangeEvent, SetStateAction, Dispatch, useCallback } from "react"
+import { Modal, Box, Flex, Checkbox } from "@mantine/core"
+import { SetStateAction, Dispatch, useCallback } from "react"
 import ListItem from "../parts/ListItem"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -26,16 +26,15 @@ const CheckboxListModal = ({
 }: Props) => {
   const { setRespVal } = useBreakPoints()
 
-  const handleCheckboxChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const { value, checked } = event.target
-      if (checked) {
-        dispath(prevValues => [...prevValues, value])
+  const handleItemClick = useCallback(
+    (id: string) => {
+      if (checkedValues.includes(id)) {
+        dispath(prevValues => prevValues.filter(v => v !== id))
         return
       }
-      dispath(prevValues => prevValues.filter(v => v !== value))
+      dispath(prevValues => [...prevValues, id])
     },
-    [dispath]
+    [checkedValues, dispath]
   )
 
   return (
@@ -50,27 +49,37 @@ const CheckboxListModal = ({
       }}
     >
       <Box mah="30rem" sx={{ overflowY: "scroll" }}>
-        <Stack px={setRespVal("xs", "md", "md")}>
-          {items.map(item => (
-            <Flex key={item.id} align="center" gap="md">
-              <Checkbox
-                checked={checkedValues.includes(item.id)}
-                value={item.id}
-                color={color}
-                onChange={handleCheckboxChange}
-              />
+        {items.map(item => (
+          <Flex
+            key={item.id}
+            px={setRespVal("xs", "md", "md")}
+            py="xs"
+            align="center"
+            gap="md"
+            sx={{
+              cursor: "pointer",
+              borderRadius: "10px",
+              transition: "background-color 0.3s ease-out",
+              ":hover": { backgroundColor: "#f5f5f5" }
+            }}
+            onClick={() => handleItemClick(item.id)}
+          >
+            <Checkbox
+              checked={checkedValues.includes(item.id)}
+              value={item.id}
+              color={color}
+            />
 
-              <Box sx={{ flex: "1", overflow: "hidden" }}>
-                <ListItem
-                  noIndex
-                  imgSrc={item.imgSrc}
-                  title={item.name}
-                  subText={item.description}
-                />
-              </Box>
-            </Flex>
-          ))}
-        </Stack>
+            <Box sx={{ flex: "1", overflow: "hidden" }}>
+              <ListItem
+                noIndex
+                imgSrc={item.imgSrc}
+                title={item.name}
+                subText={item.description}
+              />
+            </Box>
+          </Flex>
+        ))}
       </Box>
     </Modal>
   )
