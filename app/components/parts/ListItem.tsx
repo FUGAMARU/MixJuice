@@ -39,7 +39,8 @@ const ListItem = ({ idx, noIndex = false, imgSrc, title, subText }: Props) => {
           style={{
             objectFit: "contain",
             height: "100%",
-            width: "100%"
+            width: "100%",
+            borderRadius: "3px"
           }}
         />
       </Box>
