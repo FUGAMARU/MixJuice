@@ -2,6 +2,8 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
+import { useSetRecoilState } from "recoil"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 
 const SpotifyApiCallbackPage = () => {
@@ -9,6 +11,7 @@ const SpotifyApiCallbackPage = () => {
   const searchParams = useSearchParams()
   const { getAccessToken } = useSpotifyToken()
   const hasApiCalledRef = useRef(false)
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
 
   const handleGetAccessToken = useCallback(
     async (code: string) => {
@@ -34,12 +37,12 @@ const SpotifyApiCallbackPage = () => {
 
         await handleGetAccessToken(code)
       } catch (e) {
-        if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
+        setErrorModalInstance(prev => [...prev, e])
       } finally {
         router.push("/connect")
       }
     })()
-  }, [searchParams, router, handleGetAccessToken])
+  }, [searchParams, router, handleGetAccessToken, setErrorModalInstance])
 }
 
 export default SpotifyApiCallbackPage

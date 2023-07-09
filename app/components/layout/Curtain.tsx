@@ -4,6 +4,7 @@ import { AppShell, Box } from "@mantine/core"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
+import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import LayoutNavbar from "./LayoutNavbar"
 import NowLoading from "./NowLoading"
@@ -69,6 +70,8 @@ const Curtain = ({ children }: Props) => {
       >
         {children}
       </AppShell>
+
+      <ErrorModal />
     </>
   )
 }

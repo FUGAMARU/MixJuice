@@ -114,6 +114,7 @@ const useSpotifyToken = () => {
 
         localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
       } catch (e) {
+        // 例外が発生した場合の起点なので(eには自分で設定したエラーメッセージは入っていないので)setErrorModalInstanceは行わない
         console.log("🟥ERROR: ", e)
         throw Error("アクセストークンの取得に失敗しました")
       }
@@ -168,6 +169,7 @@ const useSpotifyToken = () => {
 
       return accessToken
     } catch (e) {
+      // 例外が発生した場合の起点なので(eには自分で設定したエラーメッセージは入っていないので)setErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
       deleteAuthConfig()
       throw new SpotifyAuthError(

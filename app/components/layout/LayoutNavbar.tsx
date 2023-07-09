@@ -15,6 +15,7 @@ import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { musicListAtom } from "@/atoms/musicListAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -40,6 +41,7 @@ const LayoutNavbar = () => {
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
   const setMusicList = useSetRecoilState(musicListAtom)
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { hasValidAccessTokenState } = useSpotifyToken()
   const { getPlaylistTracks } = useSpotifyApi()
 
@@ -107,18 +109,22 @@ const LayoutNavbar = () => {
 
     const selectedPlaylists = spotifyPlaylists.filter(p => p.checked === true)
 
-    if (hasValidAccessTokenState) {
-      console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
-      tracksForPlaylists = await Promise.all(
-        selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
-      )
-    } else {
-      /** アクセストークンがRecoilStateにセットされていない状態で並列処理でリクエストするとトークンの更新処理が何回も走ってしまうので逐次処理でリクエストを行う */
-      console.log("🟦DEBUG: 逐次処理でプレイリストの情報を取得します")
-      for (const playlist of selectedPlaylists) {
-        const tracks = await getPlaylistTracksAsync(playlist.id)
-        tracksForPlaylists.push(tracks)
+    try {
+      if (hasValidAccessTokenState) {
+        console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
+        tracksForPlaylists = await Promise.all(
+          selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
+        )
+      } else {
+        /** アクセストークンがRecoilStateにセットされていない状態で並列処理でリクエストするとトークンの更新処理が何回も走ってしまうので逐次処理でリクエストを行う */
+        console.log("🟦DEBUG: 逐次処理でプレイリストの情報を取得します")
+        for (const playlist of selectedPlaylists) {
+          const tracks = await getPlaylistTracksAsync(playlist.id)
+          tracksForPlaylists.push(tracks)
+        }
       }
+    } catch (e) {
+      setErrorModalInstance(prev => [...prev, e])
     }
 
     const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
@@ -129,7 +135,8 @@ const LayoutNavbar = () => {
     getPlaylistTracks,
     setMusicList,
     spotifyPlaylists,
-    hasValidAccessTokenState
+    hasValidAccessTokenState,
+    setErrorModalInstance
   ])
 
   return (

@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation"
 import { ChangeEvent, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
-import { useRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import CircleStep from "@/app/components/parts/CircleStep"
 import CheckboxListModal from "@/app/components/templates/CheckboxListModal"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
-import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
@@ -32,6 +32,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const { redirectUri, getCode } = useSpotifyToken()
   const { getPlaylists } = useSpotifyApi()
   const { settingState } = useSpotifySettingState()
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
 
   const [clientId, setClientId] = useState("")
   useEffect(() => {
@@ -66,10 +67,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       )
       onPlaylistSelectorOpen()
     } catch (e) {
-      if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
-      if (e instanceof SpotifyAuthError) alert(e.message) // TODO: モーダルを閉じたら/connectに飛ばす (ここに処理が来る段階で既にSpotifyの認証情報は削除済み)
+      setErrorModalInstance(prev => [...prev, e])
     }
-  }, [getPlaylists, onPlaylistSelectorOpen])
+  }, [getPlaylists, onPlaylistSelectorOpen, setErrorModalInstance])
 
   /** 遷移してきた時に過去に選択したプレイリストにチェックを入れておき、プレイリストが選択される度にlocalStorageを更新する */
   const [selectedPlaylists, setSelectedPlaylists] = useRecoilState(
