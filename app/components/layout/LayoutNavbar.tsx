@@ -21,9 +21,12 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useSpotifyToken from "@/hooks/useSpotifyToken"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
+import { MusicListItem } from "@/types/MusicListItem"
 import { NavbarItem } from "@/types/NavbarItem"
+import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
@@ -35,6 +38,8 @@ const LayoutNavbar = () => {
   }, [breakPoint])
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
+  const setMusicList = useSetRecoilState(musicListAtom)
+  const { hasValidAccessTokenState } = useSpotifyToken()
   const { getPlaylistTracks } = useSpotifyApi()
 
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<NavbarItem[]>([])
@@ -89,22 +94,45 @@ const LayoutNavbar = () => {
     }
   }
 
-  const setMusicList = useSetRecoilState(musicListAtom)
   const handleMixButtonClick = useCallback(async () => {
-    const checkedSpotifyPlaylistsTracksFlattenShuffled = await Promise.all(
-      spotifyPlaylists
-        .filter(p => p.checked === true)
-        .map(p => getPlaylistTracks(p.id))
-    )
-      .then(checkedSpotifyPlaylistsTracks =>
-        checkedSpotifyPlaylistsTracks.flat()
-      )
-      .then(checkedSpotifyPlaylistsTracksFlatten =>
-        checkedSpotifyPlaylistsTracksFlatten.sort(() => Math.random() - 0.5)
-      )
+    let tracksForPlaylists: MusicListItem[][] = []
 
+    const getPlaylistTracksAsync = async (playlistId: string) => {
+      const res = await getPlaylistTracks(playlistId)
+      return res.map((item: SpotifyApiTrack) => ({
+        id: item.track.id,
+        title: item.track.name,
+        artist: item.track.artists.map(artist => artist.name).join("・"),
+        imgSrc: item.track.album.images[0].url
+      }))
+    }
+
+    const selectedPlaylists = spotifyPlaylists.filter(p => p.checked === true)
+
+    if (hasValidAccessTokenState) {
+      console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
+      tracksForPlaylists = await Promise.all(
+        selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
+      )
+    } else {
+      /** アクセストークンがRecoilStateにセットされていない状態で並列処理でリクエストするとトークンの更新処理が何回も走ってしまうので逐次処理でリクエストを行う */
+      console.log("🟦DEBUG: 逐次処理でプレイリストの情報を取得します")
+      for (const playlist of selectedPlaylists) {
+        const tracks = await getPlaylistTracksAsync(playlist.id)
+        tracksForPlaylists.push(tracks)
+      }
+    }
+
+    const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
+      .flat()
+      .sort(() => Math.random() - 0.5)
     setMusicList(checkedSpotifyPlaylistsTracksFlattenShuffled)
-  }, [getPlaylistTracks, setMusicList, spotifyPlaylists])
+  }, [
+    getPlaylistTracks,
+    setMusicList,
+    spotifyPlaylists,
+    hasValidAccessTokenState
+  ])
 
   return (
     <Navbar

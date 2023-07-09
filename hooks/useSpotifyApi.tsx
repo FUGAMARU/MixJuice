@@ -1,7 +1,6 @@
 import { useCallback } from "react"
-import { spotifyApi } from "@/app/components/layout/providers/Startup"
+import { spotifyApi } from "@/app/components/layout/providers/SpotifyDaemon"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
-import { MusicListItem } from "@/types/MusicListItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const useSpotifyApi = () => {
@@ -45,7 +44,7 @@ const useSpotifyApi = () => {
    * https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
    */
   const getPlaylistTracks = useCallback(async (playlistId: string) => {
-    let tracks: MusicListItem[] = []
+    let tracks: SpotifyApiTrack[] = []
 
     try {
       while (true) {
@@ -59,16 +58,9 @@ const useSpotifyApi = () => {
           }
         })
 
-        const obj: MusicListItem[] = res.data.items
-          .filter(
-            (item: SpotifyApiTrack) => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
-          )
-          .map((item: SpotifyApiTrack) => ({
-            id: item.track.id,
-            title: item.track.name,
-            artist: item.track.artists.map(artist => artist.name).join("・"),
-            imgSrc: item.track.album.images[0].url
-          }))
+        const obj: SpotifyApiTrack[] = res.data.items.filter(
+          (item: SpotifyApiTrack) => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
+        )
 
         tracks = [...tracks, ...obj]
 

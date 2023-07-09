@@ -1,6 +1,6 @@
 import axios from "axios"
-import { useState, useEffect, useCallback } from "react"
-import { useSetRecoilState } from "recoil"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useRecoilState } from "recoil"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -9,7 +9,7 @@ import { Pkce } from "@/types/Pkce"
 const useSpotifyToken = () => {
   /** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
 
-  const setAccessToken = useSetRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
+  const [accessToken, setAccessToken] = useRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
 
   /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
   const [redirectUri, setRedirectUri] = useState("")
@@ -176,11 +176,20 @@ const useSpotifyToken = () => {
     }
   }, [setAccessToken, deleteAuthConfig])
 
+  const hasValidAccessTokenState = useMemo(() => {
+    const offset = 60 // 単位: 秒 | アクセストークンのリフレッシュは期限を迎えるより少し前に行う
+    return (
+      accessToken !== undefined &&
+      Number(accessToken.expiresAt) - offset > Math.floor(Date.now() / 1000)
+    )
+  }, [accessToken])
+
   return {
     redirectUri,
     getCode,
     getAccessToken,
-    refreshAccessToken
+    refreshAccessToken,
+    hasValidAccessTokenState
   }
 }
 
