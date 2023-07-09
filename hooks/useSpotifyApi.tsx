@@ -1,6 +1,5 @@
 import { useCallback } from "react"
 import { spotifyApi } from "@/app/components/layout/providers/SpotifyDaemon"
-import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const useSpotifyApi = () => {
@@ -9,7 +8,7 @@ const useSpotifyApi = () => {
    * https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists
    */
   const getPlaylists = useCallback(async () => {
-    let playlists: CheckboxListModalItem[] = []
+    let playlists: any[] = [] // APIレスポンスの項目が多く型定義が面倒なのでanyを使用
 
     try {
       while (true) {
@@ -20,14 +19,7 @@ const useSpotifyApi = () => {
           }
         })
 
-        const obj = res.data.items.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          imgSrc: item.images[0].url
-        }))
-
-        playlists = [...playlists, ...obj]
+        playlists = [...playlists, ...res.data.items]
 
         if (res.data.next === null) break
       }

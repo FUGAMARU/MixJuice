@@ -56,7 +56,14 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const handleClickSelectPlaylistButton = useCallback(async () => {
     try {
       const playlists = await getPlaylists()
-      setPlaylists(playlists)
+      setPlaylists(
+        playlists.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          imgSrc: item.images[0].url
+        }))
+      )
       onPlaylistSelectorOpen()
     } catch (e) {
       if (e instanceof Error) alert(e.message) //TODO: ちゃんとしたエラー表示を実装する
