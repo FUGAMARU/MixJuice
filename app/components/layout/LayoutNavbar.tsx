@@ -26,6 +26,7 @@ import useTouchDevice from "@/hooks/useTouchDevice"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { MusicListItem } from "@/types/MusicListItem"
 import { NavbarItem } from "@/types/NavbarItem"
+import { Provider } from "@/types/Provider"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const LayoutNavbar = () => {
@@ -42,8 +43,9 @@ const LayoutNavbar = () => {
   const { hasValidAccessTokenState } = useSpotifyToken()
   const { getPlaylistTracks } = useSpotifyApi()
 
-  const [spotifyPlaylists, setSpotifyPlaylists] = useState<NavbarItem[]>([])
-  const [webdavPlaylists, setWebdavPlaylists] = useState<NavbarItem[]>([])
+  const [playlists, setPlaylists] = useState<NavbarItem[]>([])
+  const spotifyPlaylists = playlists.filter(p => p.provider === "spotify")
+  const webdavPlaylists = playlists.filter(p => p.provider === "webdav")
 
   /** 選択済みSpotifyプレイリスト読み込み */
   useEffect(() => {
@@ -56,42 +58,38 @@ const LayoutNavbar = () => {
       localStorageSelectedSpotifyPlaylists
     ) as LocalStorageSpotifySelectedPlaylists[]
 
-    setSpotifyPlaylists(
-      parsed.map(p => ({
-        id: p.id,
-        title: p.title,
-        color: "spotify",
-        checked: false
-      }))
-    )
+    const mapped: NavbarItem[] = parsed.map(p => ({
+      provider: "spotify" as Provider,
+      id: p.id,
+      title: p.title,
+      color: "spotify",
+      checked: false
+    }))
+
+    setPlaylists(prev => [...prev, ...mapped])
+
+    return () => {
+      setPlaylists([])
+    }
   }, [])
 
   const handleCheckboxClick = (id: string) => {
-    setSpotifyPlaylists(prev =>
-      prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
-    )
-    setWebdavPlaylists(prev =>
+    setPlaylists(prev =>
       prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
     )
   }
 
   const handleCheckboxControllerClick = (to: boolean) => {
-    setSpotifyPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
-    setWebdavPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
+    setPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
   }
 
   const handleProviderCheckboxControllerClick = (
     provider: string,
     to: boolean
   ) => {
-    switch (provider) {
-      case "spotify":
-        setSpotifyPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
-        break
-      case "webdav":
-        setWebdavPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
-        break
-    }
+    setPlaylists(prev =>
+      prev.map(p => (p.provider === provider ? { ...p, checked: to } : p))
+    )
   }
 
   const handleMixButtonClick = useCallback(async () => {
