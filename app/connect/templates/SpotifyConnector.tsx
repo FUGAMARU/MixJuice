@@ -94,7 +94,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   }, [setSelectedPlaylists])
 
   useEffect(() => {
-    if (selectedPlaylists.length === 0) return
+    if (selectedPlaylists.length === 0 || playlists.length === 0) return
 
     const linkedSelectedPlaylists: LocalStorageSpotifySelectedPlaylists[] =
       selectedPlaylists.map(id => {
