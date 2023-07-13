@@ -9,13 +9,11 @@
   height: 100%;
   background: #0bec7c;
   transform-origin: left;
-  z-index: 3;
 }
 
 .loader::after {
   content: "";
   position: absolute;
-  z-index: 4;
   top: 50%;
   right: 0;
   transform: translateY(-50%) scale(0);

@@ -5,6 +5,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { HEADER_HEIGHT, TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
@@ -27,7 +28,7 @@ const LayoutHeader = () => {
   return (
     <Header
       height={HEADER_HEIGHT}
-      zIndex={10}
+      zIndex={ZINDEX_NUMBERS.HEADER}
       sx={theme => ({ boxShadow: theme.shadows.sm })}
     >
       <Flex h="100%" px="lg" align="center" justify="space-between">

@@ -5,7 +5,6 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  z-index: -1;
   top: 0;
   left: 0;
   background: linear-gradient(to bottom, #ffffff, #d6dbdc);

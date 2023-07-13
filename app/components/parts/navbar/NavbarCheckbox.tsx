@@ -1,4 +1,5 @@
 import { Checkbox } from "@mantine/core"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
 type Props = {
@@ -26,12 +27,12 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
         },
         inner: {
           position: "relative",
-          zIndex: 2
+          zIndex: ZINDEX_NUMBERS.NAVBAR_CHECKBOX_INNER
         },
         labelWrapper: {
           width: "100%",
           position: "relative",
-          zIndex: 1
+          zIndex: ZINDEX_NUMBERS.NAVBAR_CHECKBOX_LABEL_WRAPPER
         },
         input: {
           cursor: "pointer"

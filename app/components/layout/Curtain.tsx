@@ -11,6 +11,7 @@ import NowLoading from "./NowLoading"
 import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 
 type Props = {
   children: React.ReactNode
@@ -50,7 +51,7 @@ const Curtain = ({ children }: Props) => {
         top={0}
         left={0}
         sx={{
-          zIndex: 1000,
+          zIndex: ZINDEX_NUMBERS.NOW_LOADING,
           backdropFilter: "blur(30px)"
         }}
       >

@@ -3,6 +3,7 @@ import { useHover } from "@mantine/hooks"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { IoPlayBack, IoPlayCircleSharp, IoPlayForward } from "react-icons/io5"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 
 type Props = {
   size: number
@@ -36,7 +37,7 @@ const AlbumArtwork = ({ size, src, smaller }: Props) => {
       ref={artworkRef}
       bg="white"
       pos="relative"
-      sx={{ flexShrink: 0, zIndex: 2 }}
+      sx={{ flexShrink: 0, zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK }}
     >
       <Image
         // 高さ・幅はとりあえず指定しないといけないので適当に指定

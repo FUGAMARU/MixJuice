@@ -5,6 +5,7 @@ import { useSetRecoilState } from "recoil"
 import AlbumArtwork from "../../components/parts/AlbumArtwork"
 import MusicInfo from "../../components/parts/MusicInfo"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 
@@ -55,7 +56,20 @@ const Player = () => {
       </Flex>
 
       {/** wを再生時間の割合と同期させる */}
-      <Box className={styles.loader} w="30%" h="0.3rem" bg="spotify" />
+      <Box
+        className={styles.loader}
+        w="30%"
+        h="0.3rem"
+        bg="spotify"
+        sx={{
+          ":before": {
+            zIndex: ZINDEX_NUMBERS.SEEKBAR_LINE
+          },
+          ":after": {
+            zIndex: ZINDEX_NUMBERS.SEEKBAR_CIRCLE
+          }
+        }}
+      />
     </>
   )
 }

@@ -20,6 +20,7 @@ import { musicListAtom } from "@/atoms/musicListAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -149,7 +150,7 @@ const LayoutNavbar = () => {
       width={{ base: navbarWidth }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
       p={`${NAVBAR_PADDING}px`}
-      zIndex={10}
+      zIndex={ZINDEX_NUMBERS.NAVBAR}
       hiddenBreakpoint="sm"
       hidden={!isOpened}
     >
