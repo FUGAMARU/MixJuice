@@ -4,8 +4,8 @@ import { Box } from "@mantine/core"
 import { useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
-import MusicList from "@/app/main/templates/MusicList"
-import Player from "@/app/main/templates/Player"
+import MusicList from "@/app/(main)/templates/MusicList"
+import Player from "@/app/(main)/templates/Player"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 const MainPage = () => {

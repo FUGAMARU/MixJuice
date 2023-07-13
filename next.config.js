@@ -14,10 +14,6 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/",
-        destination: "/main"
-      },
-      {
         source: "/spotify-token",
         destination: "https://accounts.spotify.com/api/token"
       },
