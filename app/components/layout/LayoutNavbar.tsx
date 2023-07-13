@@ -38,6 +38,7 @@ const LayoutNavbar = () => {
     if (breakPoint === "Tablet") return "30%"
     if (breakPoint === "PC") return "20%"
   }, [breakPoint])
+  const [isMixing, setIsMixing] = useState(false)
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
   const setMusicList = useSetRecoilState(musicListAtom)
@@ -95,6 +96,7 @@ const LayoutNavbar = () => {
   }
 
   const handleMixButtonClick = useCallback(async () => {
+    setIsMixing(true)
     let tracksForPlaylists: MusicListItem[][] = []
 
     const getPlaylistTracksAsync = async (playlistId: string) => {
@@ -123,14 +125,16 @@ const LayoutNavbar = () => {
           tracksForPlaylists.push(tracks)
         }
       }
+
+      const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
+        .flat()
+        .sort(() => Math.random() - 0.5)
+      setMusicList(checkedSpotifyPlaylistsTracksFlattenShuffled)
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
+    } finally {
+      setIsMixing(false)
     }
-
-    const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
-      .flat()
-      .sort(() => Math.random() - 0.5)
-    setMusicList(checkedSpotifyPlaylistsTracksFlattenShuffled)
   }, [
     getPlaylistTracks,
     setMusicList,
@@ -170,9 +174,10 @@ const LayoutNavbar = () => {
                 letterSpacing: "0.05rem"
               }
             }}
+            loading={isMixing}
             onClick={handleMixButtonClick}
           >
-            MIX!
+            {isMixing ? "MIXING…!" : "MIX!"}
           </Button>
 
           <Group grow position="center">

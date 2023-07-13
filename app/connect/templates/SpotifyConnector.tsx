@@ -29,6 +29,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     isPlaylistSelectorOpened,
     { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
   ] = useDisclosure(false)
+  const [isFetchingPlaylists, setIsFetchingPlaylists] = useState(false)
   const { redirectUri, getCode } = useSpotifyToken()
   const { getPlaylists } = useSpotifyApi()
   const { settingState } = useSpotifySettingState()
@@ -56,6 +57,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const [playlists, setPlaylists] = useState<CheckboxListModalItem[]>([])
   const handleClickSelectPlaylistButton = useCallback(async () => {
     try {
+      setIsFetchingPlaylists(true)
       const playlists = await getPlaylists()
       setPlaylists(
         playlists.map((item: any) => ({
@@ -68,6 +70,8 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       onPlaylistSelectorOpen()
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
+    } finally {
+      setIsFetchingPlaylists(false)
     }
   }, [getPlaylists, onPlaylistSelectorOpen, setErrorModalInstance])
 
@@ -212,6 +216,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           <Button
             className={styles.transition}
             variant="outline"
+            loading={isFetchingPlaylists}
             disabled={settingState === "none"}
             onClick={handleClickSelectPlaylistButton}
           >
