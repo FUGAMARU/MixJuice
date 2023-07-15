@@ -1,8 +1,9 @@
-import { Box, Divider, Text } from "@mantine/core"
+import { Box, Divider, Flex, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import ListItem from "../../components/parts/ListItem"
+import GradientCircle from "@/app/components/parts/GradientCircle"
 import { musicListAtom } from "@/atoms/musicListAtom"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { HEADER_HEIGHT } from "@/constants/Styling"
@@ -21,7 +22,7 @@ const MusicList = () => {
   return (
     <Box
       h={scrollAreaHeight}
-      px={setRespVal("0.4rem", "0.5rem", "2rem")}
+      px={setRespVal("0.5rem", "0.5rem", "1.5rem")}
       py="md"
       sx={{ overflowY: "auto" }}
     >
@@ -36,12 +37,21 @@ const MusicList = () => {
           <Box key={idx}>
             {idx !== 0 && <Divider my="xs" />}
 
-            <ListItem
-              idx={idx + 1}
-              imgSrc={data.imgSrc}
-              title={data.title}
-              subText={` / ${data.artist}`}
-            />
+            <Flex px={"0.5rem"} align="center" gap="sm">
+              <GradientCircle
+                color={data.provider}
+                tooltipLabel={
+                  data.provider === "spotify" ? "Spotifyの楽曲" : "WebDAVの楽曲"
+                }
+              />
+
+              <ListItem
+                noIndex
+                imgSrc={data.imgSrc}
+                title={data.title}
+                subText={` / ${data.artist}`}
+              />
+            </Flex>
           </Box>
         )
       })}

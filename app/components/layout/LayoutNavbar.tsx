@@ -104,6 +104,7 @@ const LayoutNavbar = () => {
       const res = await getPlaylistTracks(playlistId)
       return res.map((item: SpotifyApiTrack) => ({
         id: item.track.id,
+        provider: "spotify" as Provider,
         title: item.track.name,
         artist: item.track.artists.map(artist => artist.name).join("・"),
         imgSrc: item.track.album.images[0].url
