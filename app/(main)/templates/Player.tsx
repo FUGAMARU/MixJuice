@@ -51,20 +51,23 @@ const Player = () => {
       </Flex>
 
       {/** wを再生時間の割合と同期させる */}
-      <Box
-        className={styles.loader}
-        h="0.3rem"
-        bg="spotify"
-        sx={{
-          width: `${playbackPosition}%`, // sx内でwidthを指定したほうがMantineのクラスの再定義が走らないので軽い(気がした)
-          ":before": {
-            zIndex: ZINDEX_NUMBERS.SEEKBAR_LINE
-          },
-          ":after": {
-            zIndex: ZINDEX_NUMBERS.SEEKBAR_CIRCLE
-          }
-        }}
-      />
+      <Flex>
+        <Box w="0.3rem" h="0.3rem" bg="#0bec7c" />
+        <Box
+          className={styles.loader}
+          w={`${playbackPosition}%`}
+          h="0.3rem"
+          bg="spotify"
+          sx={{
+            ":before": {
+              zIndex: ZINDEX_NUMBERS.SEEKBAR_LINE
+            },
+            ":after": {
+              zIndex: ZINDEX_NUMBERS.SEEKBAR_CIRCLE
+            }
+          }}
+        />
+      </Flex>
     </>
   )
 }
