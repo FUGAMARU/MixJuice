@@ -77,7 +77,35 @@ const useSpotifyApi = () => {
     [setErrorModalInstance]
   )
 
-  return { getPlaylists, getPlaylistTracks }
+  /**
+   * トラックの再生を開始する
+   * https://developer.spotify.com/documentation/web-api/reference/start-a-users-playback
+   */
+  const startPlayback = useCallback(
+    (deviceId: string, trackId: string) => {
+      spotifyApi
+        .put(
+          "/me/player/play",
+          {
+            uris: [`spotify:track:${trackId}`]
+          },
+          {
+            params: {
+              device_id: deviceId
+            }
+          }
+        )
+        .catch(e => {
+          console.log("🟥ERROR: ", e)
+          setErrorModalInstance(prev => [...prev, e])
+
+          throw Error("トラックの再生開始に失敗しました")
+        })
+    },
+    [setErrorModalInstance]
+  )
+
+  return { getPlaylists, getPlaylistTracks, startPlayback } as const
 }
 
 export default useSpotifyApi

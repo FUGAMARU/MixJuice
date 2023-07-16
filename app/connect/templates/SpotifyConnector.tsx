@@ -60,7 +60,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       setIsFetchingPlaylists(true)
       const playlists = await getPlaylists()
       setPlaylists(
-        playlists.map((item: any) => ({
+        playlists.map(item => ({
           id: item.id,
           name: item.name,
           description: item.description,

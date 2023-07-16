@@ -54,7 +54,7 @@ const useSpotifyToken = () => {
 
       const state = generateRandomString(16)
       const scope =
-        "user-read-private user-read-email playlist-read-private playlist-read-collaborative"
+        "user-read-private user-read-email playlist-read-private playlist-read-collaborative streaming"
 
       localStorage.setItem(
         LOCAL_STORAGE_KEYS.PKCE_CONFIG,

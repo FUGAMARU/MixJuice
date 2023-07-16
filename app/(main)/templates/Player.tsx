@@ -7,6 +7,7 @@ import MusicInfo from "../../components/parts/MusicInfo"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
 
 const Player = () => {
@@ -28,28 +29,21 @@ const Player = () => {
     [breakPoint]
   )
 
-  // 開発用
-  const title = "流線型メーデー"
-  const title2 = "ラ♪ラ♪ラ♪スイートプリキュア♪〜∞UNLIMITED∞ ver.〜"
-  const artist = "花譜, 可不"
-  const artist2 =
-    "内田雄馬, 内田雄馬 with 石川界人, 榎木淳弥, 斉藤壮馬, 畠中祐, 花江夏樹, 八代択"
-  const artworkUrl =
-    "https://m.media-amazon.com/images/I/61JXT+EUkYL._UXNaN_FMjpg_QL85_.jpg"
+  const { currentMusic } = usePlayer()
 
   return (
     <>
       <Flex w="100%" h="100%" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={artworkUrl}
+          src={currentMusic?.imgSrc || ""}
           smaller={isSmallerThanTablet}
         />
 
         <MusicInfo
-          title={title}
-          artist={artist}
-          backgroundImage={artworkUrl}
+          title={currentMusic?.title || "再生待機中…"}
+          artist={currentMusic?.artist || "再生待機中…"}
+          backgroundImage={currentMusic?.imgSrc || ""}
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}
         />

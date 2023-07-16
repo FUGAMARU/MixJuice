@@ -7,7 +7,6 @@ type Props = {
   label: string
   color: string
   checked: boolean
-  // eslint-disable-next-line unused-imports/no-unused-vars
   onClick: (id: string) => void
 }
 

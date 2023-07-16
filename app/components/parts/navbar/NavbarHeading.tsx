@@ -6,7 +6,6 @@ import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 type Props = {
   icon: string
   provider: string
-  // eslint-disable-next-line unused-imports/no-unused-vars
   onClick: (provider: string, to: boolean) => void
 }
 
