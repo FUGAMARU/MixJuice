@@ -16,7 +16,7 @@ const useSpotifyWebPlaybackSDK = ({ onTrackFinish }: Props) => {
   }, [])
 
   useEffect(() => {
-    if (accessToken === undefined) return
+    if (accessToken === undefined || player) return
 
     const script = document.createElement("script")
     script.src = "https://sdk.scdn.co/spotify-player.js"
@@ -62,7 +62,7 @@ const useSpotifyWebPlaybackSDK = ({ onTrackFinish }: Props) => {
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken])
+  }, [accessToken, onTrackFinish, player])
 
   return { playbackState } as const
 }

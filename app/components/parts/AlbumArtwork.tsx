@@ -9,9 +9,10 @@ type Props = {
   size: number
   src: string
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
+  onNextTrack: () => void
 }
 
-const AlbumArtwork = ({ size, src, smaller }: Props) => {
+const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
   /** プレイヤーコントロールホバー時アニメーション管理 */
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
   const [isPlayerControlShown, setPlayerControlShown] = useState(false)
@@ -73,6 +74,7 @@ const AlbumArtwork = ({ size, src, smaller }: Props) => {
               color="white"
               size={smaller ? "1.5rem" : "2rem"}
               style={{ cursor: "pointer" }}
+              onClick={onNextTrack}
             />
           </Group>
         </Overlay>

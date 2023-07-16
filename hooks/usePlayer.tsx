@@ -15,13 +15,13 @@ const usePlayer = () => {
   const [volume, setVolume] = useState(0.5)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
 
-  const handleTrackFinish = () => {
-    isPlaying = false
-    onNextTrack()
-  }
-
   const { playbackPosition: spotifyPlaybackPosition, onSpotifyPlay } =
-    useSpotifyPlayer({ onTrackFinish: handleTrackFinish })
+    useSpotifyPlayer({
+      onTrackFinish: () => {
+        isPlaying = false
+        onNextTrack()
+      }
+    })
 
   const onPlay = useCallback(
     async (provider: Provider, trackId: string) => {
@@ -43,6 +43,7 @@ const usePlayer = () => {
   }, [])
 
   const onNextTrack = useCallback(() => {
+    isPlaying = false
     setTrackFeedTrigger(prev => !prev)
   }, [])
 
@@ -74,7 +75,8 @@ const usePlayer = () => {
     currentMusicInfo,
     playbackPosition,
     volume,
-    setVolume
+    setVolume,
+    onNextTrack
   } as const
 }
 

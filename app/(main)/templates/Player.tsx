@@ -29,7 +29,7 @@ const Player = () => {
     [breakPoint]
   )
 
-  const { currentMusicInfo, playbackPosition } = usePlayer()
+  const { currentMusicInfo, playbackPosition, onNextTrack } = usePlayer()
 
   return (
     <>
@@ -38,6 +38,7 @@ const Player = () => {
           size={containerHeight}
           src={currentMusicInfo?.imgSrc || ""}
           smaller={isSmallerThanTablet}
+          onNextTrack={onNextTrack}
         />
 
         <MusicInfo
