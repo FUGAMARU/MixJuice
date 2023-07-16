@@ -12,6 +12,7 @@ const useSpotifyApi = () => {
    * https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists
    */
   const getPlaylists = useCallback(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let playlists: any[] = [] // APIレスポンスの項目が多く型定義が面倒なのでanyを使用
 
     try {

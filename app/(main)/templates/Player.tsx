@@ -29,21 +29,21 @@ const Player = () => {
     [breakPoint]
   )
 
-  const { currentMusic } = usePlayer()
+  const { currentMusicInfo, playbackPosition } = usePlayer()
 
   return (
     <>
       <Flex w="100%" h="100%" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={currentMusic?.imgSrc || ""}
+          src={currentMusicInfo?.imgSrc || ""}
           smaller={isSmallerThanTablet}
         />
 
         <MusicInfo
-          title={currentMusic?.title || "再生待機中…"}
-          artist={currentMusic?.artist || "再生待機中…"}
-          backgroundImage={currentMusic?.imgSrc || ""}
+          title={currentMusicInfo?.title || "再生待機中…"}
+          artist={currentMusicInfo?.artist || "再生待機中…"}
+          backgroundImage={currentMusicInfo?.imgSrc || ""}
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}
         />
@@ -52,7 +52,7 @@ const Player = () => {
       {/** wを再生時間の割合と同期させる */}
       <Box
         className={styles.loader}
-        w="30%"
+        w={`${playbackPosition}%`}
         h="0.3rem"
         bg="spotify"
         sx={{

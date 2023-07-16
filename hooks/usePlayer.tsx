@@ -10,10 +10,18 @@ let isPlaying = false
 
 const usePlayer = () => {
   const [musicList, setMusicList] = useRecoilState(musicListAtom)
-  const [currentMusic, setCurrentMusic] = useState<MusicListItem>()
+  const [currentMusicInfo, setCurrentMusicInfo] = useState<MusicListItem>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
   const [volume, setVolume] = useState(0.5)
-  const { onSpotifyPlay } = useSpotifyPlayer()
+  const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
+
+  const handleTrackFinish = () => {
+    isPlaying = false
+    onNextTrack()
+  }
+
+  const { playbackPosition: spotifyPlaybackPosition, onSpotifyPlay } =
+    useSpotifyPlayer({ onTrackFinish: handleTrackFinish })
 
   const onPlay = useCallback(
     async (provider: Provider, trackId: string) => {
@@ -34,18 +42,36 @@ const usePlayer = () => {
     isPlaying = false
   }, [])
 
+  const onNextTrack = useCallback(() => {
+    setTrackFeedTrigger(prev => !prev)
+  }, [])
+
+  /** 再生位置の更新 */
+  useEffect(() => {
+    if (currentMusicInfo === undefined) return
+
+    switch (currentMusicInfo.provider) {
+      case "spotify":
+        setPlaybackPosition(spotifyPlaybackPosition)
+        break
+      case "webdav":
+        // webdavの再生位置をセットする
+        break
+    }
+  }, [currentMusicInfo, spotifyPlaybackPosition])
+
   /** キューが更新されたらアイテムの1番目の曲を再生開始する */
   useEffect(() => {
     if (musicList.length === 0 || isPlaying) return
 
     isPlaying = true
-    setCurrentMusic(musicList[0])
+    setCurrentMusicInfo(musicList[0])
     setMusicList(prev => prev.slice(1))
     onPlay(musicList[0].provider, musicList[0].id)
-  }, [musicList, onPlay, setMusicList])
+  }, [musicList, onPlay, setMusicList, trackFeedTrigger])
 
   return {
-    currentMusic,
+    currentMusicInfo,
     playbackPosition,
     volume,
     setVolume
