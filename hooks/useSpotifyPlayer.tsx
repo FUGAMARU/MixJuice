@@ -29,7 +29,10 @@ const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
       }
 
       try {
-        startPlayback(sessionStorage.getItem("deviceId") as string, trackId) // 上記のwhile文によりsessionStorageのdeviceIdがnullでないことが保証されている
+        await startPlayback(
+          sessionStorage.getItem("deviceId") as string,
+          trackId
+        ) // 上記のwhile文によりsessionStorageのdeviceIdがnullでないことが保証されている
       } catch (e) {
         setErrorModalInstance(prev => [...prev, e])
       }

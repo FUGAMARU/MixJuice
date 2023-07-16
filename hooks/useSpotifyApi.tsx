@@ -83,9 +83,9 @@ const useSpotifyApi = () => {
    * https://developer.spotify.com/documentation/web-api/reference/start-a-users-playback
    */
   const startPlayback = useCallback(
-    (deviceId: string, trackId: string) => {
-      spotifyApi
-        .put(
+    async (deviceId: string, trackId: string) => {
+      try {
+        await spotifyApi.put(
           "/me/player/play",
           {
             uris: [`spotify:track:${trackId}`]
@@ -96,12 +96,12 @@ const useSpotifyApi = () => {
             }
           }
         )
-        .catch(e => {
-          console.log("🟥ERROR: ", e)
-          setErrorModalInstance(prev => [...prev, e])
+      } catch (e) {
+        console.log("🟥ERROR: ", e)
+        setErrorModalInstance(prev => [...prev, e])
 
-          throw Error("トラックの再生開始に失敗しました")
-        })
+        throw Error("トラックの再生開始に失敗しました")
+      }
     },
     [setErrorModalInstance]
   )
