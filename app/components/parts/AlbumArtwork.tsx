@@ -38,7 +38,11 @@ const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
       ref={artworkRef}
       bg="white"
       pos="relative"
-      sx={{ flexShrink: 0, zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK }}
+      sx={{
+        flexShrink: 0,
+        zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK,
+        overflow: "hidden"
+      }}
     >
       <Image
         // 高さ・幅はとりあえず指定しないといけないので適当に指定
@@ -49,7 +53,8 @@ const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
         style={{
           objectFit: "contain",
           height: "100%",
-          width: "100%"
+          width: "100%",
+          scale: "1.02" // 完璧な正方形じゃないアートワークがそこそこあるので少し拡大しておく
         }}
       />
       {isPlayerControlShown && (

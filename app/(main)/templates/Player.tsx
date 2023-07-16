@@ -53,10 +53,10 @@ const Player = () => {
       {/** wを再生時間の割合と同期させる */}
       <Box
         className={styles.loader}
-        w={`${playbackPosition}%`}
         h="0.3rem"
         bg="spotify"
         sx={{
+          width: `${playbackPosition}%`, // sx内でwidthを指定したほうがMantineのクラスの再定義が走らないので軽い(気がした)
           ":before": {
             zIndex: ZINDEX_NUMBERS.SEEKBAR_LINE
           },
