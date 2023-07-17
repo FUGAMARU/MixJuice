@@ -30,7 +30,9 @@ const Player = () => {
     [breakPoint]
   )
 
-  const { currentMusicInfo, playbackPosition, onNextTrack } = usePlayer()
+  const { currentMusicInfo, playbackPosition, onNextTrack } = usePlayer({
+    initializeUseSpotifyPlayer: true
+  })
 
   return (
     <>

@@ -22,19 +22,19 @@ const AlbumArtwork = ({
   smaller,
   onNextTrack
 }: Props) => {
+  const { setRespVal } = useBreakPoints()
   /** プレイヤーコントロールホバー時アニメーション管理 */
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
-  const { setRespVal } = useBreakPoints()
   const [isPlayerControlShown, setPlayerControlShown] = useState(false)
-  const [artworkClassNames, setArtworkClassNames] = useState("")
+  const [overlayClassNames, setOverlayClassNames] = useState("")
   useEffect(() => {
     const prefix = "animate__animated animate__faster"
 
     if (isArtworkHovered) {
-      setArtworkClassNames(`${prefix} animate__fadeIn`)
+      setOverlayClassNames(`${prefix} animate__fadeIn`)
       setPlayerControlShown(true)
     } else {
-      setArtworkClassNames(`${prefix} animate__fadeOut`)
+      setOverlayClassNames(`${prefix} animate__fadeOut`)
       setTimeout(() => {
         setPlayerControlShown(false)
       }, 400)
@@ -76,7 +76,7 @@ const AlbumArtwork = ({
           />
           {isPlayerControlShown && (
             <Overlay
-              className={artworkClassNames}
+              className={overlayClassNames}
               center
               gradient="linear-gradient(145deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 100%)"
               opacity={0.85}

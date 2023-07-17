@@ -7,10 +7,11 @@ import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 let deviceId = ""
 
 type Props = {
+  initialize: boolean
   onTrackFinish: () => void
 }
 
-const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
+const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const [player, setPlayer] = useState<Spotify.Player>()
@@ -40,7 +41,7 @@ const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
 
   /** Web Playback SDK */
   useEffect(() => {
-    if (accessToken === undefined || player) return
+    if (accessToken === undefined || player || !initialize) return
 
     const script = document.createElement("script")
     script.src = "https://sdk.scdn.co/spotify-player.js"
@@ -86,7 +87,7 @@ const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken, onTrackFinish, player])
+  }, [accessToken, onTrackFinish, player, initialize])
 
   return { playbackPosition, onSpotifyPlay } as const
 }

@@ -72,7 +72,6 @@ const CheckboxListModal = ({
 
             <Box sx={{ flex: "1", overflow: "hidden" }}>
               <ListItem
-                noIndex
                 imgSrc={item.imgSrc}
                 title={item.name}
                 subText={item.description}

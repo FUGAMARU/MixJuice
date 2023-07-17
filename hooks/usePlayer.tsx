@@ -8,7 +8,11 @@ import { Provider } from "@/types/Provider"
 
 let isPlaying = false
 
-const usePlayer = () => {
+type Props = {
+  initializeUseSpotifyPlayer: boolean
+}
+
+const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
   const [musicList, setMusicList] = useRecoilState(musicListAtom)
   const [currentMusicInfo, setCurrentMusicInfo] = useState<MusicListItem>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
@@ -17,6 +21,7 @@ const usePlayer = () => {
 
   const { playbackPosition: spotifyPlaybackPosition, onSpotifyPlay } =
     useSpotifyPlayer({
+      initialize: initializeUseSpotifyPlayer,
       onTrackFinish: () => {
         isPlaying = false
         onNextTrack()
@@ -47,6 +52,21 @@ const usePlayer = () => {
     setTrackFeedTrigger(prev => !prev)
   }, [])
 
+  const onSkipTo = useCallback(
+    (id: string) => {
+      isPlaying = false
+      const idx = musicList.findIndex(item => item.id === id)
+      if (idx === -1) return
+
+      const newMusicList = [...musicList]
+      const [item] = newMusicList.splice(idx, 1)
+      newMusicList.unshift(item)
+      setMusicList(newMusicList)
+      setTrackFeedTrigger(prev => !prev)
+    },
+    [musicList, setMusicList]
+  )
+
   /** 再生位置の更新 */
   useEffect(() => {
     if (currentMusicInfo === undefined) return
@@ -76,7 +96,8 @@ const usePlayer = () => {
     playbackPosition,
     volume,
     setVolume,
-    onNextTrack
+    onNextTrack,
+    onSkipTo
   } as const
 }
 
