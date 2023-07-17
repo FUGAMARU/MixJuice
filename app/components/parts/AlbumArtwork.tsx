@@ -78,7 +78,7 @@ const AlbumArtwork = ({
             src={src}
             alt="album artwork"
             style={{
-              objectFit: objectFit,
+              objectFit,
               height: "100%",
               width: "100%"
             }}

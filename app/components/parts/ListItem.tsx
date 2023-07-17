@@ -59,7 +59,7 @@ const ListItem = ({
           src={imgSrc}
           alt="list item image"
           style={{
-            objectFit: objectFit,
+            objectFit,
             height: "100%",
             width: "100%",
             borderRadius: "3px"
