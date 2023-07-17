@@ -70,12 +70,36 @@ const LayoutNavbar = () => {
       checked: false
     }))
 
-    setPlaylists(prev => [...prev, ...mapped])
+    const checkedItems = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
+    )
+    if (checkedItems !== null) {
+      const parsedCheckedItems = JSON.parse(checkedItems) as string[]
+      parsedCheckedItems.forEach(id => {
+        const index = mapped.findIndex(p => p.id === id)
+        if (index !== -1) mapped[index].checked = true
+      })
+    }
+
+    setPlaylists(mapped)
 
     return () => {
       setPlaylists([])
     }
   }, [])
+
+  /** チェックを入れた項目をLocalStorageに保存する */
+  useEffect(() => {
+    if (playlists.length === 0) return
+
+    const checkedItems = playlists
+      .filter(p => p.checked === true)
+      .map(p => p.id)
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS,
+      JSON.stringify(checkedItems)
+    )
+  }, [playlists])
 
   const handleCheckboxClick = useCallback((id: string) => {
     setPlaylists(prev =>
