@@ -6,6 +6,7 @@ import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { HEADER_HEIGHT, TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
@@ -47,10 +48,10 @@ const LayoutHeader = () => {
         </Box>
 
         <Image
-          src="/mix-juice-tmp-logo.png"
+          src={`/header-logos/header-${generateRandomNumber(1, 12)}.png`}
           width={152}
           height={40}
-          alt="service logo"
+          alt="Randomized MixJuice Logo"
         />
 
         <Space w="1.8rem" />
