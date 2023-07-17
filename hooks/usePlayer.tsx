@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useRecoilState } from "recoil"
 import useSpotifyPlayer from "./useSpotifyPlayer"
-import { musicListAtom } from "@/atoms/musicListAtom"
-import { MusicListItem } from "@/types/MusicListItem"
+import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
+import { Track } from "@/types/Track"
 
 let isLockingPlayer = false // trueの場合はキューの内容が変更されても曲送りしない (isPlayingと同じ使い方をすると曲送り用のuseEffectが無限ループに陥るので分けている)
 
@@ -13,8 +13,8 @@ type Props = {
 }
 
 const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
-  const [musicList, setMusicList] = useRecoilState(musicListAtom)
-  const [currentMusicInfo, setCurrentMusicInfo] = useState<MusicListItem>()
+  const [queue, setQueue] = useRecoilState(queueAtom)
+  const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -52,7 +52,7 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
   )
 
   const onTogglePlay = useCallback(() => {
-    switch (currentMusicInfo?.provider) {
+    switch (currentTrackInfo?.provider) {
       case "spotify":
         onSpotifyTogglePlay()
         setIsPlaying(prev => !prev)
@@ -62,7 +62,7 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
         setIsPlaying(prev => !prev)
         break
     }
-  }, [currentMusicInfo?.provider, onSpotifyTogglePlay])
+  }, [currentTrackInfo?.provider, onSpotifyTogglePlay])
 
   const onNextTrack = useCallback(() => {
     setIsPlaying(false)
@@ -74,23 +74,23 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
     (id: string) => {
       setIsPlaying(false)
       isLockingPlayer = false
-      const idx = musicList.findIndex(item => item.id === id)
+      const idx = queue.findIndex(item => item.id === id)
       if (idx === -1) return
 
-      const newMusicList = [...musicList]
-      const [item] = newMusicList.splice(idx, 1)
-      newMusicList.unshift(item)
-      setMusicList(newMusicList)
+      const newQueue = [...queue]
+      const [item] = newQueue.splice(idx, 1)
+      newQueue.unshift(item)
+      setQueue(newQueue)
       setTrackFeedTrigger(prev => !prev)
     },
-    [musicList, setMusicList]
+    [queue, setQueue]
   )
 
   /** 再生位置の更新 */
   useEffect(() => {
-    if (currentMusicInfo === undefined) return
+    if (currentTrackInfo === undefined) return
 
-    switch (currentMusicInfo.provider) {
+    switch (currentTrackInfo.provider) {
       case "spotify":
         setPlaybackPosition(spotifyPlaybackPosition)
         break
@@ -98,20 +98,20 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
         // TODO: webdavの再生位置をセットする
         break
     }
-  }, [currentMusicInfo, spotifyPlaybackPosition])
+  }, [currentTrackInfo, spotifyPlaybackPosition])
 
   /** キューが更新されたらアイテムの1番目の曲を再生開始する */
   useEffect(() => {
-    if (musicList.length === 0 || isLockingPlayer) return
+    if (queue.length === 0 || isLockingPlayer) return
 
     isLockingPlayer = true
-    setCurrentMusicInfo(musicList[0])
-    setMusicList(prev => prev.slice(1))
-    onPlay(musicList[0].provider, musicList[0].id)
-  }, [musicList, onPlay, setMusicList, trackFeedTrigger])
+    setCurrentTrackInfo(queue[0])
+    setQueue(prev => prev.slice(1))
+    onPlay(queue[0].provider, queue[0].id)
+  }, [queue, onPlay, setQueue, trackFeedTrigger])
 
   return {
-    currentMusicInfo,
+    currentTrackInfo,
     playbackPosition,
     isPlaying,
     volume,

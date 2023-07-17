@@ -16,8 +16,8 @@ import { useRecoilValue, useSetRecoilState } from "recoil"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { musicListAtom } from "@/atoms/musicListAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { queueAtom } from "@/atoms/queueAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
@@ -26,10 +26,10 @@ import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
-import { MusicListItem } from "@/types/MusicListItem"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
+import { Track } from "@/types/Track"
 
 const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
@@ -42,7 +42,7 @@ const LayoutNavbar = () => {
   const [isMixing, setIsMixing] = useState(false)
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
-  const setMusicList = useSetRecoilState(musicListAtom)
+  const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { hasValidAccessTokenState } = useSpotifyToken()
   const { getPlaylistTracks } = useSpotifyApi()
@@ -98,11 +98,11 @@ const LayoutNavbar = () => {
 
   const handleMixButtonClick = useCallback(async () => {
     setIsMixing(true)
-    let tracksForPlaylists: MusicListItem[][] = []
+    let tracksForPlaylists: Track[][] = []
 
     const getPlaylistTracksAsync = async (
       playlistId: string
-    ): Promise<MusicListItem[]> => {
+    ): Promise<Track[]> => {
       const res = await getPlaylistTracks(playlistId)
       return res.map((item: SpotifyApiTrack) => ({
         id: item.track.id,
@@ -135,7 +135,7 @@ const LayoutNavbar = () => {
       const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
         .flat()
         .sort(() => Math.random() - 0.5)
-      setMusicList(checkedSpotifyPlaylistsTracksFlattenShuffled)
+      setQueue(checkedSpotifyPlaylistsTracksFlattenShuffled)
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
     } finally {
@@ -143,7 +143,7 @@ const LayoutNavbar = () => {
     }
   }, [
     getPlaylistTracks,
-    setMusicList,
+    setQueue,
     spotifyPlaylists,
     hasValidAccessTokenState,
     setErrorModalInstance

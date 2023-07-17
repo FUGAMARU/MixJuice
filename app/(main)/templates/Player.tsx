@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react"
 import { useSetRecoilState } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import AlbumArtwork from "@/components/parts/AlbumArtwork"
-import MusicInfo from "@/components/parts/MusicInfo"
+import TrackInfo from "@/components/parts/TrackInfo"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
@@ -31,7 +31,7 @@ const Player = () => {
   )
 
   const {
-    currentMusicInfo,
+    currentTrackInfo,
     playbackPosition,
     isPlaying,
     onNextTrack,
@@ -45,13 +45,13 @@ const Player = () => {
       <Flex w="100%" h="100%" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={currentMusicInfo?.imgSrc || undefined}
+          src={currentTrackInfo?.imgSrc || undefined}
           objectFit={
-            !currentMusicInfo
+            !currentTrackInfo
               ? "contain"
               : isSquareApproximate(
-                  currentMusicInfo.imgWidth,
-                  currentMusicInfo.imgHeight
+                  currentTrackInfo.imgWidth,
+                  currentTrackInfo.imgHeight
                 )
               ? "cover"
               : "contain"
@@ -62,10 +62,10 @@ const Player = () => {
           onNextTrack={onNextTrack}
         />
 
-        <MusicInfo
-          title={currentMusicInfo?.title || "再生待機中…"}
-          artist={currentMusicInfo?.artist || "再生待機中…"}
-          backgroundImage={currentMusicInfo?.imgSrc || ""}
+        <TrackInfo
+          title={currentTrackInfo?.title || "再生待機中…"}
+          artist={currentTrackInfo?.artist || "再生待機中…"}
+          backgroundImage={currentTrackInfo?.imgSrc || ""}
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}
         />

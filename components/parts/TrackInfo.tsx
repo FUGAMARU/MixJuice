@@ -11,7 +11,7 @@ type Props = {
   calculatedWidth: number
 }
 
-const MusicInfo = ({
+const TrackInfo = ({
   title,
   artist,
   backgroundImage,
@@ -133,4 +133,4 @@ const MusicInfo = ({
   )
 }
 
-export default MusicInfo
+export default TrackInfo

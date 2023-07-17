@@ -2,8 +2,8 @@ import { Box, Divider, Flex, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { useMemo } from "react"
 import { useRecoilValue } from "recoil"
-import { musicListAtom } from "@/atoms/musicListAtom"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
+import { queueAtom } from "@/atoms/queueAtom"
 import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
 import { HEADER_HEIGHT } from "@/constants/Styling"
@@ -11,7 +11,7 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
-const MusicList = () => {
+const Queue = () => {
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const playerHeight = useRecoilValue(playerHeightAtom)
@@ -19,8 +19,7 @@ const MusicList = () => {
     () => viewportHeight - HEADER_HEIGHT - playerHeight,
     [viewportHeight, playerHeight]
   )
-  const musicList = useRecoilValue(musicListAtom)
-
+  const queue = useRecoilValue(queueAtom)
   const { onSkipTo } = usePlayer({ initializeUseSpotifyPlayer: false })
 
   return (
@@ -30,13 +29,13 @@ const MusicList = () => {
       py="md"
       sx={{ overflowY: "auto" }}
     >
-      {musicList.length === 0 && (
+      {queue.length === 0 && (
         <Text ta="center" fz={setRespVal("xs", "sm", "sm")}>
           プレイリストを選択して『MIX!』ボタンを押してみましょう！
         </Text>
       )}
 
-      {musicList.map((data, idx) => {
+      {queue.map((data, idx) => {
         return (
           <Box key={idx}>
             {idx !== 0 && <Divider my="xs" />}
@@ -69,4 +68,4 @@ const MusicList = () => {
   )
 }
 
-export default MusicList
+export default Queue

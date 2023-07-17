@@ -1,6 +1,6 @@
 import { Provider } from "./Provider"
 
-export type MusicListItem = {
+export type Track = {
   id: string
   provider: Provider
   title: string
