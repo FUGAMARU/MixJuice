@@ -30,7 +30,13 @@ const Player = () => {
     [breakPoint]
   )
 
-  const { currentMusicInfo, playbackPosition, onNextTrack } = usePlayer({
+  const {
+    currentMusicInfo,
+    playbackPosition,
+    isPlaying,
+    onNextTrack,
+    onTogglePlay
+  } = usePlayer({
     initializeUseSpotifyPlayer: true
   })
 
@@ -51,6 +57,8 @@ const Player = () => {
               : "contain"
           }
           smaller={isSmallerThanTablet}
+          isPlaying={isPlaying}
+          onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />
 

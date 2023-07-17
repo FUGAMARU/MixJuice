@@ -2,7 +2,12 @@ import { Box, Overlay, Group, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { IoPlayBack, IoPlayCircleSharp, IoPlayForward } from "react-icons/io5"
+import {
+  IoPauseCircleSharp,
+  IoPlayBack,
+  IoPlayCircleSharp,
+  IoPlayForward
+} from "react-icons/io5"
 import { MdOutlineLibraryMusic } from "react-icons/md"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -12,6 +17,8 @@ type Props = {
   src: string | undefined
   objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
+  isPlaying: boolean
+  onTogglePlay: () => void
   onNextTrack: () => void
 }
 
@@ -20,6 +27,8 @@ const AlbumArtwork = ({
   src,
   objectFit = "contain",
   smaller,
+  isPlaying,
+  onTogglePlay,
   onNextTrack
 }: Props) => {
   const { setRespVal } = useBreakPoints()
@@ -87,11 +96,21 @@ const AlbumArtwork = ({
                   size={smaller ? "1.5rem" : "2rem"}
                   style={{ cursor: "pointer" }}
                 />
-                <IoPlayCircleSharp
-                  color="white"
-                  size={smaller ? "2rem" : "3rem"}
-                  style={{ cursor: "pointer" }}
-                />
+                {isPlaying ? (
+                  <IoPauseCircleSharp
+                    color="white"
+                    size={smaller ? "2rem" : "3rem"}
+                    style={{ cursor: "pointer" }}
+                    onClick={onTogglePlay}
+                  />
+                ) : (
+                  <IoPlayCircleSharp
+                    color="white"
+                    size={smaller ? "2rem" : "3rem"}
+                    style={{ cursor: "pointer" }}
+                    onClick={onTogglePlay}
+                  />
+                )}
                 <IoPlayForward
                   color="white"
                   size={smaller ? "1.5rem" : "2rem"}

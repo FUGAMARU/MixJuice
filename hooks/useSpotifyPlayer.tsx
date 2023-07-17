@@ -23,7 +23,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     return (playbackState.position / playbackState.duration) * 100
   }, [playbackState])
 
-  const onSpotifyPlay = useCallback(
+  const onPlay = useCallback(
     async (trackId: string) => {
       while (deviceId === "") {
         console.log("🟦DEBUG: デバイスIDの取得完了を待機しています…")
@@ -38,6 +38,11 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     },
     [startPlayback, setErrorModalInstance]
   )
+
+  const onTogglePlay = useCallback(async () => {
+    if (player === undefined) return
+    await player.togglePlay()
+  }, [player])
 
   /** Web Playback SDK */
   useEffect(() => {
@@ -89,7 +94,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     }
   }, [accessToken, onTrackFinish, player, initialize])
 
-  return { playbackPosition, onSpotifyPlay } as const
+  return { playbackPosition, onPlay, onTogglePlay } as const
 }
 
 export default useSpotifyPlayer

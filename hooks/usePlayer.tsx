@@ -6,7 +6,7 @@ import { musicListAtom } from "@/atoms/musicListAtom"
 import { MusicListItem } from "@/types/MusicListItem"
 import { Provider } from "@/types/Provider"
 
-let isPlaying = false
+let isLockingPlayer = false // trueの場合はキューの内容が変更されても曲送りしない (isPlayingと同じ使い方をすると曲送り用のuseEffectが無限ループに陥るので分けている)
 
 type Props = {
   initializeUseSpotifyPlayer: boolean
@@ -17,44 +17,63 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
   const [currentMusicInfo, setCurrentMusicInfo] = useState<MusicListItem>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
   const [volume, setVolume] = useState(0.5)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
 
-  const { playbackPosition: spotifyPlaybackPosition, onSpotifyPlay } =
-    useSpotifyPlayer({
-      initialize: initializeUseSpotifyPlayer,
-      onTrackFinish: () => {
-        isPlaying = false
-        onNextTrack()
-      }
-    })
+  const {
+    playbackPosition: spotifyPlaybackPosition,
+    onPlay: onSpotifyPlay,
+    onTogglePlay: onSpotifyTogglePlay
+  } = useSpotifyPlayer({
+    initialize: initializeUseSpotifyPlayer,
+    onTrackFinish: () => {
+      setIsPlaying(false)
+      isLockingPlayer = false
+      onNextTrack()
+    }
+  })
 
   const onPlay = useCallback(
     async (provider: Provider, trackId: string) => {
       switch (provider) {
         case "spotify":
           onSpotifyPlay(trackId)
-          isPlaying = true
+          setIsPlaying(true)
+          isLockingPlayer = true
           break
         case "webdav":
           // webdavの再生開始処理
+          setIsPlaying(true)
+          isLockingPlayer = true
           break
       }
     },
     [onSpotifyPlay]
   )
 
-  const onPause = useCallback(() => {
-    isPlaying = false
-  }, [])
+  const onTogglePlay = useCallback(() => {
+    switch (currentMusicInfo?.provider) {
+      case "spotify":
+        onSpotifyTogglePlay()
+        setIsPlaying(prev => !prev)
+        break
+      case "webdav":
+        // TODO: webdavのトグル再生処理
+        setIsPlaying(prev => !prev)
+        break
+    }
+  }, [currentMusicInfo?.provider, onSpotifyTogglePlay])
 
   const onNextTrack = useCallback(() => {
-    isPlaying = false
+    setIsPlaying(false)
+    isLockingPlayer = false
     setTrackFeedTrigger(prev => !prev)
   }, [])
 
   const onSkipTo = useCallback(
     (id: string) => {
-      isPlaying = false
+      setIsPlaying(false)
+      isLockingPlayer = false
       const idx = musicList.findIndex(item => item.id === id)
       if (idx === -1) return
 
@@ -76,16 +95,16 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
         setPlaybackPosition(spotifyPlaybackPosition)
         break
       case "webdav":
-        // webdavの再生位置をセットする
+        // TODO: webdavの再生位置をセットする
         break
     }
   }, [currentMusicInfo, spotifyPlaybackPosition])
 
   /** キューが更新されたらアイテムの1番目の曲を再生開始する */
   useEffect(() => {
-    if (musicList.length === 0 || isPlaying) return
+    if (musicList.length === 0 || isLockingPlayer) return
 
-    isPlaying = true
+    isLockingPlayer = true
     setCurrentMusicInfo(musicList[0])
     setMusicList(prev => prev.slice(1))
     onPlay(musicList[0].provider, musicList[0].id)
@@ -94,10 +113,12 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
   return {
     currentMusicInfo,
     playbackPosition,
+    isPlaying,
     volume,
     setVolume,
     onNextTrack,
-    onSkipTo
+    onSkipTo,
+    onTogglePlay
   } as const
 }
 
