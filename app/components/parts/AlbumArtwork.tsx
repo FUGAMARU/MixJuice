@@ -8,11 +8,18 @@ import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 type Props = {
   size: number
   src: string
+  objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   onNextTrack: () => void
 }
 
-const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
+const AlbumArtwork = ({
+  size,
+  src,
+  objectFit = "contain",
+  smaller,
+  onNextTrack
+}: Props) => {
   /** プレイヤーコントロールホバー時アニメーション管理 */
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
   const [isPlayerControlShown, setPlayerControlShown] = useState(false)
@@ -40,8 +47,7 @@ const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
       pos="relative"
       sx={{
         flexShrink: 0,
-        zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK,
-        overflow: "hidden"
+        zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK
       }}
     >
       <Image
@@ -51,10 +57,9 @@ const AlbumArtwork = ({ size, src, smaller, onNextTrack }: Props) => {
         src={src}
         alt="album artwork"
         style={{
-          objectFit: "contain",
+          objectFit: objectFit,
           height: "100%",
-          width: "100%",
-          scale: "1.02" // 完璧な正方形じゃないアートワークがそこそこあるので少し拡大しておく
+          width: "100%"
         }}
       />
       {isPlayerControlShown && (

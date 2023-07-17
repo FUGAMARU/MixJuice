@@ -4,6 +4,7 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Detail = {
   imgSrc: string
+  objectFit?: "contain" | "cover"
   title: string
   subText: string
 }
@@ -18,7 +19,14 @@ type Props =
       noIndex?: false
     } & Detail)
 
-const ListItem = ({ idx, noIndex = false, imgSrc, title, subText }: Props) => {
+const ListItem = ({
+  idx,
+  noIndex = false,
+  imgSrc,
+  objectFit = "contain",
+  title,
+  subText
+}: Props) => {
   const { setRespVal } = useBreakPoints()
 
   return (
@@ -37,7 +45,7 @@ const ListItem = ({ idx, noIndex = false, imgSrc, title, subText }: Props) => {
           src={imgSrc}
           alt="list item image"
           style={{
-            objectFit: "contain",
+            objectFit: objectFit,
             height: "100%",
             width: "100%",
             borderRadius: "3px"

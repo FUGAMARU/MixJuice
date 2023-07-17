@@ -6,4 +6,6 @@ export type MusicListItem = {
   title: string
   artist: string
   imgSrc: string
+  imgHeight: number
+  imgWidth: number
 }

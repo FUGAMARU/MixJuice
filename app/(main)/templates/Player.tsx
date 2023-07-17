@@ -9,6 +9,7 @@ import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
+import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 const Player = () => {
   const { breakPoint } = useBreakPoints()
@@ -37,6 +38,16 @@ const Player = () => {
         <AlbumArtwork
           size={containerHeight}
           src={currentMusicInfo?.imgSrc || ""}
+          objectFit={
+            !currentMusicInfo
+              ? "contain"
+              : isSquareApproximate(
+                  currentMusicInfo.imgWidth,
+                  currentMusicInfo.imgHeight
+                )
+              ? "cover"
+              : "contain"
+          }
           smaller={isSmallerThanTablet}
           onNextTrack={onNextTrack}
         />

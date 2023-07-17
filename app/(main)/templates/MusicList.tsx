@@ -8,6 +8,7 @@ import { musicListAtom } from "@/atoms/musicListAtom"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { HEADER_HEIGHT } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 const MusicList = () => {
   const { setRespVal } = useBreakPoints()
@@ -48,6 +49,11 @@ const MusicList = () => {
               <ListItem
                 noIndex
                 imgSrc={data.imgSrc}
+                objectFit={
+                  isSquareApproximate(data.imgWidth, data.imgHeight)
+                    ? "cover"
+                    : "contain"
+                }
                 title={data.title}
                 subText={` / ${data.artist}`}
               />
