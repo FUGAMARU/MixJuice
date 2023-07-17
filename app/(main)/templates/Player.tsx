@@ -37,7 +37,7 @@ const Player = () => {
       <Flex w="100%" h="100%" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={currentMusicInfo?.imgSrc || ""}
+          src={currentMusicInfo?.imgSrc || undefined}
           objectFit={
             !currentMusicInfo
               ? "contain"

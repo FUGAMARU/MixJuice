@@ -1,13 +1,15 @@
-import { Box, Overlay, Group } from "@mantine/core"
+import { Box, Overlay, Group, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { IoPlayBack, IoPlayCircleSharp, IoPlayForward } from "react-icons/io5"
+import { MdOutlineLibraryMusic } from "react-icons/md"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
   size: number
-  src: string
+  src: string | undefined
   objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   onNextTrack: () => void
@@ -22,6 +24,7 @@ const AlbumArtwork = ({
 }: Props) => {
   /** プレイヤーコントロールホバー時アニメーション管理 */
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
+  const { setRespVal } = useBreakPoints()
   const [isPlayerControlShown, setPlayerControlShown] = useState(false)
   const [artworkClassNames, setArtworkClassNames] = useState("")
   useEffect(() => {
@@ -50,44 +53,55 @@ const AlbumArtwork = ({
         zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK
       }}
     >
-      <Image
-        // 高さ・幅はとりあえず指定しないといけないので適当に指定
-        height={1000}
-        width={1000}
-        src={src}
-        alt="album artwork"
-        style={{
-          objectFit: objectFit,
-          height: "100%",
-          width: "100%"
-        }}
-      />
-      {isPlayerControlShown && (
-        <Overlay
-          className={artworkClassNames}
-          center
-          gradient="linear-gradient(145deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 100%)"
-          opacity={0.85}
-        >
-          <Group position="center" spacing={smaller ? "xs" : "lg"}>
-            <IoPlayBack
-              color="white"
-              size={smaller ? "1.5rem" : "2rem"}
-              style={{ cursor: "pointer" }}
-            />
-            <IoPlayCircleSharp
-              color="white"
-              size={smaller ? "2rem" : "3rem"}
-              style={{ cursor: "pointer" }}
-            />
-            <IoPlayForward
-              color="white"
-              size={smaller ? "1.5rem" : "2rem"}
-              style={{ cursor: "pointer" }}
-              onClick={onNextTrack}
-            />
-          </Group>
-        </Overlay>
+      {src === undefined ? (
+        <Center h="100%" w="100%" bg="#eaeaea">
+          <MdOutlineLibraryMusic
+            size={setRespVal("2rem", "2.5rem", "2.5rem")}
+            color="#909090"
+          />
+        </Center>
+      ) : (
+        <>
+          <Image
+            // 高さ・幅はとりあえず指定しないといけないので適当に指定
+            height={1000}
+            width={1000}
+            src={src}
+            alt="album artwork"
+            style={{
+              objectFit: objectFit,
+              height: "100%",
+              width: "100%"
+            }}
+          />
+          {isPlayerControlShown && (
+            <Overlay
+              className={artworkClassNames}
+              center
+              gradient="linear-gradient(145deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 100%)"
+              opacity={0.85}
+            >
+              <Group position="center" spacing={smaller ? "xs" : "lg"}>
+                <IoPlayBack
+                  color="white"
+                  size={smaller ? "1.5rem" : "2rem"}
+                  style={{ cursor: "pointer" }}
+                />
+                <IoPlayCircleSharp
+                  color="white"
+                  size={smaller ? "2rem" : "3rem"}
+                  style={{ cursor: "pointer" }}
+                />
+                <IoPlayForward
+                  color="white"
+                  size={smaller ? "1.5rem" : "2rem"}
+                  style={{ cursor: "pointer" }}
+                  onClick={onNextTrack}
+                />
+              </Group>
+            </Overlay>
+          )}
+        </>
       )}
     </Box>
   )
