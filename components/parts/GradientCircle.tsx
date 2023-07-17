@@ -31,7 +31,8 @@ const GradientCircle = ({
         h="1rem"
         sx={{
           borderRadius: "50%",
-          background: `linear-gradient(45deg, ${COLORS[color].from}, ${COLORS[color].to})`
+          background: `linear-gradient(45deg, ${COLORS[color].from}, ${COLORS[color].to})`,
+          flexShrink: 0
         }}
       >
         <Box

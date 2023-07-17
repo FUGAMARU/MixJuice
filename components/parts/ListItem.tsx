@@ -50,7 +50,7 @@ const ListItem = ({
   }, [isArtworkHovered])
 
   return (
-    <Flex align="center" gap="md">
+    <Flex align="center" gap="md" sx={{ overflow: "hidden" }}>
       <Box w="3.5rem" h="3.5rem" pos="relative" ref={artworkRef}>
         <Image
           // 高さ・幅はとりあえず指定しないといけないので適当に指定
