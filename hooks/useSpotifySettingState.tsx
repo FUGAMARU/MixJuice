@@ -44,7 +44,7 @@ const useSpotifySettingState = () => {
     setSettingState("done")
   }, [selectedPlaylists])
 
-  return { settingState }
+  return { settingState } as const
 }
 
 export default useSpotifySettingState

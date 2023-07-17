@@ -192,7 +192,7 @@ const useSpotifyToken = () => {
     getAccessToken,
     refreshAccessToken,
     hasValidAccessTokenState
-  }
+  } as const
 }
 
 export default useSpotifyToken
