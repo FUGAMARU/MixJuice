@@ -5,7 +5,6 @@ import { useSetRecoilState } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import AlbumArtwork from "@/components/parts/AlbumArtwork"
 import TrackInfo from "@/components/parts/TrackInfo"
-import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
@@ -74,19 +73,10 @@ const Player = () => {
       {/** wを再生時間の割合と同期させる */}
       <Flex>
         <Box w="0.3rem" h="0.3rem" bg="#0bec7c" />
-        <Box
+        {/** MantineのBoxコンポーネントを使用してシークバーを実装すると、再生位置が更新される度にheadタグ内にMantineが生成したstyleタグが追加されてしまうのでdivにて実装 */}
+        <div
           className={styles.loader}
-          w={`${playbackPosition}%`}
-          h="0.3rem"
-          bg="spotify"
-          sx={{
-            ":before": {
-              zIndex: ZINDEX_NUMBERS.SEEKBAR_LINE
-            },
-            ":after": {
-              zIndex: ZINDEX_NUMBERS.SEEKBAR_CIRCLE
-            }
-          }}
+          style={{ width: `${playbackPosition}%` }}
         />
       </Flex>
     </>

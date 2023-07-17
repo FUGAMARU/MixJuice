@@ -1,7 +1,10 @@
 .loader {
   position: relative;
+  height: 0.3rem;
+  background-color: #0bec7c;
 }
 
+/** シークバーの直線の部分 */
 .loader::before {
   content: "";
   position: absolute;
@@ -9,8 +12,10 @@
   height: 100%;
   background: #0bec7c;
   transform-origin: left;
+  z-index: 2;
 }
 
+/** シークバーの丸の部分 */
 .loader::after {
   content: "";
   position: absolute;
@@ -22,6 +27,7 @@
   background: #0bec7c;
   border-radius: 50%;
   animation: animateDot 8s linear infinite;
+  z-index: 4;
 }
 
 @keyframes animateDot {

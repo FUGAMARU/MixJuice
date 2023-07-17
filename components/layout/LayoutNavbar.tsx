@@ -33,7 +33,7 @@ import { Track } from "@/types/Track"
 
 const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
-  const { breakPoint } = useBreakPoints()
+  const { breakPoint, isHamburgerMenuVisible } = useBreakPoints()
   const navbarWidth = useMemo(() => {
     if (breakPoint === "SmartPhone") return "60%"
     if (breakPoint === "Tablet") return "30%"
@@ -155,7 +155,11 @@ const LayoutNavbar = () => {
       width={{ base: navbarWidth }}
       height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
       p={`${NAVBAR_PADDING}px`}
-      zIndex={ZINDEX_NUMBERS.NAVBAR}
+      zIndex={
+        isHamburgerMenuVisible
+          ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED
+          : ZINDEX_NUMBERS.NAVBAR_EXPANDED
+      }
       hiddenBreakpoint="sm"
       hidden={!isOpened}
     >

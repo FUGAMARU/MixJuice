@@ -6,6 +6,8 @@ const useBreakPoints = () => {
   const bp2 = useMediaQuery("(max-width: 1024px)")
   const bp3 = useMediaQuery("(min-width: 1025px)")
 
+  const isHamburgerMenuVisible = useMediaQuery("(max-width: 48em)") // TODO: 脱AppShellをしたら定義し直す | 48emはMantineのsmブレイクポイント相当
+
   const breakPoint = useMemo(() => {
     if (bp1 && bp2) return "SmartPhone"
 
@@ -27,7 +29,7 @@ const useBreakPoints = () => {
     [breakPoint]
   )
 
-  return { breakPoint, setRespVal } as const
+  return { breakPoint, setRespVal, isHamburgerMenuVisible } as const
 }
 
 export default useBreakPoints
