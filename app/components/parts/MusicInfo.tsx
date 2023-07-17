@@ -44,7 +44,9 @@ const MusicInfo = ({
       w="100%"
       h="100%"
       sx={{
-        backgroundImage: `url(${backgroundImage})`
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
       }}
     >
       <Flex
