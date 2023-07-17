@@ -1,11 +1,11 @@
 import "@/styles/globals.css"
 import "animate.css"
-import Curtain from "./components/layout/Curtain"
-import VercelShape from "./components/layout/VercelShape"
-import MantineUI from "./components/layout/providers/MantineUI"
-import Recoil from "./components/layout/providers/Recoil"
-import SpotifyDaemon from "./components/layout/providers/SpotifyDaemon"
-import CustomFonts from "@/app/components/layout/CustomFonts"
+import Curtain from "@/components/layout/Curtain"
+import CustomFonts from "@/components/layout/CustomFonts"
+import VercelShape from "@/components/layout/VercelShape"
+import MantineUI from "@/components/layout/providers/MantineUI"
+import Recoil from "@/components/layout/providers/Recoil"
+import SpotifyDaemon from "@/components/layout/providers/SpotifyDaemon"
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (

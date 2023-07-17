@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { spotifyApi } from "@/app/components/layout/providers/SpotifyDaemon"
+import { spotifyApi } from "@/components/layout/providers/SpotifyDaemon"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 
 const useSpotifyApi = () => {
