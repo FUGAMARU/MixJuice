@@ -243,7 +243,7 @@ const LayoutNavbar = () => {
                 onClick={handleProviderCheckboxControllerClick}
               />
 
-              <Stack pl="md" py="xs" spacing="sm">
+              <Box pl="md" py="xs">
                 {spotifyPlaylists.map((p, idx) => {
                   return (
                     <NavbarCheckbox
@@ -256,7 +256,7 @@ const LayoutNavbar = () => {
                     />
                   )
                 })}
-              </Stack>
+              </Box>
             </Box>
           )}
 

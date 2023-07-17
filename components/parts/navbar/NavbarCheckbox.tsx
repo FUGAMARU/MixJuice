@@ -16,12 +16,20 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
 
   return (
     <Checkbox
+      p="0.4rem"
       label={label}
       checked={checked}
       size="md"
       color={color}
       onChange={() => onClick(id)}
       styles={theme => ({
+        root: {
+          borderRadius: "5px",
+          transition: isTouchDevice ? "" : "all .2s ease-in-out",
+          "&:hover": !isTouchDevice && {
+            backgroundColor: theme.colors[color][0]
+          }
+        },
         body: {
           cursor: "pointer"
         },
@@ -41,13 +49,10 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
           cursor: "pointer",
           fontWeight: 500,
           transition: isTouchDevice ? "" : "all .2s ease-in-out",
-          "&:hover": isTouchDevice
-            ? undefined
-            : {
-                transform: "translateX(-4px)",
-                backgroundColor: theme.colors[color][0],
-                borderRadius: "5px"
-              }
+          "&:hover": !isTouchDevice && {
+            transform: "translateX(-4px)",
+            fontWeight: 700
+          }
         }
       })}
     />
