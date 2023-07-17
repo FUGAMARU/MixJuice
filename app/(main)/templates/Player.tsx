@@ -1,10 +1,11 @@
 import { Box, Flex } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
-import { memo, useEffect, useMemo } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { useSetRecoilState } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import AlbumArtwork from "@/components/parts/AlbumArtwork"
 import TrackInfo from "@/components/parts/TrackInfo"
+import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
@@ -39,6 +40,24 @@ const Player = () => {
     initializeUseSpotifyPlayer: true
   })
 
+  /** シークバーアニメーション管理 */
+  const [isSeekbarShown, setIsSeekbarShown] = useState(false)
+  const [fadeAnimationClassNames, setFadeAnimationClassNames] = useState("")
+  useEffect(() => {
+    const prefix = "animate__animated animate__slow"
+
+    if (isPlaying) {
+      setFadeAnimationClassNames(`${prefix} animate__fadeIn`)
+      setIsSeekbarShown(true)
+      return
+    } else {
+      setFadeAnimationClassNames(`${prefix} animate__fadeOut`)
+      setTimeout(() => {
+        setIsSeekbarShown(false)
+      }, 2000)
+    }
+  }, [isPlaying, setFadeAnimationClassNames])
+
   return (
     <>
       <Flex w="100%" h="100%" ref={containerRef}>
@@ -70,8 +89,14 @@ const Player = () => {
         />
       </Flex>
 
-      {/** wを再生時間の割合と同期させる */}
-      <Flex>
+      <Flex
+        className={fadeAnimationClassNames}
+        pos="relative"
+        sx={{
+          visibility: isSeekbarShown ? "visible" : "hidden",
+          zIndex: ZINDEX_NUMBERS.SEEKBAR_CONTAINER
+        }}
+      >
         <Box w="0.3rem" h="0.3rem" bg="#0bec7c" />
         {/** MantineのBoxコンポーネントを使用してシークバーを実装すると、再生位置が更新される度にheadタグ内にMantineが生成したstyleタグが追加されてしまうのでdivにて実装 */}
         <div
