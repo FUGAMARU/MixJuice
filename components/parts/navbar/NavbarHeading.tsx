@@ -2,7 +2,7 @@ import { Flex, Space, Title } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
 import { BiCheckboxChecked, BiCheckboxMinus } from "react-icons/bi"
-import { ProviderName } from "@/constants/ProviderName"
+import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import { Provider } from "@/types/Provider"
 
@@ -19,7 +19,7 @@ const NavbarHeading = ({ icon, provider, onClick }: Props) => {
         <Image src={icon} height={28} width={28} alt="logo" />
         <Space w="xs" />
         <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
-          {ProviderName[provider]}
+          {PROVIDER_NAME[provider]}
         </Title>
       </Flex>
 

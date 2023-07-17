@@ -7,7 +7,7 @@ import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
-import { ProviderName } from "@/constants/ProviderName"
+import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { HEADER_HEIGHT, QUEUE_PADDING_TOP } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
@@ -56,7 +56,7 @@ const Queue = () => {
               <Flex h="100%" align="center" gap="sm">
                 <GradientCircle
                   color={data.provider}
-                  tooltipLabel={`${ProviderName[data.provider]}の楽曲`}
+                  tooltipLabel={`${PROVIDER_NAME[data.provider]}の楽曲`}
                 />
 
                 <ListItem
