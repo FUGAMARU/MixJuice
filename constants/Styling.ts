@@ -1,6 +1,9 @@
 /* Navbarのpadding (単位: px) */
 export const NAVBAR_PADDING = 15
 
+/* キューのリスト上部のpadding (単位: px) */
+export const QUEUE_PADDING_TOP = 5
+
 /* ヘッダーの高さ (単位: px) */
 export const HEADER_HEIGHT = 50
 
