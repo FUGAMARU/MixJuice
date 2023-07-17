@@ -4,6 +4,8 @@ import useSpotifyApi from "./useSpotifyApi"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 
+let deviceId = ""
+
 type Props = {
   onTrackFinish: () => void
 }
@@ -22,16 +24,13 @@ const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
 
   const onSpotifyPlay = useCallback(
     async (trackId: string) => {
-      while (sessionStorage.getItem("deviceId") === null) {
+      while (deviceId === "") {
         console.log("🟦DEBUG: デバイスIDの取得完了を待機しています…")
         await new Promise(resolve => setTimeout(resolve, 500))
       }
 
       try {
-        await startPlayback(
-          sessionStorage.getItem("deviceId") as string, // 上記のwhile文によりsessionStorageのdeviceIdがnullでないことが保証されている
-          trackId
-        )
+        await startPlayback(deviceId, trackId)
       } catch (e) {
         setErrorModalInstance(prev => [...prev, e])
       }
@@ -62,12 +61,12 @@ const useSpotifyPlayer = ({ onTrackFinish }: Props) => {
 
       player.addListener("ready", ({ device_id }) => {
         console.log("🟩DEBUG: Spotify WebPlaybackSDKの準備が完了しました")
-        sessionStorage.setItem("deviceId", device_id)
+        deviceId = device_id
       })
 
       player.addListener("not_ready", ({ device_id }) => {
         console.log("🟧DEBUG: Spotify WebPlaybackSDKがNot Readyになりました")
-        sessionStorage.setItem("deviceId", device_id)
+        deviceId = device_id
       })
 
       player.addListener("player_state_changed", ({ position, duration }) => {
