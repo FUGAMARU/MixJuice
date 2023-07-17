@@ -63,7 +63,7 @@ const LayoutNavbar = () => {
     ) as LocalStorageSpotifySelectedPlaylists[]
 
     const mapped: NavbarItem[] = parsed.map(p => ({
-      provider: "spotify" as Provider,
+      provider: "spotify",
       id: p.id,
       title: p.title,
       color: "spotify",
@@ -77,24 +77,24 @@ const LayoutNavbar = () => {
     }
   }, [])
 
-  const handleCheckboxClick = (id: string) => {
+  const handleCheckboxClick = useCallback((id: string) => {
     setPlaylists(prev =>
       prev.map(p => (p.id === id ? { ...p, checked: !p.checked } : p))
     )
-  }
+  }, [])
 
-  const handleCheckboxControllerClick = (to: boolean) => {
+  const handleCheckboxControllerClick = useCallback((to: boolean) => {
     setPlaylists(prev => prev.map(p => ({ ...p, checked: to })))
-  }
+  }, [])
 
-  const handleProviderCheckboxControllerClick = (
-    provider: string,
-    to: boolean
-  ) => {
-    setPlaylists(prev =>
-      prev.map(p => (p.provider === provider ? { ...p, checked: to } : p))
-    )
-  }
+  const handleProviderCheckboxControllerClick = useCallback(
+    (provider: Provider, to: boolean) => {
+      setPlaylists(prev =>
+        prev.map(p => (p.provider === provider ? { ...p, checked: to } : p))
+      )
+    },
+    []
+  )
 
   const handleMixButtonClick = useCallback(async () => {
     setIsMixing(true)
@@ -106,7 +106,7 @@ const LayoutNavbar = () => {
       const res = await getPlaylistTracks(playlistId)
       return res.map((item: SpotifyApiTrack) => ({
         id: item.track.id,
-        provider: "spotify" as Provider,
+        provider: "spotify",
         title: item.track.name,
         artist: item.track.artists.map(artist => artist.name).join("・"),
         imgSrc: item.track.album.images[0].url,
@@ -211,7 +211,7 @@ const LayoutNavbar = () => {
             <Box>
               <NavbarHeading
                 icon="/spotify-logo.png"
-                provider="Spotify"
+                provider="spotify"
                 onClick={handleProviderCheckboxControllerClick}
               />
 
@@ -236,7 +236,7 @@ const LayoutNavbar = () => {
             <Box>
               <NavbarHeading
                 icon="/server-icon.svg"
-                provider="WebDAV"
+                provider="webdav"
                 onClick={handleProviderCheckboxControllerClick}
               />
 
