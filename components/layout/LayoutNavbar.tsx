@@ -81,7 +81,32 @@ const LayoutNavbar = () => {
       })
     }
 
-    setPlaylists(mapped)
+    setPlaylists([
+      ...mapped,
+      {
+        id: "webdav-dir-1",
+        color: "webdav",
+        provider: "webdav",
+        title: "/music",
+        checked: false
+      },
+      {
+        id: "webdav-dir-2",
+        color: "webdav",
+        provider: "webdav",
+        title: "/favorites",
+        checked: false
+      },
+      {
+        id: "webdav-dir-3",
+        color: "webdav",
+        provider: "webdav",
+        title: "/favorites/subdir",
+        checked: false
+      }
+    ])
+
+    // TODO: WebDAVの引き込みが完了したら→に変更 setPlaylists(mapped)
 
     return () => {
       setPlaylists([])
@@ -263,7 +288,7 @@ const LayoutNavbar = () => {
           {webdavPlaylists.length > 0 && (
             <Box>
               <NavbarHeading
-                icon="/server-icon.svg"
+                icon="/server-icon.png"
                 provider="webdav"
                 onClick={handleProviderCheckboxControllerClick}
               />

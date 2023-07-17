@@ -48,6 +48,18 @@ const MantineUI = ({ children }: Props) => {
             "#0F8A3D",
             "#0A5C29",
             "#052E14"
+          ],
+          webdav: [
+            "#E6F6FF",
+            "#B9E7FE",
+            "#8BD7FD",
+            "#5EC7FD",
+            "#31B8FC",
+            "#04A8FB",
+            "#0386C9",
+            "#026597",
+            "#014365",
+            "#012232"
           ]
         },
         colorScheme: "light",

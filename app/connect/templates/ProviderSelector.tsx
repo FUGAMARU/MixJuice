@@ -1,4 +1,4 @@
-import { Flex, Box, Title, Button, Text } from "@mantine/core"
+import { Flex, Box, Title, Button, Text, useMantineTheme } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -17,6 +17,7 @@ const ProviderSelector = ({
   onShowSpotifyConnector,
   onShowWebDAVConnector
 }: Props) => {
+  const theme = useMantineTheme()
   const { setRespVal } = useBreakPoints()
   const { settingState: spotifySettingState } = useSpotifySettingState()
 
@@ -65,15 +66,15 @@ const ProviderSelector = ({
 
           <Box>
             <Image
-              src="/server-icon.svg"
+              src="/server-icon.png"
               width={50}
               height={50}
-              alt="webdav-logo"
+              alt="Server Icon for WebDAV"
             />
             <Title order={5}>WebDAV</Title>
             <Button
               mt="xs"
-              color="grape"
+              color="webdav"
               variant="outline"
               size="xs"
               onClick={onShowWebDAVConnector}

@@ -16,7 +16,7 @@ const NavbarHeading = ({ icon, provider, onClick }: Props) => {
   return (
     <Flex align="center" justify="space-between">
       <Flex align="end">
-        <Image src={icon} height={28} width={28} alt="logo" />
+        <Image src={icon} height={28} width={28} alt="Provider's logo" />
         <Space w="xs" />
         <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
           {PROVIDER_NAME[provider]}
