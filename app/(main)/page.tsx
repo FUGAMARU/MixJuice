@@ -1,4 +1,5 @@
 import { headers } from "next/headers"
+import { memo } from "react"
 import MainPage from "./MainPage"
 
 const Page = () => {
@@ -7,4 +8,4 @@ const Page = () => {
   return <MainPage />
 }
 
-export default Page
+export default memo(Page)

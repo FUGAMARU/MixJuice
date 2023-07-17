@@ -1,4 +1,5 @@
 import { headers } from "next/headers"
+import { memo } from "react"
 import SpotifyApiCallbackPage from "./SpotifyApiCallbackPage"
 
 const SpotifyApiCallback = () => {
@@ -7,4 +8,4 @@ const SpotifyApiCallback = () => {
   return <SpotifyApiCallbackPage />
 }
 
-export default SpotifyApiCallback
+export default memo(SpotifyApiCallback)

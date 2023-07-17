@@ -1,4 +1,5 @@
 import { Box, Center, Tooltip } from "@mantine/core"
+import { memo } from "react"
 import { Provider } from "@/types/Provider"
 
 const COLORS: Record<Provider, { from: string; to: string }> = {
@@ -44,4 +45,4 @@ const GradientCircle = ({
   )
 }
 
-export default GradientCircle
+export default memo(GradientCircle)

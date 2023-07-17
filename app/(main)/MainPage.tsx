@@ -1,7 +1,7 @@
 "use client"
 
 import { Box } from "@mantine/core"
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import Player from "@/app/(main)/templates/Player"
@@ -44,4 +44,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage
+export default memo(MainPage)

@@ -2,7 +2,7 @@
 
 import { AppShell, Box } from "@mantine/core"
 import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
@@ -77,4 +77,4 @@ const Curtain = ({ children }: Props) => {
   )
 }
 
-export default Curtain
+export default memo(Curtain)

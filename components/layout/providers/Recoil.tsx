@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { RecoilRoot } from "recoil"
 
 type Props = {
@@ -10,4 +11,4 @@ const Recoil = ({ children }: Props) => {
   return <RecoilRoot>{children}</RecoilRoot>
 }
 
-export default Recoil
+export default memo(Recoil)

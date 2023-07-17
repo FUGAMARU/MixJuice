@@ -1,6 +1,7 @@
 "use client"
 
 import { MantineProvider } from "@mantine/core"
+import { memo } from "react"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
 type Props = {
@@ -59,4 +60,4 @@ const MantineUI = ({ children }: Props) => {
   )
 }
 
-export default MantineUI
+export default memo(MantineUI)

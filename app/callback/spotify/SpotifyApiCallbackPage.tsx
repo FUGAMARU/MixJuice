@@ -1,7 +1,7 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { useCallback, useEffect, useRef } from "react"
+import { memo, useCallback, useEffect, useRef } from "react"
 import { useSetRecoilState } from "recoil"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -47,4 +47,4 @@ const SpotifyApiCallbackPage = () => {
   return null
 }
 
-export default SpotifyApiCallbackPage
+export default memo(SpotifyApiCallbackPage)

@@ -1,7 +1,7 @@
 import { Box, Overlay, Group, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import {
   IoPauseCircleSharp,
   IoPlayBack,
@@ -126,4 +126,4 @@ const AlbumArtwork = ({
   )
 }
 
-export default AlbumArtwork
+export default memo(AlbumArtwork)

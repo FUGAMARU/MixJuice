@@ -1,6 +1,6 @@
 import { Box, Flex } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
-import { useEffect, useMemo } from "react"
+import { memo, useEffect, useMemo } from "react"
 import { useSetRecoilState } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import AlbumArtwork from "@/components/parts/AlbumArtwork"
@@ -93,4 +93,4 @@ const Player = () => {
   )
 }
 
-export default Player
+export default memo(Player)

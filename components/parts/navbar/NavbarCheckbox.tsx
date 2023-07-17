@@ -1,4 +1,5 @@
 import { Checkbox } from "@mantine/core"
+import { memo } from "react"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
@@ -53,4 +54,4 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
   )
 }
 
-export default NavbarCheckbox
+export default memo(NavbarCheckbox)

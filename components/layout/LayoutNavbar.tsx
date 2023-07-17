@@ -10,7 +10,7 @@ import {
   Group,
   Box
 } from "@mantine/core"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
@@ -283,4 +283,4 @@ const LayoutNavbar = () => {
   )
 }
 
-export default LayoutNavbar
+export default memo(LayoutNavbar)

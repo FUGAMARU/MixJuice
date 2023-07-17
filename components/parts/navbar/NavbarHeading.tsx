@@ -1,5 +1,6 @@
 import { Flex, Space, Title } from "@mantine/core"
 import Image from "next/image"
+import { memo } from "react"
 import { BiCheckboxChecked, BiCheckboxMinus } from "react-icons/bi"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
@@ -38,4 +39,4 @@ const NavbarHeading = ({ icon, provider, onClick }: Props) => {
   )
 }
 
-export default NavbarHeading
+export default memo(NavbarHeading)

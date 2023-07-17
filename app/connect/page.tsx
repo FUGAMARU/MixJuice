@@ -1,4 +1,5 @@
 import { headers } from "next/headers"
+import { memo } from "react"
 import ConnectPage from "./ConnectPage"
 
 const Connect = () => {
@@ -7,4 +8,4 @@ const Connect = () => {
   return <ConnectPage />
 }
 
-export default Connect
+export default memo(Connect)

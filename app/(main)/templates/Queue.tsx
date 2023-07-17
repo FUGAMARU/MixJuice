@@ -1,6 +1,6 @@
 import { Box, Divider, Flex, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { queueAtom } from "@/atoms/queueAtom"
@@ -68,4 +68,4 @@ const Queue = () => {
   )
 }
 
-export default Queue
+export default memo(Queue)

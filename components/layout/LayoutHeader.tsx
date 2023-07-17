@@ -1,6 +1,6 @@
 import { Box, Burger, Flex, Header, MediaQuery, Space } from "@mantine/core"
 import Image from "next/image"
-import { useCallback } from "react"
+import { memo, useCallback } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
@@ -59,4 +59,4 @@ const LayoutHeader = () => {
   )
 }
 
-export default LayoutHeader
+export default memo(LayoutHeader)

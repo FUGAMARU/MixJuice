@@ -1,7 +1,7 @@
 "use client"
 
 import { Global } from "@mantine/core"
-import React from "react"
+import React, { memo } from "react"
 
 const CustomFonts = () => {
   return (
@@ -180,4 +180,4 @@ const CustomFonts = () => {
   )
 }
 
-export default CustomFonts
+export default memo(CustomFonts)

@@ -1,4 +1,5 @@
 import { Flex } from "@mantine/core"
+import { memo } from "react"
 
 type Props = {
   className?: string
@@ -21,4 +22,4 @@ const WebDAVConnector = ({ className }: Props) => {
   )
 }
 
-export default WebDAVConnector
+export default memo(WebDAVConnector)

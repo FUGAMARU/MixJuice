@@ -1,4 +1,5 @@
 import Image from "next/image"
+import { memo } from "react"
 import styles from "@/styles/NowLoading.module.css"
 
 const NowLoading = () => {
@@ -15,4 +16,4 @@ const NowLoading = () => {
   )
 }
 
-export default NowLoading
+export default memo(NowLoading)

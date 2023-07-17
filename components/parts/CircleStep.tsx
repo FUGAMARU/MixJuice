@@ -1,4 +1,5 @@
 import { Flex, Text } from "@mantine/core"
+import { memo } from "react"
 
 type Props = {
   step: number
@@ -32,4 +33,4 @@ const CircleStep = ({ step }: Props) => {
   )
 }
 
-export default CircleStep
+export default memo(CircleStep)

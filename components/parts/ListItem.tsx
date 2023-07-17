@@ -1,7 +1,7 @@
 import { Box, Flex, Overlay, Text } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { IoPlayCircleSharp } from "react-icons/io5"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
@@ -113,4 +113,4 @@ const ListItem = ({
   )
 }
 
-export default ListItem
+export default memo(ListItem)

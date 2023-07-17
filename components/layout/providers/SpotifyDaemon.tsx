@@ -1,7 +1,7 @@
 "use client"
 
 import axios from "axios"
-import { useEffect } from "react"
+import { memo, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -86,4 +86,4 @@ const SpotifyDaemon = ({ children }: Props) => {
   return <>{children}</>
 }
 
-export default SpotifyDaemon
+export default memo(SpotifyDaemon)

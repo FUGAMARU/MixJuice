@@ -2,7 +2,7 @@ import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ChangeEvent, useCallback, useEffect, useState } from "react"
+import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { IoIosArrowBack } from "react-icons/io"
 import { useRecoilState, useSetRecoilState } from "recoil"
@@ -257,4 +257,4 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   )
 }
 
-export default SpotifyConnector
+export default memo(SpotifyConnector)

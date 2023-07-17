@@ -1,5 +1,6 @@
 import "@/styles/globals.css"
 import "animate.css"
+import { memo } from "react"
 import Curtain from "@/components/layout/Curtain"
 import CustomFonts from "@/components/layout/CustomFonts"
 import VercelShape from "@/components/layout/VercelShape"
@@ -39,4 +40,4 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export default RootLayout
+export default memo(RootLayout)

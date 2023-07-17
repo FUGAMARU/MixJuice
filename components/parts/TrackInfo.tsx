@@ -1,6 +1,6 @@
 import { Flex, Box, Title, Space } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import Marquee from "react-easy-marquee"
 
 type Props = {
@@ -133,4 +133,4 @@ const TrackInfo = ({
   )
 }
 
-export default TrackInfo
+export default memo(TrackInfo)

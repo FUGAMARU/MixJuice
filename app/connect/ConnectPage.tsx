@@ -4,6 +4,7 @@ import { Box, Flex } from "@mantine/core"
 import {
   Dispatch,
   SetStateAction,
+  memo,
   useCallback,
   useEffect,
   useState
@@ -126,4 +127,4 @@ const ConnectPage = () => {
   )
 }
 
-export default ConnectPage
+export default memo(ConnectPage)

@@ -1,5 +1,6 @@
 import { Flex, Box, Title, Button, Text } from "@mantine/core"
 import Image from "next/image"
+import { memo } from "react"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 
@@ -86,4 +87,4 @@ const ProviderSelector = ({
   )
 }
 
-export default ProviderSelector
+export default memo(ProviderSelector)

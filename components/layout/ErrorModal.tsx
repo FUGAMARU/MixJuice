@@ -1,6 +1,6 @@
 import { Box, Button, Modal } from "@mantine/core"
 import { useRouter } from "next/navigation"
-import { useCallback } from "react"
+import { memo, useCallback } from "react"
 import { useRecoilState } from "recoil"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
@@ -76,4 +76,4 @@ const ErrorModal = () => {
   ))
 }
 
-export default ErrorModal
+export default memo(ErrorModal)

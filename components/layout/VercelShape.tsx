@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import styles from "@/styles/VercelShape.module.css"
 
@@ -13,4 +14,4 @@ const VercelShape = () => {
   )
 }
 
-export default VercelShape
+export default memo(VercelShape)

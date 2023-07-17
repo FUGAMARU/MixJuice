@@ -1,5 +1,5 @@
 import { Modal, Box, Flex, Checkbox } from "@mantine/core"
-import { SetStateAction, Dispatch, useCallback } from "react"
+import { SetStateAction, Dispatch, useCallback, memo } from "react"
 import ListItem from "../parts/ListItem"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -84,4 +84,4 @@ const CheckboxListModal = ({
   )
 }
 
-export default CheckboxListModal
+export default memo(CheckboxListModal)
