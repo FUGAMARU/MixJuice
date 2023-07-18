@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
-import { useRecoilState } from "recoil"
+import { useRecoilCallback, useRecoilState } from "recoil"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
@@ -20,17 +20,42 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
 
+  const hasSomeTrack = useMemo(
+    () => queue.length > 0 || currentTrackInfo !== undefined,
+    [queue.length, currentTrackInfo]
+  )
+
+  const onNextTrack = useCallback(() => {
+    setIsPlaying(false)
+    isLockingPlayer = false
+    setTrackFeedTrigger(prev => !prev)
+  }, [])
+
+  const handleTrackFinish = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        const currentQueue = await snapshot.getPromise(queueAtom)
+
+        setIsPlaying(false)
+        isLockingPlayer = false
+
+        if (currentQueue.length > 0) {
+          onNextTrack()
+          return
+        }
+
+        setCurrentTrackInfo(undefined)
+      },
+    [onNextTrack]
+  )
+
   const {
     playbackPosition: spotifyPlaybackPosition,
     onPlay: onSpotifyPlay,
     onTogglePlay: onSpotifyTogglePlay
   } = useSpotifyPlayer({
     initialize: initializeUseSpotifyPlayer,
-    onTrackFinish: () => {
-      setIsPlaying(false)
-      isLockingPlayer = false
-      onNextTrack()
-    }
+    onTrackFinish: handleTrackFinish
   })
 
   const onPlay = useCallback(
@@ -63,12 +88,6 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
         break
     }
   }, [currentTrackInfo?.provider, onSpotifyTogglePlay])
-
-  const onNextTrack = useCallback(() => {
-    setIsPlaying(false)
-    isLockingPlayer = false
-    setTrackFeedTrigger(prev => !prev)
-  }, [])
 
   const onSkipTo = useCallback(
     (id: string) => {
@@ -118,7 +137,8 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
     setVolume,
     onNextTrack,
     onSkipTo,
-    onTogglePlay
+    onTogglePlay,
+    hasSomeTrack
   } as const
 }
 

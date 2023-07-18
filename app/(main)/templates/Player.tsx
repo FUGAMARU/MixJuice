@@ -11,6 +11,8 @@ import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
 import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
+let animationTimeoutId: NodeJS.Timer
+
 const Player = () => {
   const { breakPoint } = useBreakPoints()
   const {
@@ -35,7 +37,8 @@ const Player = () => {
     playbackPosition,
     isPlaying,
     onNextTrack,
-    onTogglePlay
+    onTogglePlay,
+    hasSomeTrack
   } = usePlayer({
     initializeUseSpotifyPlayer: true
   })
@@ -49,14 +52,18 @@ const Player = () => {
     if (isPlaying) {
       setFadeAnimationClassNames(`${prefix} animate__fadeIn`)
       setIsSeekbarShown(true)
-      return
-    } else {
+      return () => clearTimeout(animationTimeoutId)
+    }
+
+    if (!hasSomeTrack) {
       setFadeAnimationClassNames(`${prefix} animate__fadeOut`)
-      setTimeout(() => {
+      animationTimeoutId = setTimeout(() => {
         setIsSeekbarShown(false)
       }, 2000)
     }
-  }, [isPlaying, setFadeAnimationClassNames])
+
+    return () => clearTimeout(animationTimeoutId)
+  }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
 
   return (
     <>
