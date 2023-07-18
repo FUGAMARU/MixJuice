@@ -146,6 +146,14 @@ const LayoutNavbar = () => {
   )
 
   const handleMixButtonClick = useCallback(async () => {
+    /**
+     * Safariの『NotAllowedError』対策
+     * 参考: https://yukiyuriweb.com/2021/03/12/how-to-handle-notallowederror-in-safari/
+     */
+    const audio = new Audio("/empty.mp3")
+    audio.play().catch(() => undefined)
+    audio.pause()
+
     setIsMixing(true)
     let tracksForPlaylists: Track[][] = []
 

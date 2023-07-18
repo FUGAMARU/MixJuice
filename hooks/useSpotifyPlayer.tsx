@@ -92,7 +92,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken, onTrackFinish, player, initialize])
+  }, [accessToken, initialize, onTrackFinish, player])
 
   return { playbackPosition, onPlay, onTogglePlay } as const
 }
