@@ -293,7 +293,7 @@ const LayoutNavbar = () => {
                 onClick={handleProviderCheckboxControllerClick}
               />
 
-              <Stack pl="md" pr="xs" py="xs" spacing="sm">
+              <Box pl="md" py="xs">
                 {webdavPlaylists.map((p, idx) => {
                   return (
                     <NavbarCheckbox
@@ -306,7 +306,7 @@ const LayoutNavbar = () => {
                     />
                   )
                 })}
-              </Stack>
+              </Box>
             </Box>
           )}
         </Stack>
