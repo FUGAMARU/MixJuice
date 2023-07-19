@@ -67,6 +67,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
 
       player.addListener("ready", ({ device_id }) => {
         console.log("🟩DEBUG: Spotify WebPlaybackSDKの準備が完了しました")
+        console.log("デバイスID: ", device_id)
         deviceId = device_id
       })
 

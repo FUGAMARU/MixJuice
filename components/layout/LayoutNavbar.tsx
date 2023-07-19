@@ -165,10 +165,12 @@ const LayoutNavbar = () => {
         id: item.track.id,
         provider: "spotify",
         title: item.track.name,
+        albumTitle: item.track.album.name,
         artist: item.track.artists.map(artist => artist.name).join("・"),
         imgSrc: item.track.album.images[0].url,
         imgHeight: item.track.album.images[0].height,
-        imgWidth: item.track.album.images[0].width
+        imgWidth: item.track.album.images[0].width,
+        duration: item.track.duration_ms
       }))
     }
 

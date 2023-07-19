@@ -40,7 +40,7 @@ const Player = () => {
     onTogglePlay,
     hasSomeTrack
   } = usePlayer({
-    initializeUseSpotifyPlayer: true
+    initialize: true
   })
 
   /** シークバーアニメーション管理 */

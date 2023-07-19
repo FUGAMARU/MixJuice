@@ -778,6 +778,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webaudioapi@npm:^0.0.27":
+  version: 0.0.27
+  resolution: "@types/webaudioapi@npm:0.0.27"
+  checksum: 431906d699f895a1fc52922259a1840fa8c3729788dc2bd68e2300fe819506d9aa860ae57b823933eb92fcac6faf06a1251f407bf594e0f3528ea0e0b0e1846c
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^6.0.0":
   version: 6.0.0
   resolution: "@typescript-eslint/eslint-plugin@npm:6.0.0"
@@ -3055,6 +3062,7 @@ __metadata:
     "@types/react-dom": "npm:18.2.7"
     "@types/react-window": "npm:^1.8.5"
     "@types/spotify-web-playback-sdk": "npm:^0.1.15"
+    "@types/webaudioapi": "npm:^0.0.27"
     "@typescript-eslint/eslint-plugin": "npm:^6.0.0"
     "@typescript-eslint/parser": "npm:^6.0.0"
     animate.css: "npm:^4.1.1"

@@ -22,7 +22,7 @@ const Queue = () => {
     [viewportHeight, playerHeight]
   )
   const queue = useRecoilValue(queueAtom)
-  const { onSkipTo } = usePlayer({ initializeUseSpotifyPlayer: false })
+  const { onSkipTo } = usePlayer({ initialize: false })
 
   return (
     <Box

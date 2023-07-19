@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/react-window": "^1.8.5",
     "@types/spotify-web-playback-sdk": "^0.1.15",
+    "@types/webaudioapi": "^0.0.27",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint-config-prettier": "^8.8.0",

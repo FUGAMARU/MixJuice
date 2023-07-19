@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useRecoilCallback, useRecoilState } from "recoil"
+import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
@@ -9,16 +10,17 @@ import { Track } from "@/types/Track"
 let isLockingPlayer = false // trueの場合はキューの内容が変更されても曲送りしない (isPlayingと同じ使い方をすると曲送り用のuseEffectが無限ループに陥るので分けている)
 
 type Props = {
-  initializeUseSpotifyPlayer: boolean
+  initialize: boolean
 }
 
-const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
+const usePlayer = ({ initialize }: Props) => {
   const [queue, setQueue] = useRecoilState(queueAtom)
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
+  useMediaSession({ initialize, trackInfo: currentTrackInfo })
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
@@ -54,7 +56,7 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
     onPlay: onSpotifyPlay,
     onTogglePlay: onSpotifyTogglePlay
   } = useSpotifyPlayer({
-    initialize: initializeUseSpotifyPlayer,
+    initialize,
     onTrackFinish: handleTrackFinish
   })
 

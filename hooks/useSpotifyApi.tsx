@@ -48,7 +48,7 @@ const useSpotifyApi = () => {
             offset: tracks.length,
             market: "JP",
             fields:
-              "next, items(track(album(images),artists(name),name,id,uri))" // nextの指定を忘れると無限ループになってしまう
+              "next, items(track(album(name,images),artists(name),name,id,uri,duration_ms))" // nextの指定を忘れると無限ループになってしまう
           }
         })
 
