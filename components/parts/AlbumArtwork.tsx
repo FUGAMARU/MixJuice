@@ -18,7 +18,7 @@ type Props = {
   objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
-  onTogglePlay: () => void
+  onTogglePlay: () => Promise<void>
   onNextTrack: () => void
 }
 

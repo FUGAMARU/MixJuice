@@ -76,10 +76,10 @@ const usePlayer = ({ initializeUseSpotifyPlayer }: Props) => {
     [onSpotifyPlay]
   )
 
-  const onTogglePlay = useCallback(() => {
+  const onTogglePlay = useCallback(async () => {
     switch (currentTrackInfo?.provider) {
       case "spotify":
-        onSpotifyTogglePlay()
+        await onSpotifyTogglePlay()
         setIsPlaying(prev => !prev)
         break
       case "webdav":
