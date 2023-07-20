@@ -1,6 +1,7 @@
 "use client"
 
 import { AppShell, Box } from "@mantine/core"
+import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, memo } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
@@ -12,6 +13,7 @@ import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 type Props = {
   children: React.ReactNode
@@ -39,6 +41,12 @@ const Curtain = ({ children }: Props) => {
       }
     })()
   }, [isLoading])
+
+  const [faviconSrc, setFaviconSrc] = useState("")
+  useFavicon(faviconSrc)
+  useEffect(() => {
+    setFaviconSrc(`/header-logos/logo-${generateRandomNumber(1, 12)}.png`)
+  }, [])
 
   return (
     <>
