@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
-
-let deviceId = ""
 
 type Props = {
   initialize: boolean
@@ -17,6 +15,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
   const [player, setPlayer] = useState<Spotify.Player>()
   const [playbackState, setPlaybackState] = useState<Spotify.PlaybackState>()
   const { startPlayback } = useSpotifyApi()
+  const deviceId = useRef("")
 
   const playbackPosition = useMemo(() => {
     if (playbackState === undefined) return 0
@@ -25,13 +24,13 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
 
   const onPlay = useCallback(
     async (trackId: string) => {
-      while (deviceId === "") {
+      while (deviceId.current === "") {
         console.log("🟦DEBUG: デバイスIDの取得完了を待機しています…")
         await new Promise(resolve => setTimeout(resolve, 500))
       }
 
       try {
-        await startPlayback(deviceId, trackId)
+        await startPlayback(deviceId.current, trackId)
       } catch (e) {
         setErrorModalInstance(prev => [...prev, e])
       }
@@ -68,12 +67,12 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
       player.addListener("ready", ({ device_id }) => {
         console.log("🟩DEBUG: Spotify WebPlaybackSDKの準備が完了しました")
         console.log("デバイスID: ", device_id)
-        deviceId = device_id
+        deviceId.current = device_id
       })
 
       player.addListener("not_ready", ({ device_id }) => {
         console.log("🟧DEBUG: Spotify WebPlaybackSDKがNot Readyになりました")
-        deviceId = device_id
+        deviceId.current = device_id
       })
 
       player.addListener("player_state_changed", ({ position, duration }) => {

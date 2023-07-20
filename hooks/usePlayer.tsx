@@ -20,7 +20,6 @@ const usePlayer = ({ initialize }: Props) => {
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
-  useMediaSession({ initialize, trackInfo: currentTrackInfo })
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
@@ -60,24 +59,6 @@ const usePlayer = ({ initialize }: Props) => {
     onTrackFinish: handleTrackFinish
   })
 
-  const onPlay = useCallback(
-    async (provider: Provider, trackId: string) => {
-      switch (provider) {
-        case "spotify":
-          onSpotifyPlay(trackId)
-          setIsPlaying(true)
-          isLockingPlayer = true
-          break
-        case "webdav":
-          // webdavの再生開始処理
-          setIsPlaying(true)
-          isLockingPlayer = true
-          break
-      }
-    },
-    [onSpotifyPlay]
-  )
-
   const onTogglePlay = useCallback(async () => {
     switch (currentTrackInfo?.provider) {
       case "spotify":
@@ -90,6 +71,31 @@ const usePlayer = ({ initialize }: Props) => {
         break
     }
   }, [currentTrackInfo?.provider, onSpotifyTogglePlay])
+
+  useMediaSession({
+    initialize,
+    trackInfo: currentTrackInfo,
+    onTogglePlay,
+    onNextTrack
+  })
+
+  const onPlay = useCallback(
+    async (provider: Provider, trackId: string) => {
+      switch (provider) {
+        case "spotify":
+          await onSpotifyPlay(trackId)
+          setIsPlaying(true)
+          isLockingPlayer = true
+          break
+        case "webdav":
+          // webdavの再生開始処理
+          setIsPlaying(true)
+          isLockingPlayer = true
+          break
+      }
+    },
+    [onSpotifyPlay]
+  )
 
   const onSkipTo = useCallback(
     (id: string) => {
