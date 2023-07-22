@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
+import { useRecoilState } from "recoil"
 import { selectedWebDAVFolderAtom } from "@/atoms/selectedWebDAVFolderAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -14,7 +14,7 @@ const useWebDAVSettingState = () => {
   const [isAuthenticated, setIsAuthenticated] = useRecoilState(
     webDAVAuthenticatedAtom
   )
-  const folderPath = useRecoilValue(selectedWebDAVFolderAtom)
+  const [folderPath, setFolderPath] = useRecoilState(selectedWebDAVFolderAtom)
 
   const settingState = useMemo<ProviderSettingState>(() => {
     if (isAuthenticated === false) return "none"
@@ -22,12 +22,18 @@ const useWebDAVSettingState = () => {
     return "done"
   }, [isAuthenticated, folderPath])
 
+  /** ページロード時のlocalStorageからRecoilStateへの反映 */
   useEffect(() => {
     const isAuthenticated = localStorage.getItem(
       LOCAL_STORAGE_KEYS.WEBDAV_IS_AUTHENTICATED
     )
     if (isAuthenticated === "true") setIsAuthenticated(true)
-  }, [setIsAuthenticated])
+
+    const folderPath = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
+    )
+    if (folderPath !== null) setFolderPath(folderPath)
+  }, [setIsAuthenticated, setFolderPath])
 
   useEffect(() => {
     localStorage.setItem(
