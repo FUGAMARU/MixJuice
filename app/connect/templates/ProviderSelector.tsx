@@ -3,6 +3,7 @@ import Image from "next/image"
 import { memo } from "react"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
+import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 
 type Props = {
   className?: string
@@ -19,6 +20,7 @@ const ProviderSelector = ({
 }: Props) => {
   const { setRespVal } = useBreakPoints()
   const { settingState: spotifySettingState } = useSpotifySettingState()
+  const { settingState: webDAVSettingState } = useWebDAVSettingState()
 
   return (
     <Center
@@ -43,7 +45,7 @@ const ProviderSelector = ({
               src="/spotify-logo.png"
               width={50}
               height={50}
-              alt="spotify-logo"
+              alt="Spotify Logo"
             />
             <Title order={5}>Spotify</Title>
             <Button
@@ -72,11 +74,15 @@ const ProviderSelector = ({
             <Button
               mt="xs"
               color="webdav"
-              variant="outline"
+              variant={webDAVSettingState === "none" ? "outline" : "filled"}
               size="xs"
               onClick={onShowWebDAVConnector}
             >
-              接続する
+              {webDAVSettingState === "done"
+                ? "設定する"
+                : webDAVSettingState === "setting"
+                ? "接続を再開する"
+                : "接続する"}
             </Button>
           </Box>
         </Flex>

@@ -164,12 +164,9 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
 
         <AiFillCheckCircle
           size="1.3rem"
-          color="#2ad666"
+          color={theme.colors.spotify[5]}
           style={{
-            display:
-              settingState === "setting" || settingState === "done"
-                ? "block"
-                : "none"
+            display: settingState === "done" ? "block" : "none"
           }} // &&を使うと何故かうまくいかなかったのでインラインスタイルで対応
         />
       </Flex>
@@ -201,7 +198,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
 
         <AiFillCheckCircle
           size="1.3rem"
-          color="#2ad666"
+          color={theme.colors.spotify[5]}
           style={{ display: settingState === "done" ? "block" : "none" }}
         />
       </Flex>

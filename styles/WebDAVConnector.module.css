@@ -1,4 +1,4 @@
-.clientId input:focus {
+.input input:focus {
   outline: 0;
   border: solid 1px #04a8fb;
 }
