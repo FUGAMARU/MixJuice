@@ -3,9 +3,10 @@ import { memo } from "react"
 
 type Props = {
   step: number
+  color: string
 }
 
-const CircleStep = ({ step }: Props) => {
+const CircleStep = ({ step, color }: Props) => {
   return (
     <Flex
       w="2rem"
@@ -13,7 +14,7 @@ const CircleStep = ({ step }: Props) => {
       justify="center"
       align="center"
       sx={{
-        border: "solid 1px #2ad666",
+        border: `solid 1px ${color}`,
         borderRadius: "50%",
         flexFlow: "column",
         verticalAlign: "top"
@@ -24,7 +25,7 @@ const CircleStep = ({ step }: Props) => {
         lh="2rem"
         ff="GreycliffCF"
         fw={800}
-        color="#2ad666"
+        color={color}
         sx={{ flex: 1 }}
       >
         {step}

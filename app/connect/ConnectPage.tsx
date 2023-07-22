@@ -120,7 +120,16 @@ const ConnectPage = () => {
         )}
 
         {isDisplayWebDAVConnector && (
-          <WebDAVConnector className={webDAVConnectorClassName} />
+          <WebDAVConnector
+            className={webDAVConnectorClassName}
+            onBack={() =>
+              handleSlide(
+                "back",
+                setWebDAVConnectorClassName,
+                setIsDisplayWebDAVConnector
+              )
+            }
+          />
         )}
       </Box>
     </Flex>

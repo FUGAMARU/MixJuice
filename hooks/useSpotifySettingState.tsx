@@ -3,6 +3,7 @@ import { useRecoilValue } from "recoil"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
+import { ProviderSettingState } from "@/types/ProviderSettingState"
 
 const useSpotifySettingState = () => {
   const selectedPlaylists = useRecoilValue(selectedSpotifyPlaylistsAtom)
@@ -12,9 +13,7 @@ const useSpotifySettingState = () => {
    * setting: Spotifyのログインは完了しているが、プレイリストの選択が完了していない
    * none: Spotifyのログインが完了していない
    */
-  const [settingState, setSettingState] = useState<"done" | "setting" | "none">(
-    "none"
-  )
+  const [settingState, setSettingState] = useState<ProviderSettingState>("none")
   useEffect(() => {
     const refreshToken = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN

@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Input, Title, Text, Stack } from "@mantine/core"
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Title,
+  Text,
+  Stack,
+  useMantineTheme
+} from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -25,6 +34,7 @@ type Props = {
 
 const SpotifyConnector = ({ className, onBack }: Props) => {
   const router = useRouter()
+  const theme = useMantineTheme()
   const [
     isPlaylistSelectorOpened,
     { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
@@ -143,7 +153,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         </Flex>
 
         <Flex align="center" gap="xs">
-          <CircleStep step={1} />
+          <CircleStep step={1} color={theme.colors.spotify[5]} />
           <Title order={4} ta="left" sx={{ flex: 1 }}>
             Client IDを入力する
           </Title>
@@ -161,7 +171,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         </Box>
 
         <Flex align="center" gap="xs">
-          <CircleStep step={2} />
+          <CircleStep step={2} color={theme.colors.spotify[5]} />
           <Title order={4} ta="left" sx={{ flex: 1 }}>
             OAuth認証を行う
           </Title>
@@ -199,7 +209,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         </Flex>
 
         <Flex align="center" gap="xs">
-          <CircleStep step={3} />
+          <CircleStep step={3} color={theme.colors.spotify[5]} />
           <Title order={4} ta="left" sx={{ flex: 1 }}>
             MixJuiceで使用するプレイリストを選択する
           </Title>

@@ -5,5 +5,8 @@ export const LOCAL_STORAGE_KEYS = {
   SPOTIFY_ACCESS_TOKEN: "spotifyAccessToken", // Spotify APIを利用する際のアクセストークン TODO: このまま使わないようであれば削除
   SPOTIFY_REFRESH_TOKEN: "spotifyRefreshToken", // Spotify APIを利用する際のリフレッシュトークン
   SPOTIFY_ACCESS_TOKEN_EXPIRES_AT: "spotifyAccessTokenExpiresAt", // Spotify APIを利用する際のアクセストークンの有効期限 TODO: このまま使わないようであれば削除
-  SPOTIFY_SELECTED_PLAYLISTS: "spotifySelectedPlaylists" // MixJuiceで使用するSpotifyプレイリストのID一覧
+  SPOTIFY_SELECTED_PLAYLISTS: "spotifySelectedPlaylists", // MixJuiceで使用するSpotifyプレイリストのID一覧
+  WEBDAV_ADDRESS: "webdavAddress", // WebDAVサーバーのアドレス
+  WEBDAV_USER: "webdavUser", // WebDAVサーバーのユーザー名
+  WEBDAV_PASSWORD: "webdavPassword" // WebDAVサーバーのパスワード
 }
