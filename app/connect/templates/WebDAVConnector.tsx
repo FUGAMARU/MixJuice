@@ -33,7 +33,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { breakPoint } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { settingState } = useWebDAVSettingState()
-  const { checkAuth, checkIsFolderExists } = useWebDAVApi()
+  const { checkAuth, checkIsFolderExists } = useWebDAVApi({ initialize: true })
   const [isConnecting, setIsConnecting] = useState(false)
   const [isCheckingFolderExists, setIsCheckingFolderExists] = useState(false)
   const [
@@ -115,7 +115,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     try {
       const folderPathWithoutSlash = folderPath.replace(/\/$/, "") // folderPathの末尾にスラッシュが入っていたら取り除く
       setIsCheckingFolderExists(true)
-      await checkIsFolderExists(address, user, password, folderPathWithoutSlash)
+      await checkIsFolderExists(folderPathWithoutSlash)
       setIsFolderNotExists(false)
       localStorage.setItem(
         LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH,
@@ -129,9 +129,6 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       setIsCheckingFolderExists(false)
     }
   }, [
-    address,
-    user,
-    password,
     checkIsFolderExists,
     onFolderPathInputModalClose,
     folderPath,
