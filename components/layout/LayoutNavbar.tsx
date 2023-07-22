@@ -45,7 +45,7 @@ const LayoutNavbar = () => {
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { hasValidAccessTokenState } = useSpotifyToken()
-  const { getPlaylistTracks } = useSpotifyApi()
+  const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
   const spotifyPlaylists = playlists.filter(p => p.provider === "spotify")

@@ -31,7 +31,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   ] = useDisclosure(false)
   const [isFetchingPlaylists, setIsFetchingPlaylists] = useState(false)
   const { redirectUri, getCode } = useSpotifyToken()
-  const { getPlaylists } = useSpotifyApi()
+  const { getPlaylists } = useSpotifyApi({ initialize: false })
   const { settingState } = useSpotifySettingState()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
 

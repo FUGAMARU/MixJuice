@@ -33,7 +33,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { breakPoint } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { settingState } = useWebDAVSettingState()
-  const { checkAuth, checkIsFolderExists } = useWebDAVApi({ initialize: true })
+  const { checkAuth, checkIsFolderExists } = useWebDAVApi({ initialize: false })
   const [isConnecting, setIsConnecting] = useState(false)
   const [isCheckingFolderExists, setIsCheckingFolderExists] = useState(false)
   const [

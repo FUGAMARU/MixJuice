@@ -6,7 +6,6 @@ import CustomFonts from "@/components/layout/CustomFonts"
 import VercelShape from "@/components/layout/VercelShape"
 import MantineUI from "@/components/layout/providers/MantineUI"
 import Recoil from "@/components/layout/providers/Recoil"
-import SpotifyDaemon from "@/components/layout/providers/SpotifyDaemon"
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -57,13 +56,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body>
         <Recoil>
           <MantineUI>
-            <SpotifyDaemon>
-              <CustomFonts />
-              {/** 背景 */}
-              <VercelShape />
+            <CustomFonts />
+            {/** 背景 */}
+            <VercelShape />
 
-              <Curtain>{children}</Curtain>
-            </SpotifyDaemon>
+            <Curtain>{children}</Curtain>
           </MantineUI>
         </Recoil>
       </body>

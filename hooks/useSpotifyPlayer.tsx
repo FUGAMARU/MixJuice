@@ -14,7 +14,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const [player, setPlayer] = useState<Spotify.Player>()
   const [playbackState, setPlaybackState] = useState<Spotify.PlaybackState>()
-  const { startPlayback } = useSpotifyApi()
+  const { startPlayback } = useSpotifyApi({ initialize: false })
   const deviceId = useRef("")
 
   const playbackPosition = useMemo(() => {

@@ -13,6 +13,8 @@ import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useWebDAVApi from "@/hooks/useWebDAVApi"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 type Props = {
@@ -47,6 +49,9 @@ const Curtain = ({ children }: Props) => {
   useEffect(() => {
     setFaviconSrc(`/header-logos/logo-${generateRandomNumber(1, 12)}.png`)
   }, [])
+
+  useSpotifyApi({ initialize: true })
+  useWebDAVApi({ initialize: true })
 
   return (
     <>
