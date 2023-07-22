@@ -68,21 +68,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     if (folderPath !== null) setFolderPath(folderPath)
   }, [setFolderPath])
 
-  /** フィールドを変更する度に入力値をlocalStorageに保存する
-   * かつ、指定したフォルダーのパス情報などの設定を削除する (認証情報が変更され別のサーバーを使うようになった場合、モーダルを開いた時に以前の認証情報で接続していたサーバーのパスが表示されるのはおかしいため)
-   */
-  useEffect(() => {
-    if (address === "") return
-    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
-  }, [address, setFolderPath])
-  useEffect(() => {
-    if (user === "") return
-    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_USER, user)
-  }, [user, setFolderPath])
-  useEffect(() => {
-    if (password === "") return
-    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD, password)
-  }, [password, setFolderPath])
+  /** 認証情報を入力する度に指定したフォルダーのパス情報などの設定を削除する (認証情報が変更され別のサーバーを使うようになった場合、モーダルを開いた時に以前の認証情報で接続していたサーバーのパスが表示されるのはおかしいため) */
   const resetFolderPath = useCallback(() => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH)
     setFolderPath(undefined)
@@ -103,6 +89,9 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       await checkAuth(address, user, password)
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
       setIsAuthenticated(true)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_USER, user)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD, password)
       onFolderPathInputModalOpen()
     } catch (e) {
       setIsAuthenticated(false)
