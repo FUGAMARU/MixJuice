@@ -1,23 +1,13 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Input,
-  Title,
-  Text,
-  Stack,
-  useMantineTheme
-} from "@mantine/core"
+import { Box, Button, Flex, Input, Title, useMantineTheme } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
-import { IoIosArrowBack } from "react-icons/io"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import CircleStep from "@/components/parts/CircleStep"
+import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
@@ -122,137 +112,99 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   }, [selectedPlaylists, playlists])
 
   return (
-    <Flex
+    <ConnectorContainer
       className={className}
-      w="100%"
-      h="100%"
-      align="center"
-      sx={{
-        animationTimingFunction: "ease-out"
-      }}
+      title="Spotifyと接続する"
+      iconSrc="/spotify-logo.png"
+      onBack={onBack}
     >
-      <Stack w="100%" spacing="xs">
-        <Flex
-          w="fit-content"
-          mx="auto"
-          mb="lg"
-          px="lg"
-          pb="sm"
-          justify="center"
-          align="center"
-          gap="0.3rem"
-          sx={{ borderBottom: "solid 1px #d1d1d1" }}
-        >
-          <Image
-            src="/spotify-logo.png"
-            width={25}
-            height={25}
-            alt="spotify-logo"
-          />
-          <Title order={4}>Spotifyと接続する</Title>
-        </Flex>
+      <Flex align="center" gap="xs">
+        <CircleStep step={1} color={theme.colors.spotify[5]} />
+        <Title order={4} ta="left" sx={{ flex: 1 }}>
+          Client IDを入力する
+        </Title>
+      </Flex>
 
-        <Flex align="center" gap="xs">
-          <CircleStep step={1} color={theme.colors.spotify[5]} />
-          <Title order={4} ta="left" sx={{ flex: 1 }}>
-            Client IDを入力する
-          </Title>
-        </Flex>
-
-        <Box ml="1rem" py="0.2rem" sx={{ borderLeft: "solid 1px #d1d1d1" }}>
-          <Input
-            className={styles.clientId}
-            pl="2rem"
-            placeholder="例: 8a94eb5c826471928j1jfna81920k0b7"
-            sx={{ boxSizing: "border-box" }}
-            value={clientId}
-            onChange={handleClientIdInputChange}
-          />
-        </Box>
-
-        <Flex align="center" gap="xs">
-          <CircleStep step={2} color={theme.colors.spotify[5]} />
-          <Title order={4} ta="left" sx={{ flex: 1 }}>
-            OAuth認証を行う
-          </Title>
-        </Flex>
-
-        <Flex
-          ml="1rem"
+      <Box ml="1rem" py="0.2rem" sx={{ borderLeft: "solid 1px #d1d1d1" }}>
+        <Input
+          className={styles.clientId}
           pl="2rem"
-          py="0.2rem"
-          align="center"
-          gap="xs"
-          ta="left"
-          sx={{ borderLeft: "solid 1px #d1d1d1" }}
+          placeholder="例: 8a94eb5c826471928j1jfna81920k0b7"
+          sx={{ boxSizing: "border-box" }}
+          value={clientId}
+          onChange={handleClientIdInputChange}
+        />
+      </Box>
+
+      <Flex align="center" gap="xs">
+        <CircleStep step={2} color={theme.colors.spotify[5]} />
+        <Title order={4} ta="left" sx={{ flex: 1 }}>
+          OAuth認証を行う
+        </Title>
+      </Flex>
+
+      <Flex
+        ml="1rem"
+        pl="2rem"
+        py="0.2rem"
+        align="center"
+        gap="xs"
+        ta="left"
+        sx={{ borderLeft: "solid 1px #d1d1d1" }}
+      >
+        <Button
+          className={styles.transition}
+          color="spotify"
+          variant="outline"
+          disabled={clientId === ""}
+          onClick={handleSigninButtonClick}
         >
-          <Button
-            className={styles.transition}
-            color="spotify"
-            variant="outline"
-            disabled={clientId === ""}
-            onClick={handleSigninButtonClick}
-          >
-            Spotifyでサインイン
-          </Button>
+          Spotifyでサインイン
+        </Button>
 
-          <AiFillCheckCircle
-            size="1.3rem"
-            color="#2ad666"
-            style={{
-              display:
-                settingState === "setting" || settingState === "done"
-                  ? "block"
-                  : "none"
-            }} // &&を使うと何故かうまくいかなかったのでインラインスタイルで対応
-          />
-        </Flex>
+        <AiFillCheckCircle
+          size="1.3rem"
+          color="#2ad666"
+          style={{
+            display:
+              settingState === "setting" || settingState === "done"
+                ? "block"
+                : "none"
+          }} // &&を使うと何故かうまくいかなかったのでインラインスタイルで対応
+        />
+      </Flex>
 
-        <Flex align="center" gap="xs">
-          <CircleStep step={3} color={theme.colors.spotify[5]} />
-          <Title order={4} ta="left" sx={{ flex: 1 }}>
-            MixJuiceで使用するプレイリストを選択する
-          </Title>
-        </Flex>
+      <Flex align="center" gap="xs">
+        <CircleStep step={3} color={theme.colors.spotify[5]} />
+        <Title order={4} ta="left" sx={{ flex: 1 }}>
+          MixJuiceで使用するプレイリストを選択する
+        </Title>
+      </Flex>
 
-        <Flex
-          ml="1rem"
-          pl="calc(2rem + 1px)" // 左にborderが無いのでその分右にずらす
-          py="0.2rem"
-          align="center"
-          gap="xs"
-          ta="left"
+      <Flex
+        ml="1rem"
+        pl="calc(2rem + 1px)" // 左にborderが無いのでその分右にずらす
+        py="0.2rem"
+        align="center"
+        gap="xs"
+        ta="left"
+      >
+        <Button
+          className={styles.transition}
+          variant="outline"
+          loading={isFetchingPlaylists}
+          disabled={settingState === "none"}
+          onClick={handleClickSelectPlaylistButton}
         >
-          <Button
-            className={styles.transition}
-            variant="outline"
-            loading={isFetchingPlaylists}
-            disabled={settingState === "none"}
-            onClick={handleClickSelectPlaylistButton}
-          >
-            プレイリストを選択
-          </Button>
+          プレイリストを選択
+        </Button>
 
-          <AiFillCheckCircle
-            size="1.3rem"
-            color="#2ad666"
-            style={{ display: settingState === "done" ? "block" : "none" }}
-          />
-        </Flex>
-
-        <Flex
-          pt="lg"
-          justify="center"
-          align="center"
-          sx={{ cursor: "pointer" }}
-          onClick={onBack}
-        >
-          <IoIosArrowBack color="#228be6" />
-          <Text size="0.8rem" color="blue">
-            接続先選択画面に戻る
-          </Text>
-        </Flex>
-      </Stack>
+        <AiFillCheckCircle
+          size="1.3rem"
+          color="#2ad666"
+          style={{ display: settingState === "done" ? "block" : "none" }}
+        />
+      </Flex>
 
       <CheckboxListModal
         opened={isPlaylistSelectorOpened}
@@ -263,7 +215,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         checkedValues={selectedPlaylists}
         dispath={setSelectedPlaylists}
       />
-    </Flex>
+    </ConnectorContainer>
   )
 }
 

@@ -1,4 +1,4 @@
-import { Flex, Box, Title, Button, Text, useMantineTheme } from "@mantine/core"
+import { Flex, Box, Title, Button, Text, Center } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -17,17 +17,14 @@ const ProviderSelector = ({
   onShowSpotifyConnector,
   onShowWebDAVConnector
 }: Props) => {
-  const theme = useMantineTheme()
   const { setRespVal } = useBreakPoints()
   const { settingState: spotifySettingState } = useSpotifySettingState()
 
   return (
-    <Flex
+    <Center
       className={className}
       w="100%"
       h="100%"
-      justify="center"
-      align="center"
       sx={{
         display: isDisplay ? "flex" : "none"
       }}
@@ -84,7 +81,7 @@ const ProviderSelector = ({
           </Box>
         </Flex>
       </Box>
-    </Flex>
+    </Center>
   )
 }
 

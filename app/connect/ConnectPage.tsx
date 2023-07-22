@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Flex } from "@mantine/core"
+import { Box, Center } from "@mantine/core"
 import {
   Dispatch,
   SetStateAction,
@@ -73,9 +73,9 @@ const ConnectPage = () => {
   )
 
   return (
-    <Flex h="100%" align="center" justify="center">
+    <Center h="100%">
       <Box
-        h="30rem"
+        h={setRespVal("33rem", "30rem", "30rem")}
         w={setRespVal("85%", "30rem", "30rem")}
         px="xl"
         py="md"
@@ -132,7 +132,7 @@ const ConnectPage = () => {
           />
         )}
       </Box>
-    </Flex>
+    </Center>
   )
 }
 
