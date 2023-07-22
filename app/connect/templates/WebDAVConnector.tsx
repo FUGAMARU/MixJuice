@@ -36,7 +36,11 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   }, [])
 
   const isSelectButtonDisabled = useMemo(
-    () => address === "" || user === "" || password === "",
+    () =>
+      address === "" ||
+      user === "" ||
+      password === "" ||
+      !(address.startsWith("https://") || address.startsWith("http://")),
     [address, user, password]
   )
 
