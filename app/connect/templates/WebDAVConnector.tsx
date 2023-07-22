@@ -1,10 +1,13 @@
 import { Box, Flex, Input, Title, useMantineTheme, Button } from "@mantine/core"
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
+import { useSetRecoilState } from "recoil"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useWebDAV from "@/hooks/useWebDAV"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import styles from "@/styles/WebDAVConnector.module.css"
 
@@ -16,24 +19,42 @@ type Props = {
 const WebDAVConnector = ({ className, onBack }: Props) => {
   const theme = useMantineTheme()
   const { breakPoint } = useBreakPoints()
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { settingState } = useWebDAVSettingState()
+  const { connect } = useWebDAV()
+  const [isConnecting, setIsConnecting] = useState(false)
 
-  /** 各フィールドを入力する度にLocalStorageに入力値を保存する */
   const [address, setAddress] = useState("")
+  const [user, setUser] = useState("")
+  const [password, setPassword] = useState("")
+
+  /** 遷移してきた時にフィールドを復元する */
   useEffect(() => {
     const address = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS)
     if (address !== null) setAddress(address)
   }, [])
-  const [user, setUser] = useState("")
   useEffect(() => {
     const user = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_USER)
-    if (user !== null) setAddress(user)
+    if (user !== null) setUser(user)
   }, [])
-  const [password, setPassword] = useState("")
   useEffect(() => {
     const password = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD)
-    if (password !== null) setAddress(password)
+    if (password !== null) setPassword(password)
   }, [])
+
+  /** フィールドを変更する度に入力値をlocalStorageに保存する */
+  useEffect(() => {
+    if (address === "") return
+    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
+  }, [address])
+  useEffect(() => {
+    if (user === "") return
+    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_USER, user)
+  }, [user])
+  useEffect(() => {
+    if (password === "") return
+    localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD, password)
+  }, [password])
 
   const isSelectButtonDisabled = useMemo(
     () =>
@@ -43,6 +64,18 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       !(address.startsWith("https://") || address.startsWith("http://")),
     [address, user, password]
   )
+
+  const handleFolderSelectButtonClick = useCallback(async () => {
+    setIsConnecting(true)
+    try {
+      await connect(address, user, password)
+      console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
+    } catch (e) {
+      setErrorModalInstance(prev => [...prev, e])
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [connect, setErrorModalInstance, address, user, password])
 
   return (
     <ConnectorContainer
@@ -123,9 +156,9 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
         <Button
           className={styles.transition}
           variant="outline"
-          loading={false}
+          loading={isConnecting}
           disabled={isSelectButtonDisabled}
-          onClick={() => undefined}
+          onClick={handleFolderSelectButtonClick}
         >
           フォルダーを選択
         </Button>
