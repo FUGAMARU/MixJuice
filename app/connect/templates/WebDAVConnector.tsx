@@ -262,7 +262,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
           <Button
             color="webdav"
             loading={isCheckingFolderExists}
-            disabled={folderPath === ""}
+            disabled={!folderPath || !folderPath.startsWith("/")}
             onClick={handleFolderPathInputSubmitButtonClick}
           >
             OK
