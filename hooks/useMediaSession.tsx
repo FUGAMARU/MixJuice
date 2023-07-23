@@ -7,14 +7,18 @@ import { createSilentAudioBlob } from "@/utils/createSilentAudioBlob"
 type Props = {
   initialize: boolean
   trackInfo: Track | undefined
-  onTogglePlay: () => Promise<void>
+  playbackPosition: number
+  onPause: () => Promise<void>
+  onResume: () => Promise<void>
   onNextTrack: () => void
 }
 
 const useMediaSession = ({
   initialize,
   trackInfo,
-  onTogglePlay,
+  playbackPosition,
+  onPause,
+  onResume,
   onNextTrack
 }: Props) => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
@@ -37,10 +41,40 @@ const useMediaSession = ({
     })
   }, [])
 
+  const handleResume = useCallback(async () => {
+    await onResume()
+    await dummyAudioRef.current?.play()
+    navigator.mediaSession.playbackState = "playing"
+  }, [onResume])
+
+  const handlePause = useCallback(async () => {
+    await onPause()
+    await dummyAudioRef.current?.pause()
+    navigator.mediaSession.playbackState = "paused"
+  }, [onPause])
+
+  const clearMediaSession = useCallback(() => {
+    clearInterval(setMediaMetadatainterval.current)
+    dummyAudioRef.current?.pause()
+    dummyAudioRef.current?.remove()
+    dummyAudioRef.current = undefined
+  }, [])
+
+  useEffect(() => {
+    navigator.mediaSession.setPositionState({
+      duration: trackInfo?.duration || 0,
+      playbackRate: 1,
+      position: playbackPosition
+    })
+  }, [playbackPosition, trackInfo])
+
   useEffect(() => {
     ;(async () => {
       if (
-        !("mediaSession" in navigator) ||
+        !(
+          "mediaSession" in navigator &&
+          "setPositionState" in navigator.mediaSession
+        ) ||
         trackInfo === undefined ||
         !initialize
       )
@@ -62,19 +96,13 @@ const useMediaSession = ({
           setMediaMetadata(trackInfo)
         }, 500)
 
-        navigator.mediaSession.playbackState = "playing"
-
         navigator.mediaSession.setActionHandler("play", async () => {
-          console.log("PLAY!")
-          await onTogglePlay()
-          navigator.mediaSession.playbackState = "playing"
-          return dummyAudioRef.current?.play()
+          await handleResume()
+          return
         })
         navigator.mediaSession.setActionHandler("pause", async () => {
-          await onTogglePlay()
-          navigator.mediaSession.playbackState = "paused"
-          console.log("PAUSE!")
-          return dummyAudioRef.current?.pause()
+          await handlePause()
+          return
         })
         navigator.mediaSession.setActionHandler("nexttrack", () =>
           onNextTrack()
@@ -91,19 +119,24 @@ const useMediaSession = ({
     })()
 
     return () => {
-      clearInterval(setMediaMetadatainterval.current)
-      dummyAudioRef.current?.pause()
-      dummyAudioRef.current?.remove()
-      dummyAudioRef.current = undefined
+      clearMediaSession()
     }
   }, [
-    trackInfo,
-    initialize,
+    handlePause,
+    handleResume,
+    onNextTrack,
     setErrorModalInstance,
     setMediaMetadata,
-    onNextTrack,
-    onTogglePlay
+    trackInfo,
+    initialize,
+    clearMediaSession
   ])
+
+  return {
+    onMediaSessionResume: handleResume,
+    onMediaSessionPause: handlePause,
+    clearMediaSession
+  } as const
 }
 
 export default useMediaSession

@@ -53,31 +53,70 @@ const usePlayer = ({ initialize }: Props) => {
   const {
     playbackPosition: spotifyPlaybackPosition,
     onPlay: onSpotifyPlay,
-    onTogglePlay: onSpotifyTogglePlay
+    onPause: onSpotifyPuase,
+    onResume: onSpotifyResume
   } = useSpotifyPlayer({
     initialize,
     onTrackFinish: handleTrackFinish
   })
 
-  const onTogglePlay = useCallback(async () => {
+  const onPause = useCallback(async () => {
+    setIsPlaying(false)
+
     switch (currentTrackInfo?.provider) {
       case "spotify":
-        await onSpotifyTogglePlay()
-        setIsPlaying(prev => !prev)
+        await onSpotifyPuase()
+        break
+      case "webdav":
+        // TODO: webdavの一時停止処理
+        break
+    }
+  }, [currentTrackInfo?.provider, onSpotifyPuase])
+
+  const onResume = useCallback(async () => {
+    setIsPlaying(true)
+
+    switch (currentTrackInfo?.provider) {
+      case "spotify":
+        await onSpotifyResume()
+        break
+      case "webdav":
+        // TODO: webdavの再生再開処理
+        break
+    }
+  }, [currentTrackInfo?.provider, onSpotifyResume])
+
+  const { onMediaSessionPause, onMediaSessionResume, clearMediaSession } =
+    useMediaSession({
+      initialize,
+      trackInfo: currentTrackInfo,
+      playbackPosition,
+      onPause,
+      onResume,
+      onNextTrack
+    })
+
+  const onTogglePlay = useCallback(async () => {
+    setIsPlaying(prev => !prev)
+
+    switch (currentTrackInfo?.provider) {
+      case "spotify":
+        if (isPlaying) {
+          await onMediaSessionPause()
+        } else {
+          await onMediaSessionResume()
+        }
         break
       case "webdav":
         // TODO: webdavのトグル再生処理
-        setIsPlaying(prev => !prev)
         break
     }
-  }, [currentTrackInfo?.provider, onSpotifyTogglePlay])
-
-  useMediaSession({
-    initialize,
-    trackInfo: currentTrackInfo,
-    onTogglePlay,
-    onNextTrack
-  })
+  }, [
+    currentTrackInfo?.provider,
+    isPlaying,
+    onMediaSessionPause,
+    onMediaSessionResume
+  ])
 
   const onPlay = useCallback(
     async (provider: Provider, trackId: string) => {
@@ -112,6 +151,13 @@ const usePlayer = ({ initialize }: Props) => {
     },
     [queue, setQueue]
   )
+
+  /** Spotify以外ではダミー音源によるMedia Session APIの使用はしないので削除する
+   */
+  useEffect(() => {
+    if (currentTrackInfo?.provider === "spotify") return
+    clearMediaSession()
+  }, [currentTrackInfo?.provider, clearMediaSession])
 
   /** 再生位置の更新 */
   useEffect(() => {

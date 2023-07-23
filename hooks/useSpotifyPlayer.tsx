@@ -38,9 +38,14 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     [startPlayback, setErrorModalInstance]
   )
 
-  const onTogglePlay = useCallback(async () => {
+  const onPause = useCallback(async () => {
     if (player === undefined) return
-    await player.togglePlay()
+    await player.pause()
+  }, [player])
+
+  const onResume = useCallback(async () => {
+    if (player === undefined) return
+    await player.resume()
   }, [player])
 
   /** Web Playback SDK */
@@ -94,7 +99,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     }
   }, [accessToken, initialize, onTrackFinish, player])
 
-  return { playbackPosition, onPlay, onTogglePlay } as const
+  return { playbackPosition, onPlay, onPause, onResume } as const
 }
 
 export default useSpotifyPlayer
