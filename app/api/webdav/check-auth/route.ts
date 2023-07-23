@@ -10,11 +10,20 @@ export const POST = async (req: NextRequest) => {
     password: password
   })
 
+  const responseHeaders = {
+    "Access-Control-Allow-Origin": process.env
+      .ACCESS_CONTROL_ALLOW_ORIGIN as string,
+    "Access-Control-Allow-Methods": process.env
+      .ACCESS_CONTROL_ALLOW_METHODS as string,
+    "Access-Control-Allow-Headers": process.env
+      .ACCESS_CONTROL_ALLOW_HEADERS as string
+  }
+
   try {
     await client.getQuota()
   } catch {
-    return NextResponse.json("", { status: 401 })
+    return NextResponse.json("", { status: 401, headers: responseHeaders })
   }
 
-  return NextResponse.json("", { status: 200 })
+  return NextResponse.json("", { status: 200, headers: responseHeaders })
 }
