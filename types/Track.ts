@@ -1,7 +1,7 @@
 import { Provider } from "./Provider"
 
 export type Track = {
-  id: string
+  id: string // SpotifyのトラックID、WebDAVのダウンロードリンク
   provider: Provider
   title: string
   albumTitle: string
@@ -9,5 +9,5 @@ export type Track = {
   imgSrc: string
   imgHeight: number
   imgWidth: number
-  duration: number
+  duration: number // 単位: 秒
 }

@@ -25,6 +25,7 @@
     "eslint-config-next": "^13.4.10",
     "next": "^13.4.10",
     "next-intercept-stdout": "^1.0.1",
+    "node-id3": "^0.2.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-easy-marquee": "^1.2.4",

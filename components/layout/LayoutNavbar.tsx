@@ -22,14 +22,11 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useSpotifyApi from "@/hooks/useSpotifyApi"
-import useSpotifyToken from "@/hooks/useSpotifyToken"
+import useMIX from "@/hooks/useMIX"
 import useTouchDevice from "@/hooks/useTouchDevice"
-import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
-import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
-import { Track } from "@/types/Track"
+import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
 const LayoutNavbar = () => {
   const { isTouchDevice } = useTouchDevice()
@@ -44,73 +41,58 @@ const LayoutNavbar = () => {
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const { hasValidAccessTokenState } = useSpotifyToken()
-  const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
+  const { mixAllTracks } = useMIX()
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
-  const spotifyPlaylists = playlists.filter(p => p.provider === "spotify")
-  const webdavPlaylists = playlists.filter(p => p.provider === "webdav")
+  const spotifyPlaylists = useMemo(
+    () => playlists.filter(p => p.provider === "spotify"),
+    [playlists]
+  )
+  const webdavPlaylists = useMemo(
+    () => playlists.filter(p => p.provider === "webdav"),
+    [playlists]
+  )
 
-  /** 選択済みSpotifyプレイリスト読み込み */
+  /** 選択済みプレイリスト(フォルダー)読み込み */
   useEffect(() => {
     const localStorageSelectedSpotifyPlaylists = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
     )
-    if (localStorageSelectedSpotifyPlaylists === null) return
+    const localStorageWebDAVSelectedFolder = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
+    )
 
-    const parsed = JSON.parse(
+    const spotifyPlaylists = convertToNavbarFormat(
+      "spotify",
       localStorageSelectedSpotifyPlaylists
-    ) as LocalStorageSpotifySelectedPlaylists[]
+    )
+    const webdavFolder = convertToNavbarFormat(
+      "webdav",
+      localStorageWebDAVSelectedFolder
+    )
 
-    const mapped: NavbarItem[] = parsed.map(p => ({
-      provider: "spotify",
-      id: p.id,
-      title: p.title,
-      color: "spotify",
-      checked: false
-    }))
+    let basePlaylists: NavbarItem[] = []
+
+    if (spotifyPlaylists)
+      basePlaylists = [...basePlaylists, ...spotifyPlaylists]
+    if (webdavFolder) basePlaylists = [...basePlaylists, ...webdavFolder]
+
+    if (basePlaylists.length === 0) return // 読み込むプレイリストが存在しないので以降の処理をする必要はない
 
     const checkedItems = localStorage.getItem(
       LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
     )
-    if (checkedItems !== null) {
-      const parsedCheckedItems = JSON.parse(checkedItems) as string[]
-      parsedCheckedItems.forEach(id => {
-        const index = mapped.findIndex(p => p.id === id)
-        if (index !== -1) mapped[index].checked = true
-      })
-    }
+    if (checkedItems === null) return
 
-    setPlaylists([
-      ...mapped,
-      {
-        id: "webdav-dir-1",
-        color: "webdav",
-        provider: "webdav",
-        title: "/music",
-        checked: false
-      },
-      {
-        id: "webdav-dir-2",
-        color: "webdav",
-        provider: "webdav",
-        title: "/favorites",
-        checked: false
-      },
-      {
-        id: "webdav-dir-3",
-        color: "webdav",
-        provider: "webdav",
-        title: "/favorites/subdir",
-        checked: false
-      }
-    ])
+    /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けた状態で表示する */
+    const parsedCheckedItems = JSON.parse(checkedItems) as string[]
+    setPlaylists(
+      basePlaylists.map(p =>
+        parsedCheckedItems.includes(p.id) ? { ...p, checked: true } : p
+      )
+    )
 
-    // TODO: WebDAVの引き込みが完了したら→に変更 setPlaylists(mapped)
-
-    return () => {
-      setPlaylists([])
-    }
+    return () => setPlaylists([])
   }, [])
 
   /** チェックを入れた項目をLocalStorageに保存する */
@@ -146,6 +128,8 @@ const LayoutNavbar = () => {
   )
 
   const handleMixButtonClick = useCallback(async () => {
+    setIsMixing(true)
+
     /**
      * Safariの『NotAllowedError』対策
      * 参考: https://yukiyuriweb.com/2021/03/12/how-to-handle-notallowederror-in-safari/
@@ -154,57 +138,32 @@ const LayoutNavbar = () => {
     audio.play().catch(() => undefined)
     audio.pause()
 
-    setIsMixing(true)
-    let tracksForPlaylists: Track[][] = []
-
-    const getPlaylistTracksAsync = async (
-      playlistId: string
-    ): Promise<Track[]> => {
-      const res = await getPlaylistTracks(playlistId)
-      return res.map((item: SpotifyApiTrack) => ({
-        id: item.track.id,
-        provider: "spotify",
-        title: item.track.name,
-        albumTitle: item.track.album.name,
-        artist: item.track.artists.map(artist => artist.name).join("・"),
-        imgSrc: item.track.album.images[0].url,
-        imgHeight: item.track.album.images[0].height,
-        imgWidth: item.track.album.images[0].width,
-        duration: item.track.duration_ms
-      }))
-    }
-
-    const selectedPlaylists = spotifyPlaylists.filter(p => p.checked === true)
+    const checkedSpotifyPlaylists = spotifyPlaylists.filter(
+      p => p.checked === true
+    )
+    const checkedWebDAVPlaylists = webdavPlaylists.filter(
+      p => p.checked === true
+    )
 
     try {
-      if (hasValidAccessTokenState) {
-        console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
-        tracksForPlaylists = await Promise.all(
-          selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
-        )
-      } else {
-        /** アクセストークンがRecoilStateにセットされていない状態で並列処理でリクエストするとトークンの更新処理が何回も走ってしまうので逐次処理でリクエストを行う */
-        console.log("🟦DEBUG: 逐次処理でプレイリストの情報を取得します")
-        for (const playlist of selectedPlaylists) {
-          const tracks = await getPlaylistTracksAsync(playlist.id)
-          tracksForPlaylists.push(tracks)
-        }
-      }
+      const tracks = await mixAllTracks(
+        checkedSpotifyPlaylists,
+        checkedWebDAVPlaylists
+      )
 
-      const checkedSpotifyPlaylistsTracksFlattenShuffled = tracksForPlaylists
-        .flat()
-        .sort(() => Math.random() - 0.5)
-      setQueue(checkedSpotifyPlaylistsTracksFlattenShuffled)
+      if (tracks.length === 0) return // 読み込む曲が存在しないので以降の処理をする必要はない
+
+      setQueue(tracks.sort(() => Math.random() - 0.5))
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
     } finally {
       setIsMixing(false)
     }
   }, [
-    getPlaylistTracks,
-    setQueue,
     spotifyPlaylists,
-    hasValidAccessTokenState,
+    webdavPlaylists,
+    mixAllTracks,
+    setQueue,
     setErrorModalInstance
   ])
 

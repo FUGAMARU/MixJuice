@@ -1,6 +1,9 @@
 import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { Track } from "@/types/Track"
+import { getAudioDurationFromUrl } from "@/utils/getAudioDurationFromUrl"
+import { getImageSizeFromBase64 } from "@/utils/getImageSizeFromBase64"
 
 export const webDAVApi = axios.create({
   baseURL: "/api/webdav",
@@ -95,7 +98,36 @@ const useWebDAVApi = ({ initialize }: Props) => {
     }
   }, [])
 
-  return { checkAuth, checkIsFolderExists } as const
+  const getFolderTracks = useCallback(async (path: string) => {
+    try {
+      const res = (
+        await webDAVApi.get<Track[]>("/folder-tracks", {
+          params: { path }
+        })
+      ).data
+
+      const tracks = await Promise.all(
+        res.map(async track => {
+          const duration = await getAudioDurationFromUrl(track.id)
+          const imgSize = await getImageSizeFromBase64(track.imgSrc)
+
+          return {
+            ...track,
+            duration,
+            imgHeight: imgSize.height,
+            imgWidth: imgSize.width
+          }
+        })
+      )
+
+      return tracks
+    } catch (e) {
+      console.log("🟥ERROR: ", e)
+      throw Error("フォルダー内の楽曲一覧の取得に失敗しました")
+    }
+  }, [])
+
+  return { checkAuth, checkIsFolderExists, getFolderTracks } as const
 }
 
 export default useWebDAVApi

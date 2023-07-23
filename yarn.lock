@@ -2576,6 +2576,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"iconv-lite@npm:0.6.2":
+  version: 0.6.2
+  resolution: "iconv-lite@npm:0.6.2"
+  dependencies:
+    safer-buffer: "npm:>= 2.1.2 < 3.0.0"
+  checksum: ba81a32a54066e64ac68174851d1c17534ef398627eb5d07b4ef2999126674d66f7377aa46c8d1450ef6aee3d679ccaeb9af402b5c58ecec649cee361c1ad16d
+  languageName: node
+  linkType: hard
+
 "ignore@npm:^5.2.0, ignore@npm:^5.2.4":
   version: 5.2.4
   resolution: "ignore@npm:5.2.4"
@@ -3210,6 +3219,7 @@ __metadata:
     eslint-plugin-unused-imports: "npm:^3.0.0"
     next: "npm:^13.4.10"
     next-intercept-stdout: "npm:^1.0.1"
+    node-id3: "npm:^0.2.6"
     prettier: "npm:^3.0.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
@@ -3359,6 +3369,15 @@ __metadata:
     fetch-blob: "npm:^3.1.4"
     formdata-polyfill: "npm:^4.0.10"
   checksum: 9fed9ed9ab83f719ffbe51b5029f32ee9820a725afc57a3e6a7e5742a05dd38b22d005f2d03d70e8e0924b497e513b08992843bb1bc7f0a15b72ad071d8c1271
+  languageName: node
+  linkType: hard
+
+"node-id3@npm:^0.2.6":
+  version: 0.2.6
+  resolution: "node-id3@npm:0.2.6"
+  dependencies:
+    iconv-lite: "npm:0.6.2"
+  checksum: 4356d3bf36cc13a882f99e2c3fd45f2b5c2cbeeb0c42084a28339a29f9ce49466d6f402d2d25cca99ea6e878e0bf069016f188cbb878951a0923b5e7045127ea
   languageName: node
   linkType: hard
 
@@ -3957,6 +3976,13 @@ __metadata:
     get-intrinsic: "npm:^1.1.3"
     is-regex: "npm:^1.1.4"
   checksum: c7248dfa07891aa634c8b9c55da696e246f8589ca50e7fd14b22b154a106e83209ddf061baf2fa45ebfbd485b094dc7297325acfc50724de6afe7138451b42a9
+  languageName: node
+  linkType: hard
+
+"safer-buffer@npm:>= 2.1.2 < 3.0.0":
+  version: 2.1.2
+  resolution: "safer-buffer@npm:2.1.2"
+  checksum: 7eaf7a0cf37cc27b42fb3ef6a9b1df6e93a1c6d98c6c6702b02fe262d5fcbd89db63320793b99b21cb5348097d0a53de81bd5f4e8b86e20cc9412e3f1cfb4e83
   languageName: node
   linkType: hard
 
