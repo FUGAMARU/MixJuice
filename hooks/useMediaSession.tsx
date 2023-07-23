@@ -41,20 +41,18 @@ const useMediaSession = ({
     })
   }, [])
 
-  const handleResume = useCallback(async () => {
-    await onResume()
-    await dummyAudioRef.current?.play()
+  const onPlayDummyAudio = useCallback(async (duration: number) => {
+    const audioBlob = await createSilentAudioBlob(duration)
+    console.log("🟩DEBUG: AudioBlobの生成が完了しました")
+    console.log(audioBlob)
+
+    const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
+    dummyAudioRef.current = dummyAudio
+    await dummyAudio.play()
     navigator.mediaSession.playbackState = "playing"
-  }, [onResume])
+  }, [])
 
-  const handlePause = useCallback(async () => {
-    await onPause()
-    await dummyAudioRef.current?.pause()
-    navigator.mediaSession.playbackState = "paused"
-  }, [onPause])
-
-  const clearMediaSession = useCallback(() => {
-    clearInterval(setMediaMetadatainterval.current)
+  const clearDummyAudio = useCallback(() => {
     dummyAudioRef.current?.pause()
     dummyAudioRef.current?.remove()
     dummyAudioRef.current = undefined
@@ -81,13 +79,6 @@ const useMediaSession = ({
         return
 
       try {
-        const audioBlob = await createSilentAudioBlob(trackInfo.duration)
-        console.log("🟩DEBUG: AudioBlobの生成が完了しました")
-        console.log(audioBlob)
-        const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
-        dummyAudioRef.current = dummyAudio
-        await dummyAudio.play()
-
         /** Spotifyの再生開始後にメタデーターをセットしないとデーターが反映されない(特にmacOS。ChromeのMedia Hubは問題なかった。)っぽいため、一定間隔でメタデーターをセットする
          * → 「Spotifyの再生開始後」というタイミングを取るのが難しい。トライしてみたけど難しかった。
          */
@@ -97,11 +88,15 @@ const useMediaSession = ({
         }, 500)
 
         navigator.mediaSession.setActionHandler("play", async () => {
-          await handleResume()
+          await onResume()
+          if (dummyAudioRef.current?.paused) await dummyAudioRef.current?.play()
+          navigator.mediaSession.playbackState = "playing"
           return
         })
         navigator.mediaSession.setActionHandler("pause", async () => {
-          await handlePause()
+          await onPause()
+          if (!dummyAudioRef.current?.paused) dummyAudioRef.current?.pause()
+          navigator.mediaSession.playbackState = "paused"
           return
         })
         navigator.mediaSession.setActionHandler("nexttrack", () =>
@@ -119,23 +114,24 @@ const useMediaSession = ({
     })()
 
     return () => {
-      clearMediaSession()
+      clearInterval(setMediaMetadatainterval.current)
+      clearDummyAudio()
     }
   }, [
-    handlePause,
-    handleResume,
+    initialize,
+    trackInfo,
+    onPause,
+    onResume,
     onNextTrack,
     setErrorModalInstance,
+    onPlayDummyAudio,
     setMediaMetadata,
-    trackInfo,
-    initialize,
-    clearMediaSession
+    clearDummyAudio
   ])
 
   return {
-    onMediaSessionResume: handleResume,
-    onMediaSessionPause: handlePause,
-    clearMediaSession
+    onPlayDummyAudio,
+    clearDummyAudio
   } as const
 }
 

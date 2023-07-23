@@ -7,6 +7,7 @@ import { loadingAtom } from "../../atoms/loadingAtom"
 import Player from "@/app/(main)/templates/Player"
 import Queue from "@/app/(main)/templates/Queue"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import usePlayer from "@/hooks/usePlayer"
 
 const MainPage = () => {
   const { breakPoint, setRespVal } = useBreakPoints()
@@ -16,14 +17,35 @@ const MainPage = () => {
     setIsLoading(false)
   }, [setIsLoading])
 
+  const {
+    currentTrackInfo,
+    playbackPosition,
+    isPlaying,
+    onPause,
+    onNextTrack,
+    onTogglePlay,
+    hasSomeTrack,
+    onSkipTo
+  } = usePlayer({
+    initialize: true
+  })
+
   return (
     <>
       <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
-        <Player />
+        <Player
+          currentTrackInfo={currentTrackInfo}
+          playbackPosition={playbackPosition}
+          isPlaying={isPlaying}
+          onPause={onPause}
+          onNextTrack={onNextTrack}
+          onTogglePlay={onTogglePlay}
+          hasSomeTrack={hasSomeTrack}
+        />
       </Box>
 
       <Box w="100%">
-        <Queue />
+        <Queue onPause={onPause} onSkipTo={onSkipTo} />
       </Box>
 
       <Box

@@ -59,7 +59,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     document.body.appendChild(script)
 
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new window.Spotify.Player({
+      const spotifyPlayer = new window.Spotify.Player({
         name: "MixJuice",
         getOAuthToken: callback => {
           callback(accessToken.token)
@@ -67,31 +67,34 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
         volume: 0.5
       })
 
-      setPlayer(player)
+      setPlayer(spotifyPlayer)
 
-      player.addListener("ready", ({ device_id }) => {
+      spotifyPlayer.addListener("ready", ({ device_id }) => {
         console.log("🟩DEBUG: Spotify WebPlaybackSDKの準備が完了しました")
         console.log("デバイスID: ", device_id)
         deviceId.current = device_id
       })
 
-      player.addListener("not_ready", ({ device_id }) => {
+      spotifyPlayer.addListener("not_ready", ({ device_id }) => {
         console.log("🟧DEBUG: Spotify WebPlaybackSDKがNot Readyになりました")
         deviceId.current = device_id
       })
 
-      player.addListener("player_state_changed", ({ position, duration }) => {
-        if (position === duration) onTrackFinish()
-      })
+      spotifyPlayer.addListener(
+        "player_state_changed",
+        ({ position, duration }) => {
+          if (position === duration) onTrackFinish()
+        }
+      )
 
       setInterval(async () => {
-        const state = await player.getCurrentState()
+        const state = await spotifyPlayer.getCurrentState()
         if (state === null) return
 
         setPlaybackState(state)
       }, 100)
 
-      player.connect()
+      spotifyPlayer.connect()
     }
 
     return () => {

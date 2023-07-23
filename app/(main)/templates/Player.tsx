@@ -7,13 +7,31 @@ import AlbumArtwork from "@/components/parts/AlbumArtwork"
 import TrackInfo from "@/components/parts/TrackInfo"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import usePlayer from "@/hooks/usePlayer"
 import styles from "@/styles/Player.module.css"
+import { Track } from "@/types/Track"
 import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 let animationTimeoutId: NodeJS.Timer
 
-const Player = () => {
+type Props = {
+  currentTrackInfo: Track | undefined
+  playbackPosition: number
+  isPlaying: boolean
+  onPause: () => Promise<void>
+  onNextTrack: () => Promise<void>
+  onTogglePlay: () => Promise<void>
+  hasSomeTrack: boolean
+}
+
+const Player = ({
+  currentTrackInfo,
+  playbackPosition,
+  isPlaying,
+  onPause,
+  onNextTrack,
+  onTogglePlay,
+  hasSomeTrack
+}: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
     ref: containerRef,
@@ -31,17 +49,6 @@ const Player = () => {
     () => !(breakPoint === "PC" || breakPoint === "Tablet"),
     [breakPoint]
   )
-
-  const {
-    currentTrackInfo,
-    playbackPosition,
-    isPlaying,
-    onNextTrack,
-    onTogglePlay,
-    hasSomeTrack
-  } = usePlayer({
-    initialize: true
-  })
 
   /** シークバーアニメーション管理 */
   const [isSeekbarShown, setIsSeekbarShown] = useState(false)
@@ -83,6 +90,7 @@ const Player = () => {
           }
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
+          onPause={onPause}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />

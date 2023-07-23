@@ -1,7 +1,7 @@
 import { Box, Overlay, Group, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
-import { useState, useEffect, memo } from "react"
+import { useState, useEffect, memo, useCallback } from "react"
 import {
   IoPauseCircleSharp,
   IoPlayBack,
@@ -18,8 +18,9 @@ type Props = {
   objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
+  onPause: () => Promise<void>
   onTogglePlay: () => Promise<void>
-  onNextTrack: () => void
+  onNextTrack: () => Promise<void>
 }
 
 const AlbumArtwork = ({
@@ -28,6 +29,7 @@ const AlbumArtwork = ({
   objectFit = "contain",
   smaller,
   isPlaying,
+  onPause,
   onTogglePlay,
   onNextTrack
 }: Props) => {
@@ -49,6 +51,11 @@ const AlbumArtwork = ({
       }, 400)
     }
   }, [isArtworkHovered])
+
+  const handlePlayForwardButtonClick = useCallback(async () => {
+    await onPause()
+    await onNextTrack()
+  }, [onPause, onNextTrack])
 
   return (
     <Box
@@ -115,7 +122,7 @@ const AlbumArtwork = ({
                   color="white"
                   size={smaller ? "1.5rem" : "2rem"}
                   style={{ cursor: "pointer" }}
-                  onClick={onNextTrack}
+                  onClick={handlePlayForwardButtonClick}
                 />
               </Group>
             </Overlay>

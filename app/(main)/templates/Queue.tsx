@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
-import { memo, useMemo } from "react"
+import { memo, useCallback, useMemo } from "react"
 import { FixedSizeList } from "react-window"
 import { useRecoilValue } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
@@ -10,10 +10,14 @@ import ListItem from "@/components/parts/ListItem"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { HEADER_HEIGHT, QUEUE_PADDING_TOP } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import usePlayer from "@/hooks/usePlayer"
 import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
-const Queue = () => {
+type Props = {
+  onPause: () => Promise<void>
+  onSkipTo: (trackId: string) => Promise<void>
+}
+
+const Queue = ({ onPause, onSkipTo }: Props) => {
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const playerHeight = useRecoilValue(playerHeightAtom)
@@ -22,7 +26,14 @@ const Queue = () => {
     [viewportHeight, playerHeight]
   )
   const queue = useRecoilValue(queueAtom)
-  const { onSkipTo } = usePlayer({ initialize: false })
+
+  const handleArtworkPlayButtonClick = useCallback(
+    async (id: string) => {
+      await onPause()
+      await onSkipTo(id)
+    },
+    [onSkipTo, onPause]
+  )
 
   return (
     <Box
@@ -69,7 +80,9 @@ const Queue = () => {
                   title={data.title}
                   subText={` / ${data.artist}`}
                   playable
-                  onArtworkPlayButtonClick={() => onSkipTo(data.id)}
+                  onArtworkPlayButtonClick={() =>
+                    handleArtworkPlayButtonClick(data.id)
+                  }
                 />
               </Flex>
             </div>
