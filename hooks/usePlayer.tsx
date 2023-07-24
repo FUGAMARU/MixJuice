@@ -95,19 +95,25 @@ const usePlayer = ({ initialize }: Props) => {
     [currentTrackInfo, onPause]
   )
 
-  const onNextTrack = useCallback(async () => {
-    /** 再生待ちの曲がない場合は曲送りする必要がない */
-    if (queue.length === 0) {
-      await onPause()
-      return
-    }
+  const onNextTrack = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        const currentQueue = await snapshot.getPromise(queueAtom)
 
-    await smartPause(queue[0].provider)
+        /** 再生待ちの曲がない場合は曲送りする必要がない */
+        if (currentQueue.length === 0) {
+          await onPause()
+          return
+        }
 
-    setIsPlaying(false)
-    isLockingPlayer = false
-    setTrackFeedTrigger(prev => !prev)
-  }, [smartPause, onPause, queue])
+        await smartPause(currentQueue[0].provider)
+
+        setIsPlaying(false)
+        isLockingPlayer = false
+        setTrackFeedTrigger(prev => !prev)
+      },
+    [currentTrackInfo] // onNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
+  )
 
   const onResume = useCallback(async () => {
     setIsPlaying(true)

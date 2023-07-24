@@ -30,6 +30,10 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
     await audio.current.play()
   }, [])
 
+  const handleTrackFinish = useCallback(() => {
+    onTrackFinish()
+  }, [onTrackFinish])
+
   useEffect(() => {
     audio.current = new Audio()
   }, [])
@@ -49,12 +53,12 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
   useEffect(() => {
     if (audio.current === undefined) return
 
-    audio.current.addEventListener("ended", onTrackFinish)
+    audio.current.addEventListener("ended", handleTrackFinish)
 
     return () => {
-      audio.current?.removeEventListener("ended", onTrackFinish)
+      audio.current?.removeEventListener("ended", handleTrackFinish)
     }
-  }, [onTrackFinish])
+  }, [handleTrackFinish])
 
   return { onPlay, onPause, onResume, playbackPosition } as const
 }

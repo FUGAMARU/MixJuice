@@ -59,10 +59,14 @@ const useMediaSession = ({
   }, [])
 
   useEffect(() => {
+    const duration = trackInfo === undefined ? 0 : trackInfo.duration / 1000 // Media Session APIのdurationは秒単位だが、Trackのdurationはミリ秒単位なので変換する
+    const position = playbackPosition / 1000 // Media Session APIのpositionは秒単位だが、playbackPositionはミリ秒単位なので変換する
+    if (position > duration) return // WebDAVのトラックが再生終了する瞬間一瞬だけpositionがdurationを超えることがある
+
     navigator.mediaSession.setPositionState({
-      duration: trackInfo === undefined ? 0 : trackInfo.duration / 1000, // Media Session APIのdurationは秒単位だが、Trackのdurationはミリ秒単位なので変換する
+      duration,
       playbackRate: 1,
-      position: playbackPosition / 1000 // Media Session APIのpositionは秒単位だが、playbackPositionはミリ秒単位なので変換する
+      position
     })
   }, [playbackPosition, trackInfo])
 
