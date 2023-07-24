@@ -1,9 +1,8 @@
+import { parseStream } from "music-metadata"
 import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import * as NodeID3 from "node-id3"
 import { Track } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
-import { arrayBufferToBinaryString } from "@/utils/arrayBufferToBinaryString"
 import { createWebDAVClient } from "@/utils/createWebDAVClient"
 
 export const GET = async (req: NextRequest) => {
@@ -30,38 +29,38 @@ export const GET = async (req: NextRequest) => {
   )) as unknown as WebDAVDirectoryContent[]
   const audioFilesFiltered = audioFiles.filter(
     audioFile =>
-      audioFile.type === "file" && audioFile.basename.endsWith(".mp3") // ID-3タグを取れるのがmp3だけなのでmp3に限定
+      audioFile.type === "file" && audioFile.basename.endsWith(".mp3") // TODO: 対応フォーマット増やす
   )
 
   const tracks: Track[] = await Promise.all(
     audioFilesFiltered.map(async audioFile => {
       const filepath = `${path}/${audioFile.basename}`
 
-      const downloadLink = await client.getFileDownloadLink(filepath)
+      const stream = client.createReadStream(filepath)
+      const { common } = await parseStream(
+        stream,
+        { mimeType: "audio/mpeg", size: audioFile.size },
+        { duration: true }
+      )
+      stream.destroy()
 
-      const content = (await client.getFileContents(filepath)) as Buffer
-      const tags = NodeID3.read(content)
-
-      const image = tags.image
-      let imgSrc: string = ""
-      if (typeof image === "undefined" || typeof image === "string") {
-        imgSrc = ""
-      } else {
-        const base64 = arrayBufferToBinaryString(image.imageBuffer)
-        const encodedData = Buffer.from(base64, "binary").toString("base64")
-        imgSrc = `data:${image.mime};base64,${encodedData}`
-      }
+      const id = await client.getFileDownloadLink(filepath)
+      const imgSrc = common.picture
+        ? `data:${
+            common.picture[0].format
+          };base64,${common.picture[0].data.toString("base64")}`
+        : ""
 
       return {
-        id: downloadLink,
+        id,
         provider: "webdav",
-        title: tags.title || "???",
-        albumTitle: tags.album || "???",
-        artist: tags.artist || "???",
+        title: common.title || "",
+        albumTitle: common.album || "",
+        artist: common.artists ? common.artists.join(", ") : "",
         imgSrc,
         imgHeight: 0, // クライアント側で情報を付与する
         imgWidth: 0, // クライアント側で情報を付与する
-        duration: 0 // クライアント側で情報を付与する
+        duration: 0 // parseStreamから取得できるが、undefined許容のため、クライアント側にて確実に曲の長さを取得する
       }
     })
   )
