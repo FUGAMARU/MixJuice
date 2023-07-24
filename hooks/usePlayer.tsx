@@ -21,7 +21,7 @@ type Props = {
 const usePlayer = ({ initialize }: Props) => {
   const [queue, setQueue] = useRecoilState(queueAtom)
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
-  const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: %
+  const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
@@ -51,7 +51,7 @@ const usePlayer = ({ initialize }: Props) => {
   )
 
   const {
-    playbackPosition: spotifyPlaybackPosition,
+    playbackPosition: spotifyPlaybackPosition, // 単位: ミリ秒
     onPlay: onSpotifyPlay,
     onPause: onSpotifyPause,
     onResume: onSpotifyResume
@@ -64,7 +64,7 @@ const usePlayer = ({ initialize }: Props) => {
     onPlay: onWebDAVPlay,
     onPause: onWebDAVPause,
     onResume: onWebDAVResume,
-    playbackPosition: webDAVPlaybackPosition
+    playbackPosition: webDAVPlaybackPosition // 単位: ミリ秒
   } = useWebDAVPlayer({ currentTrackInfo, onTrackFinish: handleTrackFinish })
 
   const onPause = useCallback(async () => {
@@ -203,9 +203,21 @@ const usePlayer = ({ initialize }: Props) => {
     onPlay(queue[0])
   }, [queue, onPlay, setQueue, trackFeedTrigger, currentTrackInfo])
 
+  const playbackPercentage = useMemo(() => {
+    if (currentTrackInfo === undefined) return 0
+
+    switch (currentTrackInfo.provider) {
+      case "spotify":
+        return (spotifyPlaybackPosition / currentTrackInfo.duration) * 100
+
+      case "webdav":
+        return (webDAVPlaybackPosition / currentTrackInfo.duration) * 100
+    }
+  }, [currentTrackInfo, spotifyPlaybackPosition, webDAVPlaybackPosition])
+
   return {
     currentTrackInfo,
-    playbackPosition,
+    playbackPercentage,
     isPlaying,
     volume,
     setVolume,

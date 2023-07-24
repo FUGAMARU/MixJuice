@@ -19,7 +19,7 @@ const MainPage = () => {
 
   const {
     currentTrackInfo,
-    playbackPosition,
+    playbackPercentage,
     isPlaying,
     onNextTrack,
     onTogglePlay,
@@ -34,7 +34,7 @@ const MainPage = () => {
       <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
         <Player
           currentTrackInfo={currentTrackInfo}
-          playbackPosition={playbackPosition}
+          playbackPercentage={playbackPercentage}
           isPlaying={isPlaying}
           onNextTrack={onNextTrack}
           onTogglePlay={onTogglePlay}

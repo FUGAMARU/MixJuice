@@ -9,5 +9,5 @@ export type Track = {
   imgSrc: string
   imgHeight: number
   imgWidth: number
-  duration: number // 単位: 秒
+  duration: number // 単位: ミリ秒
 }

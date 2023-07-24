@@ -15,7 +15,7 @@ let animationTimeoutId: NodeJS.Timer
 
 type Props = {
   currentTrackInfo: Track | undefined
-  playbackPosition: number
+  playbackPercentage: number
   isPlaying: boolean
   onNextTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
@@ -24,7 +24,7 @@ type Props = {
 
 const Player = ({
   currentTrackInfo,
-  playbackPosition,
+  playbackPercentage,
   isPlaying,
   onNextTrack,
   onTogglePlay,
@@ -113,7 +113,7 @@ const Player = ({
         {/** MantineのBoxコンポーネントを使用してシークバーを実装すると、再生位置が更新される度にheadタグ内にMantineが生成したstyleタグが追加されてしまうのでdivにて実装 */}
         <div
           className={styles.loader}
-          style={{ width: `${playbackPosition}%` }}
+          style={{ width: `${playbackPercentage}%` }}
         />
       </Flex>
     </>

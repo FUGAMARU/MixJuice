@@ -36,10 +36,11 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (audio.current === undefined || currentTrackInfo === undefined) return
-      setPlaybackPosition(
-        (audio.current.currentTime / currentTrackInfo.duration) * 100
-      )
+      if (audio.current === undefined || currentTrackInfo === undefined) {
+        setPlaybackPosition(0)
+        return
+      }
+      setPlaybackPosition(audio.current.currentTime * 1000)
     }, 100)
 
     return () => clearInterval(interval)

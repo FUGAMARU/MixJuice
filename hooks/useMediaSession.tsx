@@ -60,9 +60,9 @@ const useMediaSession = ({
 
   useEffect(() => {
     navigator.mediaSession.setPositionState({
-      duration: trackInfo?.duration || 0,
+      duration: trackInfo === undefined ? 0 : trackInfo.duration / 1000, // Media Session APIのdurationは秒単位だが、Trackのdurationはミリ秒単位なので変換する
       playbackRate: 1,
-      position: playbackPosition
+      position: playbackPosition / 1000 // Media Session APIのpositionは秒単位だが、playbackPositionはミリ秒単位なので変換する
     })
   }, [playbackPosition, trackInfo])
 

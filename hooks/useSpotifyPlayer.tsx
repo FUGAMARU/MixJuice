@@ -19,7 +19,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
 
   const playbackPosition = useMemo(() => {
     if (playbackState === undefined) return 0
-    return (playbackState.position / playbackState.duration) * 100
+    return playbackState.position
   }, [playbackState])
 
   const onPlay = useCallback(
