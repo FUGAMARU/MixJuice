@@ -21,7 +21,6 @@ const MainPage = () => {
     currentTrackInfo,
     playbackPosition,
     isPlaying,
-    onPause,
     onNextTrack,
     onTogglePlay,
     hasSomeTrack,
@@ -37,7 +36,6 @@ const MainPage = () => {
           currentTrackInfo={currentTrackInfo}
           playbackPosition={playbackPosition}
           isPlaying={isPlaying}
-          onPause={onPause}
           onNextTrack={onNextTrack}
           onTogglePlay={onTogglePlay}
           hasSomeTrack={hasSomeTrack}
@@ -45,7 +43,7 @@ const MainPage = () => {
       </Box>
 
       <Box w="100%">
-        <Queue onPause={onPause} onSkipTo={onSkipTo} />
+        <Queue onSkipTo={onSkipTo} />
       </Box>
 
       <Box

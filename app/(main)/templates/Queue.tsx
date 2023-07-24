@@ -13,11 +13,10 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 type Props = {
-  onPause: () => Promise<void>
   onSkipTo: (trackId: string) => Promise<void>
 }
 
-const Queue = ({ onPause, onSkipTo }: Props) => {
+const Queue = ({ onSkipTo }: Props) => {
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const playerHeight = useRecoilValue(playerHeightAtom)
@@ -29,10 +28,9 @@ const Queue = ({ onPause, onSkipTo }: Props) => {
 
   const handleArtworkPlayButtonClick = useCallback(
     async (id: string) => {
-      await onPause()
       await onSkipTo(id)
     },
-    [onSkipTo, onPause]
+    [onSkipTo]
   )
 
   return (

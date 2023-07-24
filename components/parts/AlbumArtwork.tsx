@@ -18,7 +18,6 @@ type Props = {
   objectFit?: "contain" | "cover"
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
-  onPause: () => Promise<void>
   onTogglePlay: () => Promise<void>
   onNextTrack: () => Promise<void>
 }
@@ -29,7 +28,6 @@ const AlbumArtwork = ({
   objectFit = "contain",
   smaller,
   isPlaying,
-  onPause,
   onTogglePlay,
   onNextTrack
 }: Props) => {
@@ -53,9 +51,8 @@ const AlbumArtwork = ({
   }, [isArtworkHovered])
 
   const handlePlayForwardButtonClick = useCallback(async () => {
-    await onPause()
     await onNextTrack()
-  }, [onPause, onNextTrack])
+  }, [onNextTrack])
 
   return (
     <Box

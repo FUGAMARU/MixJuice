@@ -13,7 +13,6 @@ import { Track } from "@/types/Track"
  * 曲送り処理開始時に自動的にtrueに戻る
  */
 let isLockingPlayer = false
-let currentTrackProvider: Provider | undefined // 何故かonPause内で最新のcurrentTrackInfoが取れないので代替策 // TODO: なぜか取れないのか調査
 
 type Props = {
   initialize: boolean
@@ -32,12 +31,6 @@ const usePlayer = ({ initialize }: Props) => {
     [queue.length, currentTrackInfo]
   )
 
-  const onNextTrack = useCallback(async () => {
-    setIsPlaying(false)
-    isLockingPlayer = false
-    setTrackFeedTrigger(prev => !prev)
-  }, [])
-
   const handleTrackFinish = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
@@ -53,10 +46,19 @@ const usePlayer = ({ initialize }: Props) => {
         }
 
         setCurrentTrackInfo(undefined)
-        currentTrackProvider = undefined
       },
-    [onNextTrack]
+    []
   )
+
+  const {
+    playbackPosition: spotifyPlaybackPosition,
+    onPlay: onSpotifyPlay,
+    onPause: onSpotifyPause,
+    onResume: onSpotifyResume
+  } = useSpotifyPlayer({
+    initialize,
+    onTrackFinish: handleTrackFinish
+  })
 
   const {
     onPlay: onWebDAVPlay,
@@ -65,23 +67,12 @@ const usePlayer = ({ initialize }: Props) => {
     playbackPosition: webDAVPlaybackPosition
   } = useWebDAVPlayer({ currentTrackInfo, onTrackFinish: handleTrackFinish })
 
-  const {
-    playbackPosition: spotifyPlaybackPosition,
-    onPlay: onSpotifyPlay,
-    onPause: onSpotifyPuase,
-    onResume: onSpotifyResume
-  } = useSpotifyPlayer({
-    initialize,
-    onTrackFinish: handleTrackFinish
-  })
-
   const onPause = useCallback(async () => {
-    const provider = currentTrackInfo?.provider || currentTrackProvider
-    if (provider === undefined) return
+    if (currentTrackInfo === undefined) return
 
-    switch (provider) {
+    switch (currentTrackInfo.provider) {
       case "spotify":
-        await onSpotifyPuase()
+        await onSpotifyPause()
         break
       case "webdav":
         onWebDAVPause()
@@ -89,7 +80,34 @@ const usePlayer = ({ initialize }: Props) => {
     }
 
     setIsPlaying(false)
-  }, [currentTrackInfo, onSpotifyPuase, onWebDAVPause])
+  }, [currentTrackInfo, onSpotifyPause, onWebDAVPause])
+
+  /** 曲送りをする際に、再生中の曲のProviderと次の曲のProviderの組み合わせによって、現在の再生を一時停止させるかどうかが変わってくるので、このsmartPauseで吸収する */
+  const smartPause = useCallback(
+    async (nextProvider: Provider) => {
+      if (currentTrackInfo === undefined) return
+      /** Spotifyの曲同士で曲送りする時に一旦ポーズさせると、次の曲の再生開始時に502 Bad Gatewayが発生する可能性がある (理由不明) */
+      if (currentTrackInfo.provider === "spotify" && nextProvider === "spotify")
+        return
+
+      await onPause()
+    },
+    [currentTrackInfo, onPause]
+  )
+
+  const onNextTrack = useCallback(async () => {
+    /** 再生待ちの曲がない場合は曲送りする必要がない */
+    if (queue.length === 0) {
+      await onPause()
+      return
+    }
+
+    await smartPause(queue[0].provider)
+
+    setIsPlaying(false)
+    isLockingPlayer = false
+    setTrackFeedTrigger(prev => !prev)
+  }, [smartPause, onPause, queue])
 
   const onResume = useCallback(async () => {
     setIsPlaying(true)
@@ -142,6 +160,12 @@ const usePlayer = ({ initialize }: Props) => {
 
   const onSkipTo = useCallback(
     async (id: string) => {
+      const provider = queue
+        .filter(item => item.id === id)
+        .map(item => item.provider)
+
+      await smartPause(provider[0]) // IDは一意の値なので、providerは必ず1つになる
+
       isLockingPlayer = false
       const idx = queue.findIndex(item => item.id === id)
       if (idx === -1) return
@@ -152,7 +176,7 @@ const usePlayer = ({ initialize }: Props) => {
       setQueue(newQueue)
       setTrackFeedTrigger(prev => !prev)
     },
-    [queue, setQueue]
+    [queue, setQueue, smartPause]
   )
 
   /** 再生位置の更新 */
@@ -175,7 +199,6 @@ const usePlayer = ({ initialize }: Props) => {
 
     isLockingPlayer = true
     setCurrentTrackInfo(queue[0])
-    currentTrackProvider = queue[0].provider
     setQueue(prev => prev.slice(1))
     onPlay(queue[0])
   }, [queue, onPlay, setQueue, trackFeedTrigger, currentTrackInfo])
@@ -189,8 +212,7 @@ const usePlayer = ({ initialize }: Props) => {
     onNextTrack,
     onSkipTo,
     onTogglePlay,
-    hasSomeTrack,
-    onPause
+    hasSomeTrack
   } as const
 }
 

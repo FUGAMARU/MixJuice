@@ -17,7 +17,6 @@ type Props = {
   currentTrackInfo: Track | undefined
   playbackPosition: number
   isPlaying: boolean
-  onPause: () => Promise<void>
   onNextTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
   hasSomeTrack: boolean
@@ -27,7 +26,6 @@ const Player = ({
   currentTrackInfo,
   playbackPosition,
   isPlaying,
-  onPause,
   onNextTrack,
   onTogglePlay,
   hasSomeTrack
@@ -90,7 +88,6 @@ const Player = ({
           }
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
-          onPause={onPause}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />
