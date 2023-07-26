@@ -4,8 +4,8 @@ import { Provider } from "@/types/Provider"
 
 const COLORS: Record<Provider, { from: string; to: string }> = {
   spotify: {
-    from: "#fff720",
-    to: "#3cd500"
+    from: "#00ff80",
+    to: "#00aa40"
   },
   webdav: {
     from: "#2afadf",
@@ -27,8 +27,8 @@ const GradientCircle = ({
   return (
     <Tooltip label={tooltipLabel} fw={700}>
       <Center
-        w="1rem"
-        h="1rem"
+        w="1.2rem"
+        h="1.2rem"
         sx={{
           borderRadius: "50%",
           background: `linear-gradient(45deg, ${COLORS[color].from}, ${COLORS[color].to})`,
