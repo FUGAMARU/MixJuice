@@ -1,13 +1,11 @@
-import { parseStream } from "music-metadata"
 import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import { Track } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { createWebDAVClient } from "@/utils/createWebDAVClient"
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url)
-  const path = searchParams.get("path") as string
+  const folderPath = searchParams.get("folderPath") as string
 
   const client = createWebDAVClient(headers())
 
@@ -25,47 +23,14 @@ export const GET = async (req: NextRequest) => {
   }
 
   const audioFiles = (await client.getDirectoryContents(
-    path
+    folderPath
   )) as unknown as WebDAVDirectoryContent[]
   const audioFilesFiltered = audioFiles.filter(
     audioFile =>
       audioFile.type === "file" && audioFile.basename.endsWith(".mp3") // TODO: 対応フォーマット増やす
   )
 
-  const tracks: Track[] = await Promise.all(
-    audioFilesFiltered.map(async audioFile => {
-      const filepath = `${path}/${audioFile.basename}`
-
-      const stream = client.createReadStream(filepath)
-      const { common } = await parseStream(
-        stream,
-        { mimeType: "audio/mpeg", size: audioFile.size },
-        { duration: true }
-      )
-      stream.destroy()
-
-      const id = await client.getFileDownloadLink(filepath)
-      const imgSrc = common.picture
-        ? `data:${
-            common.picture[0].format
-          };base64,${common.picture[0].data.toString("base64")}`
-        : ""
-
-      return {
-        id,
-        provider: "webdav",
-        title: common.title || "",
-        albumTitle: common.album || "",
-        artist: common.artists ? common.artists.join(", ") : "",
-        imgSrc,
-        imgHeight: 0, // クライアント側で情報を付与する
-        imgWidth: 0, // クライアント側で情報を付与する
-        duration: 0 // parseStreamから取得できるが、undefined許容のため、クライアント側にて確実に曲の長さを取得する
-      }
-    })
-  )
-
-  return NextResponse.json(tracks, {
+  return NextResponse.json(audioFilesFiltered, {
     status: 200,
     headers: responseHeaders
   })

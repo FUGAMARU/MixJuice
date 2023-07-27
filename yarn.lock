@@ -1548,6 +1548,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dexie-react-hooks@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "dexie-react-hooks@npm:1.1.6"
+  peerDependencies:
+    "@types/react": ">=16"
+    dexie: ^3.2 || ^4.0.1-alpha
+    react: ">=16"
+  checksum: e8432c8ed98bae6a646a0bd3af8e08ba64536c839f745e72d2c87315f9b59d5c9858a085257d499bf288e60a9fdd9889846cdd8d5f9fcb0792e156fc5c6dc152
+  languageName: node
+  linkType: hard
+
+"dexie@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "dexie@npm:3.2.4"
+  checksum: 361f7e05fda5db20d9d90ce3e39f4539d1a56acad35a6e4ba26e48ab74c55d81e6daba502a7412be6c0e67ebad3e232e6dbbc1b50426f5743cc0f166cd4e8671
+  languageName: node
+  linkType: hard
+
 "dir-glob@npm:^3.0.1":
   version: 3.0.1
   resolution: "dir-glob@npm:3.0.1"
@@ -3242,6 +3260,8 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6.0.0"
     animate.css: "npm:^4.1.1"
     axios: "npm:^1.4.0"
+    dexie: "npm:^3.2.4"
+    dexie-react-hooks: "npm:^1.1.6"
     eslint: "npm:8.45.0"
     eslint-config-next: "npm:^13.4.10"
     eslint-config-prettier: "npm:^8.8.0"

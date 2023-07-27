@@ -1,16 +1,21 @@
 import { useCallback } from "react"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
+import useTrackDatabase from "./useTrackDatabase"
 import useWebDAVApi from "./useWebDAVApi"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 import { Track } from "@/types/Track"
+import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 
 const useMIX = () => {
   const { hasValidAccessTokenState } = useSpotifyToken()
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
-  const { getFolderTracks } = useWebDAVApi({ initialize: false })
+  const { getFolderTracks, getFolderTrackInfo } = useWebDAVApi({
+    initialize: false
+  })
+  const { saveTrackInfo, isTrackInfoExists, getTrackInfo } = useTrackDatabase()
 
   const getSpotifyPlaylistTracks = useCallback(
     async (playlists: NavbarItem[]) => {
@@ -55,10 +60,65 @@ const useMIX = () => {
   )
 
   const getWebDAVFolderTracks = useCallback(
-    async (path: string) => {
-      return await getFolderTracks(path)
+    async (folderPath: string) => {
+      const folderTracks = await getFolderTracks(folderPath)
+
+      if (folderTracks.length === 0) return Promise.resolve([])
+
+      /** 以下、「filename」はそのファイルのフルパスを表す */
+
+      const unknownTracksInfo = (
+        await Promise.all(
+          folderTracks.map(async trackFile =>
+            (await isTrackInfoExists(trackFile.filename))
+              ? undefined
+              : trackFile
+          )
+        )
+      ).filter(
+        track => track !== undefined
+      ) as unknown as WebDAVDirectoryContent[] // IndexedDBに情報が登録されていない楽曲のファイル情報一覧
+
+      let newlyKnownTracks: Track[] = []
+
+      if (unknownTracksInfo.length > 0) {
+        newlyKnownTracks = await getFolderTrackInfo(unknownTracksInfo)
+        await Promise.all(newlyKnownTracks.map(track => saveTrackInfo(track)))
+      }
+
+      const knewTracksInfo = (
+        await Promise.all(
+          folderTracks.map(async trackFile =>
+            (await isTrackInfoExists(trackFile.filename)) ? trackFile : ""
+          )
+        )
+      ).filter(track => track !== "") as unknown as WebDAVDirectoryContent[] // IndexedDBに情報が登録されている楽曲のファイル情報一覧
+
+      let knewTracks: Track[] = []
+
+      if (knewTracksInfo.length > 0) {
+        knewTracks = await Promise.all(
+          knewTracksInfo.map(async trackFile => {
+            return (await getTrackInfo(trackFile.filename)) as Track
+          })
+        )
+      }
+
+      if (newlyKnownTracks.length > 0 && knewTracks.length > 0) {
+        return newlyKnownTracks.concat(knewTracks)
+      }
+
+      if (newlyKnownTracks.length === 0) return knewTracks
+
+      if (knewTracks.length === 0) return newlyKnownTracks
     },
-    [getFolderTracks]
+    [
+      getFolderTracks,
+      saveTrackInfo,
+      getFolderTrackInfo,
+      isTrackInfoExists,
+      getTrackInfo
+    ]
   )
 
   const mixAllTracks = useCallback(

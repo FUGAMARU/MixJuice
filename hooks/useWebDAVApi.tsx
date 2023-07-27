@@ -2,6 +2,7 @@ import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Track } from "@/types/Track"
+import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { getAudioDurationFromUrl } from "@/utils/getAudioDurationFromUrl"
 import { getImageSizeFromBase64 } from "@/utils/getImageSizeFromBase64"
 
@@ -98,36 +99,59 @@ const useWebDAVApi = ({ initialize }: Props) => {
     }
   }, [])
 
-  const getFolderTracks = useCallback(async (path: string) => {
+  const getFolderTracks = useCallback(async (folderPath: string) => {
     try {
-      const res = (
-        await webDAVApi.get<Track[]>("/folder-tracks", {
-          params: { path }
-        })
-      ).data
-
-      const tracks = await Promise.all(
-        res.map(async track => {
-          const duration = await getAudioDurationFromUrl(track.id) // 結果はミリ秒で返ってくる
-          const imgSize = await getImageSizeFromBase64(track.imgSrc)
-
-          return {
-            ...track,
-            duration,
-            imgHeight: imgSize.height,
-            imgWidth: imgSize.width
-          }
-        })
+      const res = await webDAVApi.get<WebDAVDirectoryContent[]>(
+        "/folder-tracks",
+        {
+          params: { folderPath }
+        }
       )
-
-      return tracks
+      return res.data
     } catch (e) {
       console.log("🟥ERROR: ", e)
       throw Error("フォルダー内の楽曲一覧の取得に失敗しました")
     }
   }, [])
 
-  return { checkAuth, checkIsFolderExists, getFolderTracks } as const
+  const getFolderTrackInfo = useCallback(
+    async (folderTrackInfo: WebDAVDirectoryContent[]) => {
+      try {
+        const res = (
+          await webDAVApi.post<Track[]>("/folder-tracks-info", {
+            folderTrackInfo
+          })
+        ).data
+
+        const tracks: Track[] = await Promise.all(
+          res.map(async track => {
+            const duration = await getAudioDurationFromUrl(track.id) // 結果はミリ秒で返ってくる
+            const imgSize = await getImageSizeFromBase64(track.imgSrc)
+
+            return {
+              ...track,
+              duration,
+              imgHeight: imgSize.height,
+              imgWidth: imgSize.width
+            }
+          })
+        )
+
+        return tracks
+      } catch (e) {
+        console.log("🟥ERROR: ", e)
+        throw Error("フォルダー内の楽曲情報の取得に失敗しました")
+      }
+    },
+    []
+  )
+
+  return {
+    checkAuth,
+    checkIsFolderExists,
+    getFolderTracks,
+    getFolderTrackInfo
+  } as const
 }
 
 export default useWebDAVApi
