@@ -1,8 +1,8 @@
 import Dexie from "dexie"
-import { Track } from "@/types/Track"
+import { TrackWithPath } from "@/types/Track"
 
 export class TrackDatabase extends Dexie {
-  tracks!: Dexie.Table<Track, string>
+  tracks!: Dexie.Table<TrackWithPath, string>
 
   constructor() {
     super("TrackDatabase")

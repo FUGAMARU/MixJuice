@@ -2,7 +2,6 @@ import { Provider } from "./Provider"
 
 export type Track = {
   id: string // SpotifyのトラックID、WebDAVのダウンロードリンク
-  path?: string // WebDAVのファイルパス TODO: Spotifyでも使うようにして、必須項目にしたい
   provider: Provider
   title: string
   albumTitle: string
@@ -12,3 +11,5 @@ export type Track = {
   imgWidth: number
   duration: number // 単位: ミリ秒
 }
+
+export type TrackWithPath = Track & { path: string } // WebDAVのIndexedDB関連でのみ扱う型 | path: オーディオファイルの絶対パス

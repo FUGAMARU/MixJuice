@@ -6,8 +6,7 @@ import useWebDAVApi from "./useWebDAVApi"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
-import { Track } from "@/types/Track"
-import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
+import { Track, TrackWithPath } from "@/types/Track"
 
 const useMIX = () => {
   const { hasValidAccessTokenState } = useSpotifyToken()
@@ -63,61 +62,57 @@ const useMIX = () => {
     async (folderPath: string) => {
       const folderTracks = await getFolderTracks(folderPath)
 
-      if (folderTracks.length === 0) return Promise.resolve([])
+      if (folderTracks.length === 0) return []
 
-      /** 以下、「filename」はそのファイルのフルパスを表す */
+      /** 以下、「Object.filename」はそのファイルのフルパスを表す */
 
-      const unknownTracksInfo = (
+      const whetherKnow = await Promise.all(
+        folderTracks.map(async trackFile => {
+          return await isTrackInfoExists(trackFile.filename)
+        })
+      )
+
+      const unknownTracks = whetherKnow.filter(isKnown => !isKnown)
+      const newlyKnownTracksInfo =
+        unknownTracks.length > 0
+          ? await getFolderTrackInfo(
+              unknownTracks.map((_, idx) => folderTracks[idx])
+            )
+          : []
+
+      if (newlyKnownTracksInfo.length > 0) {
         await Promise.all(
-          folderTracks.map(async trackFile =>
-            (await isTrackInfoExists(trackFile.filename))
-              ? undefined
-              : trackFile
-          )
-        )
-      ).filter(
-        track => track !== undefined
-      ) as unknown as WebDAVDirectoryContent[] // IndexedDBに情報が登録されていない楽曲のファイル情報一覧
-
-      let newlyKnownTracks: Track[] = []
-
-      if (unknownTracksInfo.length > 0) {
-        newlyKnownTracks = await getFolderTrackInfo(unknownTracksInfo)
-        await Promise.all(newlyKnownTracks.map(track => saveTrackInfo(track)))
-      }
-
-      const knewTracksInfo = (
-        await Promise.all(
-          folderTracks.map(async trackFile =>
-            (await isTrackInfoExists(trackFile.filename)) ? trackFile : ""
-          )
-        )
-      ).filter(track => track !== "") as unknown as WebDAVDirectoryContent[] // IndexedDBに情報が登録されている楽曲のファイル情報一覧
-
-      let knewTracks: Track[] = []
-
-      if (knewTracksInfo.length > 0) {
-        knewTracks = await Promise.all(
-          knewTracksInfo.map(async trackFile => {
-            return (await getTrackInfo(trackFile.filename)) as Track
+          newlyKnownTracksInfo.map(async trackInfo => {
+            await saveTrackInfo(trackInfo)
           })
         )
       }
 
-      if (newlyKnownTracks.length > 0 && knewTracks.length > 0) {
-        return newlyKnownTracks.concat(knewTracks)
-      }
+      const knewTracks = whetherKnow.filter(isKnown => isKnown)
+      const knewTracksInfo: TrackWithPath[] =
+        knewTracks.length > 0
+          ? await Promise.all(
+              knewTracks.map(
+                async (_, idx) =>
+                  (await getTrackInfo(
+                    folderTracks[idx].filename
+                  )) as TrackWithPath // isTrackInfoExistsによるチェックを挟んでいるのでundefinedでないことが保証されている
+              )
+            )
+          : []
 
-      if (newlyKnownTracks.length === 0) return knewTracks
-
-      if (knewTracks.length === 0) return newlyKnownTracks
+      return newlyKnownTracksInfo.concat(knewTracksInfo).map(
+        // pathプロパティーはこの先使わないので削除する
+        // eslint-disable-next-line unused-imports/no-unused-vars
+        ({ path, ...rest }) => rest
+      ) as Track[]
     },
     [
-      getFolderTracks,
-      saveTrackInfo,
       getFolderTrackInfo,
+      getTrackInfo,
+      getFolderTracks,
       isTrackInfoExists,
-      getTrackInfo
+      saveTrackInfo
     ]
   )
 

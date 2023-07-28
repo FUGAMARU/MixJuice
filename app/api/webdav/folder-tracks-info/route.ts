@@ -1,7 +1,7 @@
 import { parseStream } from "music-metadata"
 import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import { Track } from "@/types/Track"
+import { TrackWithPath } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { createWebDAVClient } from "@/utils/createWebDAVClient"
 
@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json("", { status: 401, headers: responseHeaders })
   }
 
-  const tracks: Track[] = await Promise.all(
+  const tracks: TrackWithPath[] = await Promise.all(
     folderTrackInfo.map(async (trackInfo: WebDAVDirectoryContent) => {
       const stream = client.createReadStream(trackInfo.filename)
       const { common } = await parseStream(

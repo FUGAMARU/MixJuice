@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { Track } from "@/types/Track"
+import { TrackWithPath } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { getAudioDurationFromUrl } from "@/utils/getAudioDurationFromUrl"
 import { getImageSizeFromBase64 } from "@/utils/getImageSizeFromBase64"
@@ -118,12 +118,12 @@ const useWebDAVApi = ({ initialize }: Props) => {
     async (folderTrackInfo: WebDAVDirectoryContent[]) => {
       try {
         const res = (
-          await webDAVApi.post<Track[]>("/folder-tracks-info", {
+          await webDAVApi.post<TrackWithPath[]>("/folder-tracks-info", {
             folderTrackInfo
           })
         ).data
 
-        const tracks: Track[] = await Promise.all(
+        const tracks: TrackWithPath[] = await Promise.all(
           res.map(async track => {
             const duration = await getAudioDurationFromUrl(track.id) // 結果はミリ秒で返ってくる
             const imgSize = await getImageSizeFromBase64(track.imgSrc)

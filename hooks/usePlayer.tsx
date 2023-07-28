@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 
-import { useRecoilCallback, useRecoilState } from "recoil"
+import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil"
 import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -19,6 +20,7 @@ type Props = {
 }
 
 const usePlayer = ({ initialize }: Props) => {
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const [queue, setQueue] = useRecoilState(queueAtom)
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
@@ -189,6 +191,16 @@ const usePlayer = ({ initialize }: Props) => {
 
   const onSkipTo = useCallback(
     async (id: string) => {
+      if (queue.some(item => item === undefined)) {
+        setErrorModalInstance(prev => [
+          ...prev,
+          new Error(
+            "キューに不正なアイテムが含まれています。IndexedDBのリセットをお試しください。"
+          )
+        ])
+        return
+      }
+
       const provider = queue
         .filter(item => item.id === id)
         .map(item => item.provider)
@@ -205,7 +217,7 @@ const usePlayer = ({ initialize }: Props) => {
       setQueue(newQueue)
       setTrackFeedTrigger(prev => !prev)
     },
-    [queue, setQueue, smartPause]
+    [queue, setQueue, smartPause, setErrorModalInstance]
   )
 
   /** 再生位置の更新 */
