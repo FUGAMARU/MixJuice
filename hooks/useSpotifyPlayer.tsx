@@ -48,6 +48,14 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     await player.resume()
   }, [player])
 
+  const onSeekTo = useCallback(
+    async (position: number) => {
+      if (player === undefined) return
+      await player.seek(position)
+    },
+    [player]
+  )
+
   /** Web Playback SDK */
   useEffect(() => {
     if (accessToken === undefined || player || !initialize) return
@@ -102,7 +110,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     }
   }, [accessToken, initialize, onTrackFinish, player])
 
-  return { playbackPosition, onPlay, onPause, onResume } as const
+  return { playbackPosition, onPlay, onPause, onResume, onSeekTo } as const
 }
 
 export default useSpotifyPlayer

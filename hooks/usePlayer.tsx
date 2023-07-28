@@ -54,7 +54,8 @@ const usePlayer = ({ initialize }: Props) => {
     playbackPosition: spotifyPlaybackPosition, // 単位: ミリ秒
     onPlay: onSpotifyPlay,
     onPause: onSpotifyPause,
-    onResume: onSpotifyResume
+    onResume: onSpotifyResume,
+    onSeekTo: onSpotifySeekTo
   } = useSpotifyPlayer({
     initialize,
     onTrackFinish: handleTrackFinish
@@ -64,8 +65,28 @@ const usePlayer = ({ initialize }: Props) => {
     onPlay: onWebDAVPlay,
     onPause: onWebDAVPause,
     onResume: onWebDAVResume,
+    onSeekTo: onWebDAVSeekTo,
     playbackPosition: webDAVPlaybackPosition // 単位: ミリ秒
   } = useWebDAVPlayer({ currentTrackInfo, onTrackFinish: handleTrackFinish })
+
+  const onSeekTo = useCallback(
+    async (position: number) => {
+      // positionはミリ秒
+      if (currentTrackInfo === undefined) return
+
+      switch (currentTrackInfo.provider) {
+        case "spotify":
+          await onSpotifySeekTo(position)
+          onDummyAudioSeekTo(position)
+          break
+        case "webdav":
+          onWebDAVSeekTo(position)
+          break
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentTrackInfo, onSpotifySeekTo, onWebDAVSeekTo]
+  )
 
   const onPause = useCallback(async () => {
     if (currentTrackInfo === undefined) return
@@ -128,14 +149,16 @@ const usePlayer = ({ initialize }: Props) => {
     }
   }, [currentTrackInfo, onSpotifyResume, onWebDAVResume])
 
-  const { onPlayDummyAudio, clearDummyAudio } = useMediaSession({
-    initialize,
-    trackInfo: currentTrackInfo,
-    playbackPosition,
-    onPause,
-    onResume,
-    onNextTrack
-  })
+  const { onPlayDummyAudio, onDummyAudioSeekTo, clearDummyAudio } =
+    useMediaSession({
+      initialize,
+      trackInfo: currentTrackInfo,
+      playbackPosition,
+      onPause,
+      onResume,
+      onNextTrack,
+      onSeekTo
+    })
 
   const onTogglePlay = useCallback(async () => {
     setIsPlaying(prev => !prev)

@@ -30,6 +30,12 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
     await audio.current.play()
   }, [])
 
+  const onSeekTo = useCallback((position: number) => {
+    // positionはミリ秒
+    if (audio.current === undefined) return
+    audio.current.currentTime = position / 1000 // ミリ秒を秒に変換する
+  }, [])
+
   const handleTrackFinish = useCallback(() => {
     onTrackFinish()
   }, [onTrackFinish])
@@ -60,7 +66,7 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
     }
   }, [handleTrackFinish])
 
-  return { onPlay, onPause, onResume, playbackPosition } as const
+  return { onPlay, onPause, onResume, onSeekTo, playbackPosition } as const
 }
 
 export default useWebDAVPlayer

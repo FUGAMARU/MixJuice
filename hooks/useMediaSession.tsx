@@ -11,6 +11,7 @@ type Props = {
   onPause: () => Promise<void>
   onResume: () => Promise<void>
   onNextTrack: () => void
+  onSeekTo: (position: number) => Promise<void>
 }
 
 const useMediaSession = ({
@@ -19,7 +20,8 @@ const useMediaSession = ({
   playbackPosition,
   onPause,
   onResume,
-  onNextTrack
+  onNextTrack,
+  onSeekTo
 }: Props) => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const setMediaMetadatainterval = useRef<NodeJS.Timer>()
@@ -41,16 +43,38 @@ const useMediaSession = ({
     })
   }, [])
 
-  const onPlayDummyAudio = useCallback(async (duration: number) => {
-    const audioBlob = await createSilentAudioBlob(duration)
-    console.log("🟩DEBUG: AudioBlobの生成が完了しました")
-    console.log(audioBlob)
+  const onPlayDummyAudio = useCallback(
+    async (duration: number) => {
+      try {
+        const audioBlob = await createSilentAudioBlob(duration)
+        console.log("🟩DEBUG: AudioBlobの生成が完了しました")
+        console.log(audioBlob)
 
-    const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
-    dummyAudioRef.current = dummyAudio
-    await dummyAudio.play()
-    navigator.mediaSession.playbackState = "playing"
-  }, [])
+        const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
+        dummyAudioRef.current = dummyAudio
+        await dummyAudio.play()
+        navigator.mediaSession.playbackState = "playing"
+      } catch (e) {
+        console.log("🟥ERROR: ", e)
+        setErrorModalInstance(prev => [
+          ...prev,
+          new Error(
+            "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
+          )
+        ])
+      }
+    },
+    [setErrorModalInstance]
+  )
+
+  const onDummyAudioSeekTo = useCallback(
+    (position: number) => {
+      // positionはミリ秒
+      if (dummyAudioRef.current === undefined) return
+      dummyAudioRef.current.currentTime = position / 1000 // ミリ秒を秒に変換する
+    },
+    [dummyAudioRef]
+  )
 
   const clearDummyAudio = useCallback(() => {
     dummyAudioRef.current?.pause()
@@ -82,39 +106,35 @@ const useMediaSession = ({
       )
         return
 
-      try {
-        /** Spotifyの再生開始後にメタデーターをセットしないとデーターが反映されない(特にmacOS。ChromeのMedia Hubは問題なかった。)っぽいため、一定間隔でメタデーターをセットする
-         * → 「Spotifyの再生開始後」というタイミングを取るのが難しい。トライしてみたけど難しかった。
-         */
-        clearInterval(setMediaMetadatainterval.current)
-        setMediaMetadatainterval.current = setInterval(() => {
-          setMediaMetadata(trackInfo)
-        }, 500)
+      /** Spotifyの再生開始後にメタデーターをセットしないとデーターが反映されない(特にmacOS。ChromeのMedia Hubは問題なかった。)っぽいため、一定間隔でメタデーターをセットする
+       * → 「Spotifyの再生開始後」というタイミングを取るのが難しい。トライしてみたけど難しかった。
+       */
+      clearInterval(setMediaMetadatainterval.current)
+      setMediaMetadatainterval.current = setInterval(() => {
+        setMediaMetadata(trackInfo)
+      }, 500)
 
-        navigator.mediaSession.setActionHandler("play", async () => {
-          await onResume()
-          if (dummyAudioRef.current?.paused) await dummyAudioRef.current?.play()
-          navigator.mediaSession.playbackState = "playing"
-          return
-        })
-        navigator.mediaSession.setActionHandler("pause", async () => {
-          await onPause()
-          if (!dummyAudioRef.current?.paused) dummyAudioRef.current?.pause()
-          navigator.mediaSession.playbackState = "paused"
-          return
-        })
-        navigator.mediaSession.setActionHandler("nexttrack", () =>
-          onNextTrack()
-        )
-      } catch (e) {
-        console.log("🟥ERROR: ", e)
-        setErrorModalInstance(prev => [
-          ...prev,
-          new Error(
-            "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
-          )
-        ])
-      }
+      navigator.mediaSession.setActionHandler("play", async () => {
+        await onResume()
+        if (dummyAudioRef.current?.paused) await dummyAudioRef.current?.play()
+        navigator.mediaSession.playbackState = "playing"
+        return
+      })
+
+      navigator.mediaSession.setActionHandler("pause", async () => {
+        await onPause()
+        if (!dummyAudioRef.current?.paused) dummyAudioRef.current?.pause()
+        navigator.mediaSession.playbackState = "paused"
+        return
+      })
+
+      navigator.mediaSession.setActionHandler("nexttrack", () => onNextTrack())
+
+      navigator.mediaSession.setActionHandler("seekto", async e => {
+        const { seekTime } = e // seekTimeは秒単位
+        if (seekTime === undefined) return
+        await onSeekTo(seekTime * 1000) // ミリ秒に変換して渡す
+      })
     })()
 
     return () => {
@@ -122,19 +142,19 @@ const useMediaSession = ({
       clearDummyAudio()
     }
   }, [
+    clearDummyAudio,
     initialize,
-    trackInfo,
+    onNextTrack,
     onPause,
     onResume,
-    onNextTrack,
-    setErrorModalInstance,
-    onPlayDummyAudio,
     setMediaMetadata,
-    clearDummyAudio
+    trackInfo,
+    onSeekTo
   ])
 
   return {
     onPlayDummyAudio,
+    onDummyAudioSeekTo,
     clearDummyAudio
   } as const
 }
