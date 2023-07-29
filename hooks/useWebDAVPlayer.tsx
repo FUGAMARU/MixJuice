@@ -1,12 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react"
 import { Track } from "@/types/Track"
 
 type Props = {
   currentTrackInfo: Track | undefined
+  setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
   onTrackFinish: () => void
 }
 
-const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
+const useWebDAVPlayer = ({
+  currentTrackInfo,
+  setIsPreparingPlayback,
+  onTrackFinish
+}: Props) => {
   const audio = useRef<HTMLAudioElement>()
   const [playbackPosition, setPlaybackPosition] = useState(0)
 
@@ -16,8 +28,9 @@ const useWebDAVPlayer = ({ currentTrackInfo, onTrackFinish }: Props) => {
 
       audio.current.src = url
       await audio.current.play()
+      setIsPreparingPlayback(false)
     },
-    [audio]
+    [audio, setIsPreparingPlayback]
   )
 
   const onPause = useCallback(() => {

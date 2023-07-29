@@ -25,7 +25,7 @@ const GradientCircle = ({
   backgroundColor = "white"
 }: Props) => {
   return (
-    <Tooltip label={tooltipLabel} fw={700}>
+    <Tooltip label={tooltipLabel}>
       <Center
         w="1.2rem"
         h="1.2rem"

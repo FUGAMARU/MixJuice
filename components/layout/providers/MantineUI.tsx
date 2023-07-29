@@ -34,6 +34,11 @@ const MantineUI = ({ children }: Props) => {
             defaultProps: {
               color: TEXT_COLOR_DEFAULT
             }
+          },
+          Paper: {
+            defaultProps: {
+              color: TEXT_COLOR_DEFAULT
+            }
           }
         },
         colors: {

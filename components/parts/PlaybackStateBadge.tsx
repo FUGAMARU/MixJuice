@@ -1,0 +1,38 @@
+import { Box, Loader, Paper } from "@mantine/core"
+import { memo } from "react"
+
+type Props = {
+  cursor: "default" | "pointer"
+  loading?: boolean
+  onClick?: () => void
+  children: React.ReactNode
+}
+
+const PlaybackStateBadge = ({ cursor, loading, onClick, children }: Props) => {
+  return (
+    <Paper
+      px="0.5rem"
+      py="0.3rem"
+      opacity={0.8}
+      fz="0.8rem"
+      fw={700}
+      shadow="lg"
+      radius="sm"
+      sx={{
+        backdropFilter: "blue(10px)",
+        cursor
+      }}
+      onClick={onClick}
+    >
+      {loading ? (
+        <Box lh={0}>
+          <Loader color="gray" size="1.2rem" />
+        </Box>
+      ) : (
+        children
+      )}
+    </Paper>
+  )
+}
+
+export default memo(PlaybackStateBadge)

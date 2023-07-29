@@ -1,9 +1,12 @@
-import { Box, Flex } from "@mantine/core"
+import { Box, Flex, Tooltip } from "@mantine/core"
 import { useElementSize } from "@mantine/hooks"
 import { memo, useEffect, useMemo, useState } from "react"
+import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
+import { HiVolumeUp } from "react-icons/hi"
 import { useSetRecoilState } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import AlbumArtwork from "@/components/parts/AlbumArtwork"
+import PlaybackStateBadge from "@/components/parts/PlaybackStateBadge"
 import TrackInfo from "@/components/parts/TrackInfo"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -20,6 +23,8 @@ type Props = {
   onNextTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
   hasSomeTrack: boolean
+  spotifyPlaybackQuality: string | undefined
+  isPreparingPlayback: boolean
 }
 
 const Player = ({
@@ -28,7 +33,9 @@ const Player = ({
   isPlaying,
   onNextTrack,
   onTogglePlay,
-  hasSomeTrack
+  hasSomeTrack,
+  spotifyPlaybackQuality,
+  isPreparingPlayback
 }: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
@@ -72,7 +79,7 @@ const Player = ({
 
   return (
     <>
-      <Flex w="100%" h="100%" ref={containerRef}>
+      <Flex w="100%" h="100%" pos="relative" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
           src={currentTrackInfo?.imgSrc || undefined}
@@ -99,6 +106,48 @@ const Player = ({
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}
         />
+
+        {breakPoint === "PC" && (
+          <Flex pos="absolute" right="1.5rem" bottom="1rem" gap="xs">
+            {(isPreparingPlayback ||
+              currentTrackInfo?.provider === "spotify") && (
+              <Tooltip label="ストリーミング品質">
+                <Box>
+                  <PlaybackStateBadge
+                    cursor="default"
+                    loading={
+                      isPreparingPlayback ||
+                      spotifyPlaybackQuality === undefined
+                    }
+                  >
+                    {spotifyPlaybackQuality}
+                  </PlaybackStateBadge>
+                </Box>
+              </Tooltip>
+            )}
+            <PlaybackStateBadge cursor="pointer">
+              <Flex align="center" gap="0.4rem">
+                <Box lh={0}>
+                  <HiVolumeUp size="1.2rem" />
+                </Box>
+                0%
+              </Flex>
+            </PlaybackStateBadge>
+
+            <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
+              <Flex align="center" gap="0.2rem">
+                <Box lh={0}>
+                  {isPlaying ? (
+                    <BsFillPlayFill size="1.2rem" />
+                  ) : (
+                    <BsFillPauseFill size="1.2rem" />
+                  )}
+                </Box>
+                {Math.round(playbackPercentage)}%
+              </Flex>
+            </PlaybackStateBadge>
+          </Flex>
+        )}
       </Flex>
 
       <Flex

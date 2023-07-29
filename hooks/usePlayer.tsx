@@ -5,6 +5,7 @@ import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
+import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -27,6 +28,9 @@ const usePlayer = ({ initialize }: Props) => {
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
   const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
+  const [isPreparingPlayback, setIsPreparingPlayback] = useRecoilState(
+    preparingPlaybackAtom
+  )
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
@@ -57,9 +61,11 @@ const usePlayer = ({ initialize }: Props) => {
     onPlay: onSpotifyPlay,
     onPause: onSpotifyPause,
     onResume: onSpotifyResume,
-    onSeekTo: onSpotifySeekTo
+    onSeekTo: onSpotifySeekTo,
+    playbackQuality: spotifyPlaybackQuality
   } = useSpotifyPlayer({
     initialize,
+    setIsPreparingPlayback,
     onTrackFinish: handleTrackFinish
   })
 
@@ -69,7 +75,11 @@ const usePlayer = ({ initialize }: Props) => {
     onResume: onWebDAVResume,
     onSeekTo: onWebDAVSeekTo,
     playbackPosition: webDAVPlaybackPosition // 単位: ミリ秒
-  } = useWebDAVPlayer({ currentTrackInfo, onTrackFinish: handleTrackFinish })
+  } = useWebDAVPlayer({
+    currentTrackInfo,
+    setIsPreparingPlayback,
+    onTrackFinish: handleTrackFinish
+  })
 
   const onSeekTo = useCallback(
     async (position: number) => {
@@ -174,6 +184,8 @@ const usePlayer = ({ initialize }: Props) => {
 
   const onPlay = useCallback(
     async (track: Track) => {
+      setIsPreparingPlayback(true)
+
       switch (track.provider) {
         case "spotify":
           await onSpotifyPlay(track.id)
@@ -186,7 +198,7 @@ const usePlayer = ({ initialize }: Props) => {
 
       setIsPlaying(true)
     },
-    [onSpotifyPlay, onWebDAVPlay, onPlayDummyAudio]
+    [onSpotifyPlay, onWebDAVPlay, onPlayDummyAudio, setIsPreparingPlayback]
   )
 
   const onSkipTo = useCallback(
@@ -279,7 +291,9 @@ const usePlayer = ({ initialize }: Props) => {
     onSkipTo,
     onMoveToFront,
     onTogglePlay,
-    hasSomeTrack
+    hasSomeTrack,
+    spotifyPlaybackQuality,
+    isPreparingPlayback
   } as const
 }
 

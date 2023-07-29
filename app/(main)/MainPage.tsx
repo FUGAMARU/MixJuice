@@ -25,7 +25,9 @@ const MainPage = () => {
     onTogglePlay,
     hasSomeTrack,
     onSkipTo,
-    onMoveToFront
+    onMoveToFront,
+    spotifyPlaybackQuality,
+    isPreparingPlayback
   } = usePlayer({
     initialize: true
   })
@@ -40,6 +42,8 @@ const MainPage = () => {
           onNextTrack={onNextTrack}
           onTogglePlay={onTogglePlay}
           hasSomeTrack={hasSomeTrack}
+          spotifyPlaybackQuality={spotifyPlaybackQuality}
+          isPreparingPlayback={isPreparingPlayback}
         />
       </Box>
 

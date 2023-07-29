@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
@@ -6,16 +14,22 @@ import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 
 type Props = {
   initialize: boolean
+  setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
   onTrackFinish: () => void
 }
 
-const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
+const useSpotifyPlayer = ({
+  initialize,
+  setIsPreparingPlayback,
+  onTrackFinish
+}: Props) => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const [player, setPlayer] = useState<Spotify.Player>()
   const [playbackState, setPlaybackState] = useState<Spotify.PlaybackState>()
   const { startPlayback } = useSpotifyApi({ initialize: false })
   const deviceId = useRef("")
+  const [playbackQuality, setPlaybackQuality] = useState<string>() // string: Spotifyの再生音質 | undefined: Spotify以外の楽曲を再生している時
 
   const playbackPosition = useMemo(() => {
     if (playbackState === undefined) return 0
@@ -33,9 +47,11 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
         await startPlayback(deviceId.current, trackId)
       } catch (e) {
         setErrorModalInstance(prev => [...prev, e])
+      } finally {
+        setIsPreparingPlayback(false)
       }
     },
-    [startPlayback, setErrorModalInstance]
+    [startPlayback, setErrorModalInstance, setIsPreparingPlayback]
   )
 
   const onPause = useCallback(async () => {
@@ -91,7 +107,10 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
       spotifyPlayer.addListener(
         "player_state_changed",
         ({ position, duration }) => {
-          if (position === duration) onTrackFinish()
+          if (position === duration) {
+            onTrackFinish()
+            setPlaybackQuality(undefined)
+          }
         }
       )
 
@@ -100,6 +119,7 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
         if (state === null) return
 
         setPlaybackState(state)
+        setPlaybackQuality(state.playback_quality)
       }, 100)
 
       spotifyPlayer.connect()
@@ -110,7 +130,14 @@ const useSpotifyPlayer = ({ initialize, onTrackFinish }: Props) => {
     }
   }, [accessToken, initialize, onTrackFinish, player])
 
-  return { playbackPosition, onPlay, onPause, onResume, onSeekTo } as const
+  return {
+    playbackPosition,
+    onPlay,
+    onPause,
+    onResume,
+    onSeekTo,
+    playbackQuality
+  } as const
 }
 
 export default useSpotifyPlayer

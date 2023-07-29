@@ -17,6 +17,7 @@ import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarHeading from "../parts/navbar/NavbarHeading"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
@@ -37,6 +38,7 @@ const LayoutNavbar = () => {
     if (breakPoint === "PC") return "20%"
   }, [breakPoint])
   const [isMixing, setIsMixing] = useState(false)
+  const setIsPreparingPlayback = useSetRecoilState(preparingPlaybackAtom)
   const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
   const setQueue = useSetRecoilState(queueAtom)
@@ -129,6 +131,7 @@ const LayoutNavbar = () => {
 
   const handleMixButtonClick = useCallback(async () => {
     setIsMixing(true)
+    setIsPreparingPlayback(true)
 
     /**
      * Safariの『NotAllowedError』対策
@@ -158,13 +161,15 @@ const LayoutNavbar = () => {
       setErrorModalInstance(prev => [...prev, e])
     } finally {
       setIsMixing(false)
+      setIsPreparingPlayback(false)
     }
   }, [
     spotifyPlaylists,
     webdavPlaylists,
     mixAllTracks,
     setQueue,
-    setErrorModalInstance
+    setErrorModalInstance,
+    setIsPreparingPlayback
   ])
 
   return (
