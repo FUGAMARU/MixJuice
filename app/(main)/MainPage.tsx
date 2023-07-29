@@ -24,7 +24,8 @@ const MainPage = () => {
     onNextTrack,
     onTogglePlay,
     hasSomeTrack,
-    onSkipTo
+    onSkipTo,
+    onMoveToFront
   } = usePlayer({
     initialize: true
   })
@@ -43,7 +44,7 @@ const MainPage = () => {
       </Box>
 
       <Box w="100%">
-        <Queue onSkipTo={onSkipTo} />
+        <Queue onSkipTo={onSkipTo} onMoveToFront={onMoveToFront} />
       </Box>
 
       <Box

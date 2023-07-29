@@ -220,6 +220,19 @@ const usePlayer = ({ initialize }: Props) => {
     [queue, setQueue, smartPause, setErrorModalInstance]
   )
 
+  const onMoveToFront = useCallback(
+    (id: string) => {
+      const idx = queue.findIndex(item => item.id === id)
+      if (idx === 0 || idx === -1) return
+
+      const newQueue = [...queue]
+      const [item] = newQueue.splice(idx, 1)
+      newQueue.unshift(item)
+      setQueue(newQueue)
+    },
+    [queue, setQueue]
+  )
+
   /** 再生位置の更新 */
   useEffect(() => {
     if (currentTrackInfo === undefined) return
@@ -264,6 +277,7 @@ const usePlayer = ({ initialize }: Props) => {
     setVolume,
     onNextTrack,
     onSkipTo,
+    onMoveToFront,
     onTogglePlay,
     hasSomeTrack
   } as const
