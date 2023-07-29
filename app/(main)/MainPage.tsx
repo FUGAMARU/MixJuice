@@ -1,21 +1,33 @@
 "use client"
 
 import { Box } from "@mantine/core"
+import { useRouter } from "next/navigation"
 import { memo, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import Player from "@/app/(main)/templates/Player"
 import Queue from "@/app/(main)/templates/Queue"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 
 const MainPage = () => {
+  const router = useRouter()
   const { breakPoint, setRespVal } = useBreakPoints()
   const setIsLoading = useSetRecoilState(loadingAtom)
 
   useEffect(() => {
+    const selectedSpotifyPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
+    const webDAVFolderPath = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
+    )
+
+    if (!selectedSpotifyPlaylists && !webDAVFolderPath) router.push("/connect")
+
     setIsLoading(false)
-  }, [setIsLoading])
+  }, [setIsLoading, router])
 
   const {
     currentTrackInfo,
