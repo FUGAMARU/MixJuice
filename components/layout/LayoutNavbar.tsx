@@ -84,15 +84,16 @@ const LayoutNavbar = () => {
     const checkedItems = localStorage.getItem(
       LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
     )
-    if (checkedItems === null) return
 
-    /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けた状態で表示する */
-    const parsedCheckedItems = JSON.parse(checkedItems) as string[]
-    setPlaylists(
-      basePlaylists.map(p =>
+    if (checkedItems !== null) {
+      /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けておく */
+      const parsedCheckedItems = JSON.parse(checkedItems) as string[]
+      basePlaylists = basePlaylists.map(p =>
         parsedCheckedItems.includes(p.id) ? { ...p, checked: true } : p
       )
-    )
+    }
+
+    setPlaylists(basePlaylists)
 
     return () => setPlaylists([])
   }, [])
