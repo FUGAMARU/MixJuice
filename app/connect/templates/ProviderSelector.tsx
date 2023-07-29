@@ -1,5 +1,7 @@
 import { Flex, Box, Title, Text, Center } from "@mantine/core"
+import { useRouter } from "next/navigation"
 import { memo } from "react"
+import { IoIosArrowForward } from "react-icons/io"
 import ProviderSelectorItem from "@/components/parts/ProviderSelectorItem"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
@@ -18,6 +20,7 @@ const ProviderSelector = ({
   onShowSpotifyConnector,
   onShowWebDAVConnector
 }: Props) => {
+  const router = useRouter()
   const { setRespVal } = useBreakPoints()
   const { settingState: spotifySettingState } = useSpotifySettingState()
   const { settingState: webDAVSettingState } = useWebDAVSettingState()
@@ -56,6 +59,15 @@ const ProviderSelector = ({
             onButtonClick={onShowWebDAVConnector}
           />
         </Flex>
+
+        {(spotifySettingState === "done" || webDAVSettingState === "done") && (
+          <Center mt="3rem" sx={{ cursor: "pointer" }}>
+            <Text size="0.8rem" color="blue" onClick={() => router.push("/")}>
+              メインページに移動する
+            </Text>
+            <IoIosArrowForward color="#228be6" />
+          </Center>
+        )}
       </Box>
     </Center>
   )

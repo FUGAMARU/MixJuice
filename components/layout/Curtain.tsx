@@ -3,13 +3,12 @@
 import { AppShell, Box } from "@mantine/core"
 import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
-import { useState, useEffect, memo } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
+import { useState, useEffect, memo, useMemo } from "react"
+import { useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import LayoutNavbar from "./LayoutNavbar"
 import NowLoading from "./NowLoading"
-import { connectAtom } from "@/atoms/connectAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
@@ -23,10 +22,7 @@ type Props = {
 
 const Curtain = ({ children }: Props) => {
   const pathname = usePathname()
-  const [isConnectPage, setIsConnectPage] = useRecoilState(connectAtom)
-  useEffect(() => {
-    if (pathname === "/connect") setIsConnectPage(true)
-  }, [pathname, setIsConnectPage])
+  const isConnectPage = useMemo(() => pathname === "/connect", [pathname])
 
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")

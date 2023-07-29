@@ -46,7 +46,7 @@ const ConnectorContainer = ({
 
         {children}
 
-        <Center pt="lg" sx={{ cursor: "pointer" }} onClick={onBack}>
+        <Center mt="lg" sx={{ cursor: "pointer" }} onClick={onBack}>
           <IoIosArrowBack color="#228be6" />
           <Text size="0.8rem" color="blue">
             接続先選択画面に戻る
