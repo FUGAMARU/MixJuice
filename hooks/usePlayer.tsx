@@ -10,12 +10,6 @@ import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
 
-/** キューの内容が変更されても再生中の楽曲を変更しないかどうか
- * 基本的にtrueにしておくが、楽曲終了後などに曲送りをしたい場合はキューが操作される前にfalseにしておく
- * 曲送り処理開始時に自動的にtrueに戻る
- */
-let isLockingPlayer = false
-
 type Props = {
   initialize: boolean
 }
@@ -27,14 +21,29 @@ const usePlayer = ({ initialize }: Props) => {
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [trackFeedTrigger, setTrackFeedTrigger] = useState(false) // useCallbackとRecoilStateがうまく連携しないため、トリガーを操作することによってuseEffect内の曲送り処理を実行する
   const [isPreparingPlayback, setIsPreparingPlayback] = useRecoilState(
     preparingPlaybackAtom
   )
+  const [isInitialized, setIsInitialized] = useState(true)
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
     [queue.length, currentTrackInfo]
+  )
+
+  /** キューの先頭にあるトラックを再生開始する */
+  const pickUpTrack = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        const currentQueue = await snapshot.getPromise(queueAtom)
+        if (currentQueue.length === 0) return
+
+        await onPlay(currentQueue[0])
+
+        setCurrentTrackInfo(currentQueue[0])
+        set(queueAtom, currentQueue.slice(1))
+      },
+    [setCurrentTrackInfo]
   )
 
   const handleTrackFinish = useRecoilCallback(
@@ -43,7 +52,6 @@ const usePlayer = ({ initialize }: Props) => {
         const currentQueue = await snapshot.getPromise(queueAtom)
 
         setIsPlaying(false)
-        isLockingPlayer = false
         clearDummyAudio()
 
         if (currentQueue.length > 0) {
@@ -142,10 +150,9 @@ const usePlayer = ({ initialize }: Props) => {
         await smartPause(currentQueue[0].provider)
 
         setIsPlaying(false)
-        isLockingPlayer = false
-        setTrackFeedTrigger(prev => !prev)
+        pickUpTrack()
       },
-    [currentTrackInfo] // onNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
+    [currentTrackInfo, pickUpTrack] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
   )
 
   const onResume = useCallback(async () => {
@@ -219,7 +226,6 @@ const usePlayer = ({ initialize }: Props) => {
 
       await smartPause(provider[0]) // IDは一意の値なので、providerは必ず1つになる
 
-      isLockingPlayer = false
       const idx = queue.findIndex(item => item.id === id)
       if (idx === -1) return
 
@@ -227,9 +233,9 @@ const usePlayer = ({ initialize }: Props) => {
       const [item] = newQueue.splice(idx, 1)
       newQueue.unshift(item)
       setQueue(newQueue)
-      setTrackFeedTrigger(prev => !prev)
+      pickUpTrack()
     },
-    [queue, setQueue, smartPause, setErrorModalInstance]
+    [queue, setQueue, smartPause, setErrorModalInstance, pickUpTrack]
   )
 
   const onMoveToFront = useCallback(
@@ -261,13 +267,15 @@ const usePlayer = ({ initialize }: Props) => {
 
   /** キューが更新されたらアイテムの1番目の曲を再生開始する */
   useEffect(() => {
-    if (queue.length === 0 || isLockingPlayer) return
+    if (isInitialized && queue.length > 0) {
+      pickUpTrack()
+      setIsInitialized(false)
+    }
+  }, [isInitialized, pickUpTrack, queue])
 
-    isLockingPlayer = true
-    setCurrentTrackInfo(queue[0])
-    setQueue(prev => prev.slice(1))
-    onPlay(queue[0])
-  }, [queue, onPlay, setQueue, trackFeedTrigger, currentTrackInfo])
+  useEffect(() => {
+    if (queue.length === 0) setIsInitialized(true)
+  }, [queue, setIsInitialized])
 
   const playbackPercentage = useMemo(() => {
     if (currentTrackInfo === undefined) return 0
