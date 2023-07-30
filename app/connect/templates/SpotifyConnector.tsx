@@ -166,7 +166,10 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           size="1.3rem"
           color={theme.colors.spotify[5]}
           style={{
-            display: settingState === "done" ? "block" : "none"
+            display:
+              settingState === "setting" || settingState === "done"
+                ? "block"
+                : "none"
           }} // &&を使うと何故かうまくいかなかったのでインラインスタイルで対応
         />
       </Flex>
