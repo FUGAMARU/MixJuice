@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRecoilState } from "recoil"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
@@ -178,11 +178,12 @@ const useSpotifyToken = () => {
     }
   }, [setAccessToken, deleteAuthConfig])
 
-  const hasValidAccessTokenState = useMemo(() => {
+  /* useMemoにすると、Date.nowがaccessTokenの取得が完了した時点で固定されるのでuseCallbackにする必要がある */
+  const hasValidAccessTokenState = useCallback(() => {
     const offset = 60 // 単位: 秒 | アクセストークンのリフレッシュは期限を迎えるより少し前に行う
     return (
       accessToken !== undefined &&
-      Number(accessToken.expiresAt) - offset > Math.floor(Date.now() / 1000)
+      accessToken.expiresAt - offset > Math.floor(Date.now() / 1000)
     )
   }, [accessToken])
 

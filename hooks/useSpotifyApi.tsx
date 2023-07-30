@@ -39,7 +39,7 @@ const useSpotifyApi = ({ initialize }: Props) => {
         /** accessTokenがundefined、もしくはoffsetを考慮した上でアクセストークンの有効期限を迎えた場合はリフレッシュトークンを用いてアクセストークンをリフレッシュする
          * accessTokenがundefinedになる例: Spotifyにログイン済みの状態で、新しくMixJuiceを開いた場合
          */
-        if (!hasValidAccessTokenState) {
+        if (!hasValidAccessTokenState()) {
           try {
             isNowRefreshingToken = true
             const newAccessToken = await refreshAccessToken()
@@ -52,7 +52,7 @@ const useSpotifyApi = ({ initialize }: Props) => {
           }
         }
 
-        config.headers.Authorization = `Bearer ${accessToken!.token}` // hasValidAccessTokenStateによりaccessTokenがundefinedではないことが保証されている
+        config.headers.Authorization = `Bearer ${accessToken!.token}` // hasValidAccessTokenState()によりaccessTokenがundefinedではないことが保証されている
         return config
       },
       error => {

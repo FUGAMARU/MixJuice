@@ -39,7 +39,7 @@ const useMIX = () => {
 
       const selectedPlaylists = playlists.filter(p => p.checked === true)
 
-      if (hasValidAccessTokenState) {
+      if (hasValidAccessTokenState()) {
         console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
         tracksForPlaylists = await Promise.all(
           selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
