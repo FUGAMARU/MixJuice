@@ -27,7 +27,10 @@ export const GET = async (req: NextRequest) => {
   )) as unknown as WebDAVDirectoryContent[]
   const audioFilesFiltered = audioFiles.filter(
     audioFile =>
-      audioFile.type === "file" && audioFile.basename.endsWith(".mp3") // TODO: 対応フォーマット増やす
+      audioFile.type === "file" &&
+      (audioFile.basename.endsWith(".mp3") ||
+        audioFile.basename.endsWith(".m4a") ||
+        audioFile.basename.endsWith(".flac"))
   )
 
   return NextResponse.json(audioFilesFiltered, {

@@ -38,9 +38,9 @@ const usePlayer = ({ initialize }: Props) => {
         const currentQueue = await snapshot.getPromise(queueAtom)
         if (currentQueue.length === 0) return
 
+        setCurrentTrackInfo(currentQueue[0])
         await onPlay(currentQueue[0])
 
-        setCurrentTrackInfo(currentQueue[0])
         set(queueAtom, currentQueue.slice(1))
       },
     [setCurrentTrackInfo]

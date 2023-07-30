@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { TrackWithPath } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { createWebDAVClient } from "@/utils/createWebDAVClient"
+import { getMimeType } from "@/utils/getMimeType"
 
 export const POST = async (req: NextRequest) => {
   const { folderTrackInfo } = await req.json()
@@ -26,9 +27,12 @@ export const POST = async (req: NextRequest) => {
   const tracks: TrackWithPath[] = await Promise.all(
     folderTrackInfo.map(async (trackInfo: WebDAVDirectoryContent) => {
       const stream = client.createReadStream(trackInfo.filename)
+
+      const mimeType = getMimeType(trackInfo.filename)
+
       const { common } = await parseStream(
         stream,
-        { mimeType: "audio/mpeg", size: trackInfo.size },
+        { mimeType, size: trackInfo.size },
         { duration: true }
       )
       stream.destroy()
