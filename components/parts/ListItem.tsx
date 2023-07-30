@@ -1,12 +1,13 @@
-import { Box, Flex, Overlay, Text } from "@mantine/core"
+import { Box, Center, Flex, Overlay, Text } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
 import { useState, useEffect, memo } from "react"
 import { IoPlayCircleSharp } from "react-icons/io5"
+import { MdOutlineLibraryMusic } from "react-icons/md"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Detail = {
-  imgSrc: string
+  imgSrc: string | undefined
   objectFit?: "contain" | "cover"
   title: string
   subText: string
@@ -52,19 +53,25 @@ const ListItem = ({
   return (
     <Flex align="center" gap="md" sx={{ overflow: "hidden" }}>
       <Box w="3.5rem" h="3.5rem" pos="relative" ref={artworkRef}>
-        <Image
-          // 高さ・幅はとりあえず指定しないといけないので適当に指定
-          height={250}
-          width={250}
-          src={imgSrc}
-          alt="list item image"
-          style={{
-            objectFit,
-            height: "100%",
-            width: "100%",
-            borderRadius: "3px"
-          }}
-        />
+        {!imgSrc ? (
+          <Center h="100%" w="100%" bg="#eaeaea">
+            <MdOutlineLibraryMusic size="1.3rem" color="#909090" />
+          </Center>
+        ) : (
+          <Image
+            // 高さ・幅はとりあえず指定しないといけないので適当に指定
+            height={250}
+            width={250}
+            src={imgSrc}
+            alt="list item image"
+            style={{
+              objectFit,
+              height: "100%",
+              width: "100%",
+              borderRadius: "3px"
+            }}
+          />
+        )}
 
         {playable && isPlayerControlShown && (
           <Overlay

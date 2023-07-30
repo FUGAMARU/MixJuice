@@ -66,7 +66,7 @@ const AlbumArtwork = ({
         zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK
       }}
     >
-      {src === undefined ? (
+      {!src ? (
         <Center h="100%" w="100%" bg="#eaeaea">
           <MdOutlineLibraryMusic
             size={setRespVal("2rem", "2.5rem", "2.5rem")}

@@ -126,13 +126,15 @@ const useWebDAVApi = ({ initialize }: Props) => {
         const tracks: TrackWithPath[] = await Promise.all(
           res.map(async track => {
             const duration = await getAudioDurationFromUrl(track.id) // 結果はミリ秒で返ってくる
-            const imgSize = await getImageSizeFromBase64(track.imgSrc)
+            const imgSize = track.imgSrc
+              ? await getImageSizeFromBase64(track.imgSrc)
+              : undefined
 
             return {
               ...track,
               duration,
-              imgHeight: imgSize.height,
-              imgWidth: imgSize.width
+              imgHeight: imgSize?.height,
+              imgWidth: imgSize?.width
             }
           })
         )

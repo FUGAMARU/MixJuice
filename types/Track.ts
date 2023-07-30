@@ -6,9 +6,9 @@ export type Track = {
   title: string
   albumTitle: string
   artist: string
-  imgSrc: string
-  imgHeight: number
-  imgWidth: number
+  imgSrc: string | undefined
+  imgHeight: number | undefined
+  imgWidth: number | undefined
   duration: number // 単位: ミリ秒
 }
 

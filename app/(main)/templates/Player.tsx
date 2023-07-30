@@ -77,22 +77,23 @@ const Player = ({
     return () => clearTimeout(animationTimeoutId)
   }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
 
+  const objectFit = useMemo(() => {
+    if (!currentTrackInfo || !currentTrackInfo.imgSrc) return "cover"
+    return isSquareApproximate(
+      currentTrackInfo.imgWidth!, // imgSrcのundefinedチェックによりimgWidthがundefinedでないことが保証されている
+      currentTrackInfo.imgHeight! // imgSrcのundefinedチェックによりimgHeightがundefinedでないことが保証されている
+    )
+      ? "cover"
+      : "contain"
+  }, [currentTrackInfo])
+
   return (
     <>
       <Flex w="100%" h="100%" pos="relative" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={currentTrackInfo?.imgSrc || undefined}
-          objectFit={
-            !currentTrackInfo
-              ? "contain"
-              : isSquareApproximate(
-                  currentTrackInfo.imgWidth,
-                  currentTrackInfo.imgHeight
-                )
-              ? "cover"
-              : "contain"
-          }
+          src={currentTrackInfo?.imgSrc}
+          objectFit={objectFit}
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
           onTogglePlay={onTogglePlay}

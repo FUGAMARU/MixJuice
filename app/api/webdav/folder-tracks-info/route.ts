@@ -42,7 +42,7 @@ export const POST = async (req: NextRequest) => {
         ? `data:${
             common.picture[0].format
           };base64,${common.picture[0].data.toString("base64")}`
-        : ""
+        : undefined
 
       return {
         id,
