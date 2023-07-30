@@ -30,7 +30,8 @@ export const GET = async (req: NextRequest) => {
       audioFile.type === "file" &&
       (audioFile.basename.endsWith(".mp3") ||
         audioFile.basename.endsWith(".m4a") ||
-        audioFile.basename.endsWith(".flac"))
+        audioFile.basename.endsWith(".flac") ||
+        audioFile.basename.endsWith(".wav"))
   )
 
   return NextResponse.json(audioFilesFiltered, {
