@@ -24,7 +24,6 @@ const useMediaSession = ({
   onSeekTo
 }: Props) => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const setMediaMetadatainterval = useRef<NodeJS.Timer>()
   const dummyAudioRef = useRef<HTMLAudioElement>()
 
   const setMediaMetadata = useCallback((trackInfo: Track) => {
@@ -106,13 +105,7 @@ const useMediaSession = ({
       )
         return
 
-      /** Spotifyの再生開始後にメタデーターをセットしないとデーターが反映されない(特にmacOS。ChromeのMedia Hubは問題なかった。)っぽいため、一定間隔でメタデーターをセットする
-       * → 「Spotifyの再生開始後」というタイミングを取るのが難しい。トライしてみたけど難しかった。
-       */
-      clearInterval(setMediaMetadatainterval.current)
-      setMediaMetadatainterval.current = setInterval(() => {
-        setMediaMetadata(trackInfo)
-      }, 500)
+      setMediaMetadata(trackInfo)
 
       navigator.mediaSession.setActionHandler("play", async () => {
         await onResume()
@@ -138,7 +131,6 @@ const useMediaSession = ({
     })()
 
     return () => {
-      clearInterval(setMediaMetadatainterval.current)
       clearDummyAudio()
     }
   }, [
