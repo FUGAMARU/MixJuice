@@ -112,7 +112,11 @@ const Player = ({
           <Flex pos="absolute" right="1.5rem" bottom="1rem" gap="xs">
             {(isPreparingPlayback ||
               currentTrackInfo?.provider === "spotify") && (
-              <Tooltip label="ストリーミング品質">
+              <Tooltip
+                label={
+                  isPreparingPlayback ? "再生準備中…" : "ストリーミング品質"
+                }
+              >
                 <Box>
                   <PlaybackStateBadge
                     cursor="default"
