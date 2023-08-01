@@ -7,6 +7,7 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 import { Track, TrackWithPath } from "@/types/Track"
+import { shuffleArray } from "@/utils/shuffleArray"
 
 const useMIX = () => {
   const { hasValidAccessTokenState } = useSpotifyToken()
@@ -142,7 +143,7 @@ const useMIX = () => {
       if (webdavFolderTracks)
         baseTracks = [...baseTracks, ...webdavFolderTracks]
 
-      return baseTracks
+      return shuffleArray(baseTracks)
     },
     [getSpotifyPlaylistTracks, getWebDAVFolderTracks]
   )

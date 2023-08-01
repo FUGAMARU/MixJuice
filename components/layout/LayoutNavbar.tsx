@@ -157,7 +157,7 @@ const LayoutNavbar = () => {
 
       if (tracks.length === 0) return // 読み込む曲が存在しないので以降の処理をする必要はない
 
-      setQueue(tracks.sort(() => Math.random() - 0.5))
+      setQueue(tracks)
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
     } finally {
