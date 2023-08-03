@@ -22,15 +22,14 @@ export const convertToNavbarFormat = (
         checked: false
       }))
     case "webdav":
-      const path = localStorageData
-      return [
-        {
-          provider: "webdav",
-          id: path,
-          title: path,
-          color: "webdav",
-          checked: false
-        }
-      ]
+      const parsedWebDAV = JSON.parse(localStorageData) as string[]
+
+      return parsedWebDAV.map(p => ({
+        provider: "webdav",
+        id: p,
+        title: p,
+        color: "webdav",
+        checked: false
+      }))
   }
 }

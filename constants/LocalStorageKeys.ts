@@ -10,5 +10,5 @@ export const LOCAL_STORAGE_KEYS = {
   WEBDAV_USER: "webdavUser", // WebDAVサーバーのユーザー名
   WEBDAV_PASSWORD: "webdavPassword", // WebDAVサーバーのパスワード,
   WEBDAV_IS_AUTHENTICATED: "webdavIsAuthenticated", // WebDAVサーバーに認証済みかどうか
-  WEBDAV_FOLDER_PATH: "webdavFolderPath" // MixJuiceで利用する用に指定されたWebDAVサーバー上のフォルダーのパス
+  WEBDAV_FOLDER_PATHS: "webdavFolderPaths" // MixJuiceで利用する用に指定されたWebDAVサーバー上のフォルダーのパス一覧
 }

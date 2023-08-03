@@ -55,13 +55,18 @@ const LayoutNavbar = () => {
     [playlists]
   )
 
+  const checkedItems = useMemo(
+    () => playlists.filter(p => p.checked === true),
+    [playlists]
+  )
+
   /** 選択済みプレイリスト(フォルダー)読み込み */
   useEffect(() => {
     const localStorageSelectedSpotifyPlaylists = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
     )
-    const localStorageWebDAVSelectedFolder = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
+    const localStorageWebDAVSelectedFolders = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
     )
 
     const spotifyPlaylists = convertToNavbarFormat(
@@ -70,7 +75,7 @@ const LayoutNavbar = () => {
     )
     const webdavFolder = convertToNavbarFormat(
       "webdav",
-      localStorageWebDAVSelectedFolder
+      localStorageWebDAVSelectedFolders
     )
 
     let basePlaylists: NavbarItem[] = []
@@ -81,16 +86,20 @@ const LayoutNavbar = () => {
 
     if (basePlaylists.length === 0) return // 読み込むプレイリストが存在しないので以降の処理をする必要はない
 
-    const checkedItems = localStorage.getItem(
+    const localStorageCheckedItems = localStorage.getItem(
       LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
     )
 
-    if (checkedItems !== null) {
+    if (localStorageCheckedItems !== null) {
       /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けておく */
-      const parsedCheckedItems = JSON.parse(checkedItems) as string[]
-      basePlaylists = basePlaylists.map(p =>
-        parsedCheckedItems.includes(p.id) ? { ...p, checked: true } : p
-      )
+      const parsedCheckedItems = JSON.parse(
+        localStorageCheckedItems
+      ) as NavbarItem[]
+
+      basePlaylists = basePlaylists.map(item => ({
+        ...item,
+        ...parsedCheckedItems.find(checkedItem => checkedItem.id === item.id)
+      }))
     }
 
     setPlaylists(basePlaylists)
@@ -100,16 +109,13 @@ const LayoutNavbar = () => {
 
   /** チェックを入れた項目をLocalStorageに保存する */
   useEffect(() => {
-    if (playlists.length === 0) return
+    if (playlists.length === 0 || checkedItems.length === 0) return
 
-    const checkedItems = playlists
-      .filter(p => p.checked === true)
-      .map(p => p.id)
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS,
       JSON.stringify(checkedItems)
     )
-  }, [playlists])
+  }, [playlists, checkedItems])
 
   const handleCheckboxClick = useCallback((id: string) => {
     setPlaylists(prev =>
@@ -209,6 +215,7 @@ const LayoutNavbar = () => {
               }
             }}
             loading={isMixing}
+            disabled={checkedItems.length === 0}
             onClick={handleMixButtonClick}
           >
             {isMixing ? "MIXING…!" : "MIX!"}

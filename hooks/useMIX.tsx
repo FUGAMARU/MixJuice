@@ -60,15 +60,24 @@ const useMIX = () => {
   )
 
   const getWebDAVFolderTracks = useCallback(
-    async (folderPath: string) => {
-      const folderTracks = await getFolderTracks(folderPath)
+    async (folderPaths: string[]) => {
+      //const folderTracks = await getFolderTracks(folderPaths)
+      const foldersTracks = await Promise.all(
+        folderPaths.map(async folderPath => {
+          return await getFolderTracks(folderPath)
+        })
+      )
 
-      if (folderTracks.length === 0) return []
+      /** どのフォルダーにも楽曲ファイルが存在しない場合 */
+      if (foldersTracks.every(folderTracks => folderTracks.length === 0))
+        return []
 
       /** 以下、「Object.filename」はそのファイルのフルパスを表す */
 
+      const flattenFoldersTracks = foldersTracks.flat()
+
       const whetherKnow = await Promise.all(
-        folderTracks.map(async trackFile => {
+        flattenFoldersTracks.map(async trackFile => {
           return await isTrackInfoExists(trackFile.filename)
         })
       )
@@ -77,7 +86,7 @@ const useMIX = () => {
       const newlyKnownTracksInfo =
         unknownTracks.length > 0
           ? await getFolderTrackInfo(
-              unknownTracks.map((_, idx) => folderTracks[idx])
+              unknownTracks.map((_, idx) => flattenFoldersTracks[idx])
             )
           : []
 
@@ -96,7 +105,7 @@ const useMIX = () => {
               knewTracks.map(
                 async (_, idx) =>
                   (await getTrackInfo(
-                    folderTracks[idx].filename
+                    flattenFoldersTracks[idx].filename
                   )) as TrackWithPath // isTrackInfoExistsによるチェックを挟んでいるのでundefinedでないことが保証されている
               )
             )
@@ -127,7 +136,9 @@ const useMIX = () => {
       const webdavTracksPromise =
         webDAVFolders.length > 0
           ? getWebDAVFolderTracks(
-              localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH)!
+              JSON.parse(
+                localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS)! // MIXボタンが押下できている時点でnullではない
+              )
             )
           : Promise.resolve([])
 

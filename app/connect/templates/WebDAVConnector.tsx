@@ -1,23 +1,15 @@
-import {
-  Box,
-  Flex,
-  Input,
-  Title,
-  useMantineTheme,
-  Button,
-  Modal
-} from "@mantine/core"
+import { Box, Flex, Input, Title, useMantineTheme, Button } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { selectedWebDAVFolderAtom } from "@/atoms/selectedWebDAVFolderAtom"
+import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
+import FolderListModal from "@/components/templates/FolderListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useWebDAVApi from "@/hooks/useWebDAVApi"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
@@ -33,20 +25,20 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { breakPoint } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { settingState } = useWebDAVSettingState()
-  const { checkAuth, checkIsFolderExists } = useWebDAVApi({ initialize: false })
+  const { checkAuth } = useWebDAVApi({ initialize: false })
   const [isConnecting, setIsConnecting] = useState(false)
-  const [isCheckingFolderExists, setIsCheckingFolderExists] = useState(false)
   const [
     isFolderPathInputModalOpen,
     { open: onFolderPathInputModalOpen, close: onFolderPathInputModalClose }
   ] = useDisclosure(false)
-  const [isFolderNotExists, setIsFolderNotExists] = useState(false)
   const setIsAuthenticated = useSetRecoilState(webDAVAuthenticatedAtom)
+  const [folderPaths, setFolderPaths] = useRecoilState(
+    selectedWebDAVFoldersAtom
+  )
 
   const [address, setAddress] = useState("")
   const [user, setUser] = useState("")
   const [password, setPassword] = useState("")
-  const [folderPath, setFolderPath] = useRecoilState(selectedWebDAVFolderAtom)
 
   /** 遷移してきた時にフィールドを復元する */
   useEffect(() => {
@@ -61,18 +53,12 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     const password = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD)
     if (password !== null) setPassword(password)
   }, [])
-  useEffect(() => {
-    const folderPath = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
-    )
-    if (folderPath !== null) setFolderPath(folderPath)
-  }, [setFolderPath])
 
   /** 認証情報を入力する度に指定したフォルダーのパス情報などの設定を削除する (認証情報が変更され別のサーバーを使うようになった場合、モーダルを開いた時に以前の認証情報で接続していたサーバーのパスが表示されるのはおかしいため) */
   const resetFolderPath = useCallback(() => {
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH)
-    setFolderPath(undefined)
-  }, [setFolderPath])
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS)
+    setFolderPaths([])
+  }, [setFolderPaths])
 
   const isSelectButtonDisabled = useMemo(
     () =>
@@ -107,32 +93,6 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     onFolderPathInputModalOpen,
     setErrorModalInstance,
     setIsAuthenticated
-  ])
-
-  const handleFolderPathInputSubmitButtonClick = useCallback(async () => {
-    if (folderPath === undefined) return
-
-    try {
-      const folderPathWithoutSlash = folderPath.replace(/\/$/, "") // folderPathの末尾にスラッシュが入っていたら取り除く
-      setIsCheckingFolderExists(true)
-      await checkIsFolderExists(folderPathWithoutSlash)
-      setIsFolderNotExists(false)
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH,
-        folderPathWithoutSlash
-      )
-      setFolderPath(folderPathWithoutSlash)
-      onFolderPathInputModalClose()
-    } catch (e) {
-      setIsFolderNotExists(true)
-    } finally {
-      setIsCheckingFolderExists(false)
-    }
-  }, [
-    checkIsFolderExists,
-    onFolderPathInputModalClose,
-    folderPath,
-    setFolderPath
   ])
 
   return (
@@ -237,38 +197,12 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
         />
       </Flex>
 
-      <Modal
-        size="lg"
-        opened={isFolderPathInputModalOpen}
+      <FolderListModal
+        isOpen={isFolderPathInputModalOpen}
+        folderPaths={folderPaths}
+        setFolderPaths={setFolderPaths}
         onClose={onFolderPathInputModalClose}
-        title="フォルダーパスを入力してください"
-        centered
-        styles={{
-          title: { color: TEXT_COLOR_DEFAULT, fontWeight: 700 }
-        }}
-      >
-        <Input.Wrapper
-          error={
-            isFolderNotExists && "指定されたパスのフォルダーが存在しません"
-          }
-        >
-          <Input
-            placeholder="例: /home/user/music"
-            value={folderPath}
-            onChange={e => setFolderPath(e.target.value)}
-          />
-        </Input.Wrapper>
-        <Box mt="sm" ta="right">
-          <Button
-            color="webdav"
-            loading={isCheckingFolderExists}
-            disabled={!folderPath || !folderPath.startsWith("/")}
-            onClick={handleFolderPathInputSubmitButtonClick}
-          >
-            OK
-          </Button>
-        </Box>
-      </Modal>
+      />
     </ConnectorContainer>
   )
 }

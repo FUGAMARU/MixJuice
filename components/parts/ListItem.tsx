@@ -7,10 +7,10 @@ import { MdOutlineLibraryMusic } from "react-icons/md"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Detail = {
-  imgSrc: string | undefined
+  imgSrc?: string | undefined
   objectFit?: "contain" | "cover"
   title: string
-  subText: string
+  subText?: string
 }
 
 type Props =

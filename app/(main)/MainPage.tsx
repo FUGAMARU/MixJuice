@@ -20,11 +20,11 @@ const MainPage = () => {
     const selectedSpotifyPlaylists = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
     )
-    const webDAVFolderPath = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATH
+    const webDAVFolderPaths = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
     )
 
-    if (!selectedSpotifyPlaylists && !webDAVFolderPath) router.push("/connect")
+    if (!selectedSpotifyPlaylists && !webDAVFolderPaths) router.push("/connect")
 
     setIsLoading(false)
   }, [setIsLoading, router])
