@@ -176,7 +176,35 @@ const useSpotifyApi = ({ initialize }: Props) => {
     []
   )
 
-  return { getPlaylists, getPlaylistTracks, startPlayback } as const
+  /**
+   * 楽曲をキーワード検索する
+   * https://developer.spotify.com/documentation/web-api/reference/search
+   */
+  const searchTracks = useCallback(async (query: string) => {
+    try {
+      const res = await spotifyApi.get("/search", {
+        params: {
+          q: query,
+          type: "track",
+          market: "JP",
+          limit: 5
+        }
+      })
+
+      return res.data.tracks.items as SpotifyApiTrack["track"][]
+    } catch (e) {
+      // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
+      console.log("🟥ERROR: ", e)
+      throw Error("楽曲の検索に失敗しました")
+    }
+  }, [])
+
+  return {
+    getPlaylists,
+    getPlaylistTracks,
+    startPlayback,
+    searchTracks
+  } as const
 }
 
 export default useSpotifyApi
