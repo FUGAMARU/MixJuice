@@ -1,8 +1,8 @@
-import { Box, Flex, Checkbox } from "@mantine/core"
+import { Box, Checkbox } from "@mantine/core"
 import { SetStateAction, Dispatch, useCallback, memo } from "react"
 import ListItem from "../parts/ListItem"
+import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
-import useBreakPoints from "@/hooks/useBreakPoints"
 import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
 
 type Props = {
@@ -24,8 +24,6 @@ const CheckboxListModal = ({
   checkedValues,
   dispath
 }: Props) => {
-  const { setRespVal } = useBreakPoints()
-
   const handleItemClick = useCallback(
     (id: string) => {
       if (checkedValues.includes(id)) {
@@ -40,18 +38,9 @@ const CheckboxListModal = ({
   return (
     <ModalDefault title={title} isOpen={isOpen} onClose={onClose}>
       {items.map(item => (
-        <Flex
+        <ListItemContainer
           key={item.id}
-          px={setRespVal("xs", "md", "md")}
-          py="xs"
-          align="center"
-          gap="md"
-          sx={{
-            cursor: "pointer",
-            borderRadius: "10px",
-            transition: "background-color 0.3s ease-out",
-            ":hover": { backgroundColor: "#f5f5f5" }
-          }}
+          flex
           onClick={() => handleItemClick(item.id)}
         >
           <Checkbox
@@ -67,7 +56,7 @@ const CheckboxListModal = ({
               subText={item.description}
             />
           </Box>
-        </Flex>
+        </ListItemContainer>
       ))}
     </ModalDefault>
   )

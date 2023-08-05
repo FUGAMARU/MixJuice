@@ -2,6 +2,7 @@ import { Box, Flex, Input, Stack, Text } from "@mantine/core"
 import { memo, useEffect, useMemo, useState } from "react"
 import { useSetRecoilState } from "recoil"
 import ListItem from "../parts/ListItem"
+import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
 import ProviderHeading from "../parts/ProviderHeading"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
@@ -73,17 +74,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
 
             {spotifySearchResult.length > 0 ? (
               spotifySearchResult.map(track => (
-                <Box
-                  key={track.id}
-                  px={setRespVal("xs", "md", "md")}
-                  py="xs"
-                  sx={{
-                    cursor: "pointer",
-                    borderRadius: "10px",
-                    transition: "background-color 0.3s ease-out",
-                    ":hover": { backgroundColor: "#f5f5f5" }
-                  }}
-                >
+                <ListItemContainer key={track.id}>
                   <Box sx={{ flex: "1", overflow: "hidden" }}>
                     <ListItem
                       imgSrc={track.album.images[0].url}
@@ -93,7 +84,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                         .join(", ")}`}
                     />
                   </Box>
-                </Box>
+                </ListItemContainer>
               ))
             ) : (
               <Text ta="center" fz="0.8rem" color="#adadad">
