@@ -1,8 +1,8 @@
 import { useCallback } from "react"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
-import useTrackDatabase from "./useTrackDatabase"
 import useWebDAVApi from "./useWebDAVApi"
+import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
@@ -15,7 +15,8 @@ const useMIX = () => {
   const { getFolderTracks, getFolderTrackInfo } = useWebDAVApi({
     initialize: false
   })
-  const { saveTrackInfo, isTrackInfoExists, getTrackInfo } = useTrackDatabase()
+  const { saveTrackInfo, isTrackInfoExists, getTrackInfo } =
+    useWebDAVTrackDatabase()
 
   const getSpotifyPlaylistTracks = useCallback(
     async (playlists: NavbarItem[]) => {

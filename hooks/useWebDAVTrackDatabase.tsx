@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from "react"
-import { TrackDatabase } from "@/classes/TrackDatabase"
+import { WebDAVTrackDatabase } from "@/classes/TrackDatabase"
 import { TrackWithPath } from "@/types/Track"
 
 // WebDAVのトラック取得の際のキャッシュ戦略用のIndexedDBを使用するためのカスタムフック
-const useTrackDatabase = () => {
-  const db = useMemo(() => new TrackDatabase(), [])
+const useWebDAVTrackDatabase = () => {
+  const db = useMemo(() => new WebDAVTrackDatabase(), [])
 
   const saveTrackInfo = useCallback(
     async (trackInfo: TrackWithPath) => {
@@ -35,4 +35,4 @@ const useTrackDatabase = () => {
   } as const
 }
 
-export default useTrackDatabase
+export default useWebDAVTrackDatabase
