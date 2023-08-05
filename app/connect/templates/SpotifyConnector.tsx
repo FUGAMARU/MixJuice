@@ -207,7 +207,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       </Flex>
 
       <CheckboxListModal
-        opened={isPlaylistSelectorOpened}
+        isOpen={isPlaylistSelectorOpened}
         onClose={onPlaylistSelectorClose}
         title="MixJuiceで使用するプレイリストを選択"
         color="spotify"

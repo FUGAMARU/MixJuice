@@ -1,4 +1,4 @@
-import { Modal, Flex, Input, Button, Stack, Text } from "@mantine/core"
+import { Flex, Input, Button, Stack, Text } from "@mantine/core"
 import Image from "next/image"
 import {
   Dispatch,
@@ -8,8 +8,8 @@ import {
   useEffect,
   useState
 } from "react"
+import ModalDefault from "../parts/ModalDefault"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useWebDAVApi from "@/hooks/useWebDAVApi"
 
@@ -77,15 +77,10 @@ const FolderListModal = ({
   )
 
   return (
-    <Modal
-      size="lg"
-      opened={isOpen}
-      onClose={onClose}
+    <ModalDefault
       title="MixJuiceで使用するフォルダーを追加"
-      centered
-      styles={{
-        title: { color: TEXT_COLOR_DEFAULT, fontWeight: 700 }
-      }}
+      isOpen={isOpen}
+      onClose={onClose}
     >
       <Flex gap="md" align="center" justify="space-between">
         <Input.Wrapper
@@ -143,7 +138,7 @@ const FolderListModal = ({
           </Flex>
         ))}
       </Stack>
-    </Modal>
+    </ModalDefault>
   )
 }
 
