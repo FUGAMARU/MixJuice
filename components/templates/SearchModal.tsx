@@ -1,5 +1,5 @@
 import { Box, Flex, Input, Stack, Text } from "@mantine/core"
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
 import { useSetRecoilState } from "recoil"
 import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
@@ -32,6 +32,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
     SpotifyApiTrack["track"][]
   >([])
 
+  const inputRef = useRef<HTMLInputElement>(null)
   const [keyword, setKeyword] = useState("")
   useEffect(() => {
     ;(async () => {
@@ -54,12 +55,27 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
     })()
   }, [keyword, searchTracks, isSpotifyAuthorized, setErrorModalInstance])
 
+  useEffect(() => {
+    if (keyword === "") setSpotifySearchResult([])
+  }, [keyword])
+
+  useEffect(() => {
+    if (!isOpen) return
+    inputRef.current?.focus()
+  }, [isOpen])
+
   return (
-    <ModalDefault title="🔍 楽曲を検索" isOpen={isOpen} onClose={onClose}>
+    <ModalDefault
+      title="🔍 楽曲を検索"
+      isOpen={isOpen}
+      onClose={onClose}
+      withoutCloseButton
+    >
       <Input
         placeholder="楽曲タイトルを入力…"
         value={keyword}
         onChange={e => setKeyword(e.target.value)}
+        ref={inputRef}
       />
 
       <Stack mt="sm" spacing="xs">
@@ -72,7 +88,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
               />
             </Box>
 
-            {spotifySearchResult.length > 0 ? (
+            {spotifySearchResult.length > 0 && keyword.length > 0 ? (
               spotifySearchResult.map(track => (
                 <ListItemContainer key={track.id}>
                   <Box sx={{ flex: "1", overflow: "hidden" }}>

@@ -8,10 +8,12 @@ import {
   Input,
   Button,
   Group,
-  Box
+  Box,
+  Kbd
 } from "@mantine/core"
-import { useDisclosure } from "@mantine/hooks"
+import { useDisclosure, useHotkeys } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
@@ -50,6 +52,10 @@ const LayoutNavbar = () => {
     isSearchModalOpen,
     { open: onSearchModalOpen, close: onSearchModalClose }
   ] = useDisclosure(false)
+  useHotkeys([
+    ["Slash", () => onSearchModalOpen()],
+    ["mod+K", () => onSearchModalOpen()]
+  ])
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
   const spotifyPlaylists = useMemo(
@@ -201,7 +207,12 @@ const LayoutNavbar = () => {
     >
       <Navbar.Section pb="md">
         <Stack>
-          <Input placeholder="🔍 楽曲を検索" onClick={onSearchModalOpen} />
+          <Input
+            icon={<BiSearchAlt size="1.3rem" style={{ lineHeight: 0 }} />}
+            rightSection={<Kbd lh={1}>/</Kbd>}
+            placeholder="楽曲を検索"
+            onClick={onSearchModalOpen}
+          />
 
           <Button
             ff="GreycliffCF"

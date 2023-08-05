@@ -6,10 +6,17 @@ type Props = {
   title: string
   isOpen: boolean
   onClose: () => void
+  withoutCloseButton?: boolean
   children: React.ReactNode
 }
 
-const ModalDefault = ({ title, isOpen, onClose, children }: Props) => {
+const ModalDefault = ({
+  title,
+  isOpen,
+  onClose,
+  withoutCloseButton,
+  children
+}: Props) => {
   return (
     <Modal
       size="lg"
@@ -20,6 +27,7 @@ const ModalDefault = ({ title, isOpen, onClose, children }: Props) => {
       styles={{
         title: { color: TEXT_COLOR_DEFAULT, fontWeight: 700 }
       }}
+      withCloseButton={!withoutCloseButton}
     >
       <Box mah="30rem" sx={{ overflowY: "scroll" }}>
         {children}
