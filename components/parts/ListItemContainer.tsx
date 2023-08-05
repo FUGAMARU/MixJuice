@@ -19,6 +19,8 @@ const ListItemContainer = ({ flex, onClick, children }: Props) => {
       sx={{
         cursor: "pointer",
         borderRadius: "10px",
+        alignItems: "center",
+        gap: "1rem",
         transition: "background-color 0.3s ease-out",
         ":hover": { backgroundColor: "#f5f5f5" }
       }}

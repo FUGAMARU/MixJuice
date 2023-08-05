@@ -20,7 +20,7 @@ type Props = {
 let timer: NodeJS.Timer
 
 const SearchModal = ({ isOpen, onClose }: Props) => {
-  const { setRespVal } = useBreakPoints()
+  const { setRespVal, breakPoint } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
     initialize: false
@@ -111,7 +111,11 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
         ref={inputRef}
       />
 
-      <Stack mt="sm" spacing="xs">
+      <Stack
+        mt="sm"
+        pl={breakPoint === "SmartPhone" ? 0 : "0.75rem"}
+        spacing="xs"
+      >
         {isSpotifyAuthorized && (
           <Box>
             <Box mb="xs">
