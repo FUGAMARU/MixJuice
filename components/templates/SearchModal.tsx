@@ -1,6 +1,7 @@
-import { Box, Flex, Input, Stack, Text } from "@mantine/core"
-import { memo, useEffect, useMemo, useRef, useState } from "react"
+import { Box, Center, Flex, Input, Stack, Text } from "@mantine/core"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useSetRecoilState } from "recoil"
+import ArrowTextButton from "../parts/ArrowTextButton"
 import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
@@ -21,47 +22,79 @@ let timer: NodeJS.Timer
 const SearchModal = ({ isOpen, onClose }: Props) => {
   const { setRespVal } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const { searchTracks } = useSpotifyApi({ initialize: false })
-  const isSpotifyAuthorized = useMemo(
-    () =>
-      localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN) !== null,
-    []
-  )
+  const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
+    initialize: false
+  })
 
+  const [isSpotifyAuthorized, setIsSpotifyAuthorized] = useState(false)
+  useEffect(() => {
+    setIsSpotifyAuthorized(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN) !== null
+    )
+  }, [])
+
+  const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState(0)
   const [spotifySearchResult, setSpotifySearchResult] = useState<
     SpotifyApiTrack["track"][]
   >([])
 
   const inputRef = useRef<HTMLInputElement>(null)
   const [keyword, setKeyword] = useState("")
-  useEffect(() => {
-    ;(async () => {
-      if (!keyword) return
+  const handleKeywordChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const input = e.target.value
+      setKeyword(input)
+      setSpotifySearchNextOffset(0)
+
+      if (!input) {
+        setSpotifySearchResult([])
+        return
+      }
 
       if (timer) clearTimeout(timer)
 
+      /** 検索窓に文字が入力されてから500ミリ秒後にAPIを叩く (入力された瞬間にAPIを叩くとリクエスト過多になる) */
       timer = setTimeout(async () => {
         if (isSpotifyAuthorized) {
           try {
-            const res = await searchTracks(keyword)
-            setSpotifySearchResult(res)
+            const res = await searchSpotifyTracks(
+              input,
+              spotifySearchNextOffset
+            )
+            setSpotifySearchResult(res.data)
+            setSpotifySearchNextOffset(res.nextOffset)
           } catch (e) {
             setErrorModalInstance(prev => [...prev, e])
           }
         }
+        //TODO: WebDAVの検索処理がここに入る
       }, 500)
+    },
+    [
+      isSpotifyAuthorized,
+      searchSpotifyTracks,
+      setErrorModalInstance,
+      spotifySearchNextOffset
+    ]
+  )
 
-      return () => clearTimeout(timer)
-    })()
-  }, [keyword, searchTracks, isSpotifyAuthorized, setErrorModalInstance])
+  const showMoreSpotifySearchResult = useCallback(async () => {
+    try {
+      const res = await searchSpotifyTracks(keyword, spotifySearchNextOffset)
+      setSpotifySearchResult(prev => [...prev, ...res.data])
+      setSpotifySearchNextOffset(res.nextOffset)
+    } catch (e) {
+      setErrorModalInstance(prev => [...prev, e])
+    }
+  }, [
+    keyword,
+    searchSpotifyTracks,
+    setErrorModalInstance,
+    spotifySearchNextOffset
+  ])
 
   useEffect(() => {
-    if (keyword === "") setSpotifySearchResult([])
-  }, [keyword])
-
-  useEffect(() => {
-    if (!isOpen) return
-    inputRef.current?.focus()
+    if (isOpen) inputRef.current?.focus()
   }, [isOpen])
 
   return (
@@ -74,7 +107,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
       <Input
         placeholder="楽曲タイトルを入力…"
         value={keyword}
-        onChange={e => setKeyword(e.target.value)}
+        onChange={e => handleKeywordChange(e)}
         ref={inputRef}
       />
 
@@ -89,19 +122,30 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
             </Box>
 
             {spotifySearchResult.length > 0 && keyword.length > 0 ? (
-              spotifySearchResult.map(track => (
-                <ListItemContainer key={track.id}>
-                  <Box sx={{ flex: "1", overflow: "hidden" }}>
-                    <ListItem
-                      imgSrc={track.album.images[0].url}
-                      title={track.name}
-                      subText={`/ ${track.artists
-                        .map(artist => artist.name)
-                        .join(", ")}`}
-                    />
-                  </Box>
-                </ListItemContainer>
-              ))
+              <>
+                {spotifySearchResult.map(track => (
+                  <ListItemContainer key={track.id}>
+                    <Box sx={{ flex: "1", overflow: "hidden" }}>
+                      <ListItem
+                        imgSrc={track.album.images[0].url}
+                        title={track.name}
+                        subText={`/ ${track.artists
+                          .map(artist => artist.name)
+                          .join(", ")}`}
+                      />
+                    </Box>
+                  </ListItemContainer>
+                ))}
+
+                <Center mt="lg">
+                  <ArrowTextButton
+                    direction="down"
+                    onClick={showMoreSpotifySearchResult}
+                  >
+                    検索結果をもっと見る
+                  </ArrowTextButton>
+                </Center>
+              </>
             ) : (
               <Text ta="center" fz="0.8rem" color="#adadad">
                 検索結果はありません

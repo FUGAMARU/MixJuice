@@ -4,6 +4,7 @@ import { useRecoilValue } from "recoil"
 import useSpotifyToken from "./useSpotifyToken"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
+import { extractOffsetValue } from "@/utils/extractOffsetValue"
 
 export const spotifyApi = axios.create({
   baseURL: "/spotify-api",
@@ -180,18 +181,22 @@ const useSpotifyApi = ({ initialize }: Props) => {
    * 楽曲をキーワード検索する
    * https://developer.spotify.com/documentation/web-api/reference/search
    */
-  const searchTracks = useCallback(async (query: string) => {
+  const searchTracks = useCallback(async (query: string, offset: number) => {
     try {
       const res = await spotifyApi.get("/search", {
         params: {
           q: query,
           type: "track",
           market: "JP",
-          limit: 5
+          limit: 5,
+          offset
         }
       })
 
-      return res.data.tracks.items as SpotifyApiTrack["track"][]
+      return {
+        data: res.data.tracks.items as SpotifyApiTrack["track"][],
+        nextOffset: extractOffsetValue(res.data.tracks.next)
+      }
     } catch (e) {
       // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)

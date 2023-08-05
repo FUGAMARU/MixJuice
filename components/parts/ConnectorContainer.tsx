@@ -1,7 +1,7 @@
-import { Flex, Stack, Title, Text, Center } from "@mantine/core"
+import { Flex, Stack, Title, Center } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
-import { IoIosArrowBack } from "react-icons/io"
+import ArrowTextButton from "./ArrowTextButton"
 
 type Props = {
   className?: string
@@ -51,11 +51,10 @@ const ConnectorContainer = ({
 
         {children}
 
-        <Center mt="lg" sx={{ cursor: "pointer" }} onClick={onBack}>
-          <IoIosArrowBack color="#228be6" />
-          <Text size="0.8rem" color="blue">
+        <Center mt="lg">
+          <ArrowTextButton direction="left" onClick={onBack}>
             接続先選択画面に戻る
-          </Text>
+          </ArrowTextButton>
         </Center>
       </Stack>
     </Flex>
