@@ -40,7 +40,12 @@ const ConnectorContainer = ({
           gap="0.3rem"
           sx={{ borderBottom: "solid 1px #d1d1d1" }}
         >
-          <Image src={iconSrc} width={25} height={25} alt="spotify-logo" />
+          <Image
+            src={iconSrc}
+            width={25}
+            height={25}
+            alt="Service Provider's logo"
+          />
           <Title order={4}>{title}</Title>
         </Flex>
 

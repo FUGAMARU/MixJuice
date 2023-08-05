@@ -10,11 +10,13 @@ import {
   Group,
   Box
 } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue, useSetRecoilState } from "recoil"
+import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
-import NavbarHeading from "../parts/navbar/NavbarHeading"
+import SearchModal from "../templates/SearchModal"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
@@ -44,6 +46,10 @@ const LayoutNavbar = () => {
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { mixAllTracks } = useMIX()
+  const [
+    isSearchModalOpen,
+    { open: onSearchModalOpen, close: onSearchModalClose }
+  ] = useDisclosure(false)
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
   const spotifyPlaylists = useMemo(
@@ -195,7 +201,7 @@ const LayoutNavbar = () => {
     >
       <Navbar.Section pb="md">
         <Stack>
-          <Input placeholder="🔍 楽曲を検索" />
+          <Input placeholder="🔍 楽曲を検索" onClick={onSearchModalOpen} />
 
           <Button
             ff="GreycliffCF"
@@ -244,8 +250,8 @@ const LayoutNavbar = () => {
         <Stack spacing="xs">
           {spotifyPlaylists.length > 0 && (
             <Box>
-              <NavbarHeading
-                icon="/spotify-logo.png"
+              <ProviderHeading
+                providerIconSrc="/spotify-logo.png"
                 provider="spotify"
                 onClick={handleProviderCheckboxControllerClick}
               />
@@ -269,8 +275,8 @@ const LayoutNavbar = () => {
 
           {webdavPlaylists.length > 0 && (
             <Box>
-              <NavbarHeading
-                icon="/server-icon.png"
+              <ProviderHeading
+                providerIconSrc="/server-icon.png"
                 provider="webdav"
                 onClick={handleProviderCheckboxControllerClick}
               />
@@ -314,6 +320,8 @@ const LayoutNavbar = () => {
           <Text weight={600}>MixJuiceについて</Text>
         </Flex>
       </Navbar.Section>
+
+      <SearchModal isOpen={isSearchModalOpen} onClose={onSearchModalClose} />
     </Navbar>
   )
 }
