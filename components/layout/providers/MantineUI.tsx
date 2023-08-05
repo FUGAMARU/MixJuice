@@ -1,6 +1,7 @@
 "use client"
 
 import { MantineProvider } from "@mantine/core"
+import { Notifications } from "@mantine/notifications"
 import { memo } from "react"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
@@ -72,6 +73,7 @@ const MantineUI = ({ children }: Props) => {
         respectReducedMotion: false
       }}
     >
+      <Notifications />
       {children}
     </MantineProvider>
   )

@@ -6,6 +6,11 @@ import { TrackWithPath } from "@/types/Track"
 const useWebDAVTrackDatabase = () => {
   const db = useMemo(() => new WebDAVTrackDatabase(), [])
 
+  const isDatabaseExists = useCallback(async () => {
+    const result = await db.tracks.count()
+    return result > 0
+  }, [db.tracks])
+
   const saveTrackInfo = useCallback(
     async (trackInfo: TrackWithPath) => {
       await db.tracks.put(trackInfo)
@@ -29,6 +34,7 @@ const useWebDAVTrackDatabase = () => {
   )
 
   return {
+    isDatabaseExists,
     saveTrackInfo,
     isTrackInfoExists,
     getTrackInfo

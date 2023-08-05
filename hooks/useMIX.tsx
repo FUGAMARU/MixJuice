@@ -1,3 +1,4 @@
+import { notifications } from "@mantine/notifications"
 import { useCallback } from "react"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
@@ -15,7 +16,7 @@ const useMIX = () => {
   const { getFolderTracks, getFolderTrackInfo } = useWebDAVApi({
     initialize: false
   })
-  const { saveTrackInfo, isTrackInfoExists, getTrackInfo } =
+  const { isDatabaseExists, saveTrackInfo, isTrackInfoExists, getTrackInfo } =
     useWebDAVTrackDatabase()
 
   const getSpotifyPlaylistTracks = useCallback(
@@ -62,7 +63,18 @@ const useMIX = () => {
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: string[]) => {
-      //const folderTracks = await getFolderTracks(folderPaths)
+      if (!(await isDatabaseExists())) {
+        notifications.show({
+          withCloseButton: true,
+          title: "楽曲情報のキャッシュを作成中…",
+          message:
+            "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる可能性があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1秒を要します。)",
+          color: "webdav",
+          loading: true,
+          autoClose: false
+        })
+      }
+
       const foldersTracks = await Promise.all(
         folderPaths.map(async folderPath => {
           return await getFolderTracks(folderPath)
@@ -119,6 +131,7 @@ const useMIX = () => {
       ) as Track[]
     },
     [
+      isDatabaseExists,
       getFolderTrackInfo,
       getTrackInfo,
       getFolderTracks,
@@ -154,6 +167,8 @@ const useMIX = () => {
         baseTracks = [...baseTracks, ...spotifyPlaylistTracks]
       if (webdavFolderTracks)
         baseTracks = [...baseTracks, ...webdavFolderTracks]
+
+      notifications.clean()
 
       return shuffleArray(baseTracks)
     },
