@@ -33,11 +33,32 @@ const useWebDAVTrackDatabase = () => {
     [db.tracks]
   )
 
+  const searchTracksByKeyword = useCallback(
+    (keyword: string) => {
+      // 検索をケースインセンシティブに行うため、キーワードを小文字に変換
+      const lowerKeyword = keyword.toLowerCase()
+
+      // Dexie の filter メソッドを使って、title、albumTitle、artist のいずれかに
+      // キーワードに部分一致するトラックを取得
+      const filteredTracks = db.tracks.filter(
+        (track: TrackWithPath) =>
+          track.title.toLowerCase().includes(lowerKeyword) ||
+          track.albumTitle.toLowerCase().includes(lowerKeyword) ||
+          track.artist.toLowerCase().includes(lowerKeyword)
+      )
+
+      // フィルターされたトラックを配列に変換して返す
+      return filteredTracks.toArray()
+    },
+    [db.tracks]
+  )
+
   return {
     isDatabaseExists,
     saveTrackInfo,
     isTrackInfoExists,
-    getTrackInfo
+    getTrackInfo,
+    searchTracksByKeyword
   } as const
 }
 

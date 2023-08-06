@@ -3,7 +3,7 @@ import { memo } from "react"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 
 type Props = {
-  title: string
+  title: React.ReactNode
   isOpen: boolean
   onClose: () => void
   withoutCloseButton?: boolean
