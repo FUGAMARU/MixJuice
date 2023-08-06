@@ -15,8 +15,6 @@ import {
   TEXT_COLOR_DEFAULT
 } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import { Track } from "@/types/Track"
-import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 type Props = {
   onSkipTo: (trackId: string) => Promise<void>
@@ -39,13 +37,6 @@ const Queue = ({ onSkipTo, onMoveToFront }: Props) => {
     },
     [onSkipTo]
   )
-
-  const objectFit = useCallback((data: Track) => {
-    if (!data.imgSrc) return "cover"
-    return isSquareApproximate(data.imgWidth!, data.imgHeight!) //  // imgSrcのundefinedチェックにより画像サイズがundefinedでないことが保証されている
-      ? "cover"
-      : "contain"
-  }, [])
 
   return (
     <Box
@@ -84,10 +75,9 @@ const Queue = ({ onSkipTo, onMoveToFront }: Props) => {
                   />
 
                   <ListItem
-                    imgSrc={data.imgSrc}
-                    objectFit={objectFit(data)}
+                    image={data.image}
                     title={data.title}
-                    subText={` / ${data.artist}`}
+                    caption={` / ${data.artist}`}
                     playable
                     onArtworkPlayButtonClick={() =>
                       handleArtworkPlayButtonClick(data.id)

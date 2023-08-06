@@ -12,7 +12,6 @@ import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 import { Track } from "@/types/Track"
-import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 let animationTimeoutId: NodeJS.Timer
 
@@ -77,23 +76,12 @@ const Player = ({
     return () => clearTimeout(animationTimeoutId)
   }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
 
-  const objectFit = useMemo(() => {
-    if (!currentTrackInfo || !currentTrackInfo.imgSrc) return "cover"
-    return isSquareApproximate(
-      currentTrackInfo.imgWidth!, // imgSrcのundefinedチェックによりimgWidthがundefinedでないことが保証されている
-      currentTrackInfo.imgHeight! // imgSrcのundefinedチェックによりimgHeightがundefinedでないことが保証されている
-    )
-      ? "cover"
-      : "contain"
-  }, [currentTrackInfo])
-
   return (
     <>
       <Flex w="100%" h="100%" pos="relative" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
-          src={currentTrackInfo?.imgSrc}
-          objectFit={objectFit}
+          image={currentTrackInfo?.image}
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
           onTogglePlay={onTogglePlay}
@@ -103,7 +91,7 @@ const Player = ({
         <TrackInfo
           title={currentTrackInfo?.title || "再生待機中…"}
           artist={currentTrackInfo?.artist || "再生待機中…"}
-          backgroundImage={currentTrackInfo?.imgSrc || ""}
+          backgroundImage={currentTrackInfo?.image?.src || ""}
           smaller={isSmallerThanTablet}
           calculatedWidth={containerWidth - containerHeight}
         />

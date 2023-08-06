@@ -7,8 +7,7 @@ export class WebDAVTrackDatabase extends Dexie {
   constructor() {
     super("WebDAVTrackDatabase")
     this.version(1).stores({
-      tracks:
-        "id, &path, provider, title, albumTitle, artist, imgSrc, imgHeight, imgWidth, duration"
+      tracks: "id, &path, provider, title, albumTitle, artist, image, duration"
     })
   }
 }

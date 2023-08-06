@@ -3,14 +3,14 @@ import { SetStateAction, Dispatch, useCallback, memo } from "react"
 import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
-import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
+import { ListItemDetail } from "@/types/ListItemDetail"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   title: string
   color: string
-  items: CheckboxListModalItem[]
+  items: ListItemDetail[]
   checkedValues: string[]
   dispath: Dispatch<SetStateAction<string[]>>
 }
@@ -51,9 +51,9 @@ const CheckboxListModal = ({
 
           <Box sx={{ flex: "1", overflow: "hidden" }}>
             <ListItem
-              imgSrc={item.imgSrc}
-              title={item.name}
-              subText={item.description}
+              image={item.image}
+              title={item.title}
+              caption={item.caption}
             />
           </Box>
         </ListItemContainer>

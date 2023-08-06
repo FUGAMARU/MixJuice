@@ -1,33 +1,27 @@
 import { Box, Center, Flex, Overlay, Text } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
-import { useState, useEffect, memo } from "react"
+import { useState, useEffect, memo, useMemo } from "react"
 import { IoPlayCircleSharp } from "react-icons/io5"
 import { MdOutlineLibraryMusic } from "react-icons/md"
 import useBreakPoints from "@/hooks/useBreakPoints"
-
-type Detail = {
-  imgSrc?: string | undefined
-  objectFit?: "contain" | "cover"
-  title: string
-  subText?: string
-}
+import { ListItemDetail } from "@/types/ListItemDetail"
+import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 type Props =
   | ({
       playable: true
       onArtworkPlayButtonClick: () => void
-    } & Detail)
+    } & Omit<ListItemDetail, "id">)
   | ({
       playable?: false
       onArtworkPlayButtonClick?: never
-    } & Detail)
+    } & Omit<ListItemDetail, "id">)
 
 const ListItem = ({
-  imgSrc,
-  objectFit = "contain",
+  image,
   title,
-  subText,
+  caption,
   playable = false,
   onArtworkPlayButtonClick
 }: Props) => {
@@ -50,10 +44,16 @@ const ListItem = ({
     }
   }, [isArtworkHovered])
 
+  /** 画像サイズが正方形に近ければ余白を消した状態(objectFit: cover)で表示する */
+  const objectFit = useMemo(() => {
+    if (!image) return "cover"
+    return isSquareApproximate(image.width, image.height) ? "cover" : "contain"
+  }, [image])
+
   return (
     <Flex align="center" gap="md" sx={{ overflow: "hidden" }}>
       <Box w="3.5rem" h="3.5rem" pos="relative" ref={artworkRef}>
-        {!imgSrc ? (
+        {!image ? (
           <Center h="100%" w="100%" bg="#eaeaea">
             <MdOutlineLibraryMusic size="1.3rem" color="#909090" />
           </Center>
@@ -62,7 +62,7 @@ const ListItem = ({
             // 高さ・幅はとりあえず指定しないといけないので適当に指定
             height={250}
             width={250}
-            src={imgSrc}
+            src={image.src}
             alt="list item image"
             style={{
               objectFit,
@@ -113,7 +113,7 @@ const ListItem = ({
             textOverflow: "ellipsis"
           }}
         >
-          {subText}
+          {caption}
         </Text>
       </Box>
     </Flex>

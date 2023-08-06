@@ -33,9 +33,11 @@ const useMIX = () => {
           title: item.track.name,
           albumTitle: item.track.album.name,
           artist: item.track.artists.map(artist => artist.name).join("・"),
-          imgSrc: item.track.album.images[0].url,
-          imgHeight: item.track.album.images[0].height,
-          imgWidth: item.track.album.images[0].width,
+          image: {
+            src: item.track.album.images[0].url,
+            height: item.track.album.images[0].height,
+            width: item.track.album.images[0].width
+          },
           duration: item.track.duration_ms
         }))
       }
@@ -68,7 +70,7 @@ const useMIX = () => {
           withCloseButton: true,
           title: "楽曲情報のキャッシュを作成中…",
           message:
-            "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる可能性があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1秒を要します。)",
+            "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1秒を要します。)",
           color: "webdav",
           loading: true,
           autoClose: false

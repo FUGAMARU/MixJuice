@@ -31,11 +31,11 @@ const useMediaSession = ({
       title: trackInfo.title,
       artist: trackInfo.artist,
       album: trackInfo.albumTitle,
-      artwork: trackInfo.imgSrc
+      artwork: trackInfo.image
         ? [
             {
-              src: trackInfo.imgSrc,
-              sizes: `${trackInfo.imgWidth}x${trackInfo.imgHeight}`
+              src: trackInfo.image.src,
+              sizes: `${trackInfo.image.width}x${trackInfo.image.height}`
             }
           ]
         : undefined

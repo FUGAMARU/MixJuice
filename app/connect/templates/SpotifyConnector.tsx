@@ -14,7 +14,7 @@ import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import styles from "@/styles/SpotifyConnector.module.css"
-import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
+import { ListItemDetail } from "@/types/ListItemDetail"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 
 type Props = {
@@ -54,7 +54,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     router.push(`https://accounts.spotify.com/authorize?${args}`)
   }, [clientId, redirectUri, router, getCode])
 
-  const [playlists, setPlaylists] = useState<CheckboxListModalItem[]>([])
+  const [playlists, setPlaylists] = useState<ListItemDetail[]>([])
   const handleClickSelectPlaylistButton = useCallback(async () => {
     try {
       setIsFetchingPlaylists(true)
@@ -62,9 +62,13 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       setPlaylists(
         playlists.map(item => ({
           id: item.id,
-          name: item.name,
-          description: item.description,
-          imgSrc: item.images[0].url
+          image: {
+            src: item.images[0].url,
+            height: item.images[0].height,
+            width: item.images[0].width
+          },
+          title: item.name,
+          caption: item.description
         }))
       )
       onPlaylistSelectorOpen()
@@ -101,7 +105,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
         const item = playlists.find(obj => obj.id === id)
         return {
           id: id,
-          title: item?.name || ""
+          title: item?.title || ""
         }
       })
 

@@ -1,3 +1,4 @@
+import { ImageInfo } from "./ImageInfo"
 import { Provider } from "./Provider"
 
 export type Track = {
@@ -6,9 +7,7 @@ export type Track = {
   title: string
   albumTitle: string
   artist: string
-  imgSrc: string | undefined
-  imgHeight: number | undefined
-  imgWidth: number | undefined
+  image: ImageInfo | undefined
   duration: number // 単位: ミリ秒
 }
 

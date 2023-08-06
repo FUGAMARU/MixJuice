@@ -1,135 +1,32 @@
 import { Box, Center, Flex, Input, Loader, Stack, Text } from "@mantine/core"
-import { memo, useCallback, useEffect, useRef, useState } from "react"
-import { useSetRecoilState } from "recoil"
+import { memo, useEffect, useRef } from "react"
 import ArrowTextButton from "../parts/ArrowTextButton"
 import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
 import ProviderHeading from "../parts/ProviderHeading"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useSpotifyApi from "@/hooks/useSpotifyApi"
-import useWebDAVTrackDatabase from "@/hooks/useWebDAVTrackDatabase"
-import { CheckboxListModalItem } from "@/types/CheckboxListModalItem"
-import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
+import useSearch from "@/hooks/useSearch"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
 }
 
-let timer: NodeJS.Timer
-
 const SearchModal = ({ isOpen, onClose }: Props) => {
   const { setRespVal, breakPoint } = useBreakPoints()
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
-    initialize: false
-  })
-  const { searchTracksByKeyword: searchWebDAVTracks } = useWebDAVTrackDatabase()
-  const [isSearching, setIsSearching] = useState(false)
-
-  const [isSpotifyAuthorized, setIsSpotifyAuthorized] = useState(false)
-  useEffect(() => {
-    setIsSpotifyAuthorized(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN) !== null
-    )
-  }, [])
-  const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState(0)
-  const [spotifySearchResult, setSpotifySearchResult] = useState<
-    SpotifyApiTrack["track"][]
-  >([])
-
-  const [isWebDAVAuthorized, setIsWebDAVAuthorized] = useState(false)
-  useEffect(() => {
-    setIsWebDAVAuthorized(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_IS_AUTHENTICATED) ===
-        "true"
-    )
-  }, [])
-  const [webDAVSearchResult, setWebDAVSearchResult] = useState<
-    CheckboxListModalItem[]
-  >([])
+  const {
+    keyword,
+    handleKeywordChange,
+    isSpotifyAuthorized,
+    isWebDAVAuthorized,
+    spotifySearchResult,
+    webDAVSearchResult,
+    showMoreSpotifySearchResult,
+    isSearching
+  } = useSearch()
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const [keyword, setKeyword] = useState("")
-  const handleKeywordChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const input = e.target.value
-      setKeyword(input)
-      setSpotifySearchNextOffset(0)
-
-      if (!input) {
-        setSpotifySearchResult([])
-        return
-      }
-
-      if (timer) clearTimeout(timer)
-
-      /** 検索窓に文字が入力されてから500ミリ秒後にAPIを叩く (入力された瞬間にAPIを叩くとリクエスト過多になる) */
-      timer = setTimeout(async () => {
-        setIsSearching(true)
-
-        const spotifySearchPromise = isSpotifyAuthorized
-          ? searchSpotifyTracks(input, spotifySearchNextOffset)
-          : Promise.resolve({ data: [], nextOffset: 0 })
-
-        const webDAVSearchPromise = isWebDAVAuthorized
-          ? searchWebDAVTracks(input)
-          : Promise.resolve([])
-
-        try {
-          const [spotifyRes, webDAVRes] = await Promise.all([
-            spotifySearchPromise,
-            webDAVSearchPromise
-          ])
-
-          setSpotifySearchResult(spotifyRes.data)
-          setSpotifySearchNextOffset(spotifyRes.nextOffset)
-
-          setWebDAVSearchResult(
-            webDAVRes.map(track => {
-              return {
-                id: track.id,
-                name: track.title,
-                description: track.artist,
-                imgSrc: track.imgSrc
-              }
-            })
-          )
-        } catch (e) {
-          setErrorModalInstance(prev => [...prev, e])
-        } finally {
-          setIsSearching(false)
-        }
-        //TODO: WebDAVの検索処理がここに入る
-      }, 500)
-    },
-    [
-      isSpotifyAuthorized,
-      searchSpotifyTracks,
-      setErrorModalInstance,
-      spotifySearchNextOffset,
-      isWebDAVAuthorized,
-      searchWebDAVTracks
-    ]
-  )
-
-  const showMoreSpotifySearchResult = useCallback(async () => {
-    try {
-      const res = await searchSpotifyTracks(keyword, spotifySearchNextOffset)
-      setSpotifySearchResult(prev => [...prev, ...res.data])
-      setSpotifySearchNextOffset(res.nextOffset)
-    } catch (e) {
-      setErrorModalInstance(prev => [...prev, e])
-    }
-  }, [
-    keyword,
-    searchSpotifyTracks,
-    setErrorModalInstance,
-    spotifySearchNextOffset
-  ])
 
   useEffect(() => {
     if (isOpen) inputRef.current?.focus()
@@ -174,9 +71,13 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                   <ListItemContainer key={track.id}>
                     <Box sx={{ flex: "1", overflow: "hidden" }}>
                       <ListItem
-                        imgSrc={track.album.images[0].url}
+                        image={{
+                          src: track.album.images[0].url,
+                          height: track.album.images[0].height,
+                          width: track.album.images[0].width
+                        }}
                         title={track.name}
-                        subText={`/ ${track.artists
+                        caption={`/ ${track.artists
                           .map(artist => artist.name)
                           .join(", ")}`}
                       />
@@ -219,9 +120,9 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                   <ListItemContainer key={track.id}>
                     <Box sx={{ flex: "1", overflow: "hidden" }}>
                       <ListItem
-                        imgSrc={track.imgSrc}
-                        title={track.name}
-                        subText={track.description}
+                        image={track.image}
+                        title={track.title}
+                        caption={track.caption}
                       />
                     </Box>
                   </ListItemContainer>
@@ -260,11 +161,11 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
           >
             <Box sx={{ flex: "1", overflow: "hidden" }}>
               <ListItem
-                imgSrc={undefined}
+                image={undefined}
                 title={
                   "テストテストテストテストテストテストテストテストテストテストテストテストテストテスト"
                 }
-                subText={
+                caption={
                   "説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明"
                 }
               />
@@ -282,11 +183,7 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
             }}
           >
             <Box sx={{ flex: "1", overflow: "hidden" }}>
-              <ListItem
-                imgSrc={undefined}
-                title={"テスト2"}
-                subText={"説明2"}
-              />
+              <ListItem image={undefined} title={"テスト2"} caption={"説明2"} />
             </Box>
           </Box>
         </Box>

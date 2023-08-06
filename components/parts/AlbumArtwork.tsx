@@ -1,7 +1,7 @@
 import { Box, Overlay, Group, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import Image from "next/image"
-import { useState, useEffect, memo, useCallback } from "react"
+import { useState, useEffect, memo, useCallback, useMemo } from "react"
 import {
   IoPauseCircleSharp,
   IoPlayBack,
@@ -11,11 +11,12 @@ import {
 import { MdOutlineLibraryMusic } from "react-icons/md"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { ImageInfo } from "@/types/ImageInfo"
+import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 type Props = {
   size: number
-  src: string | undefined
-  objectFit?: "contain" | "cover"
+  image: ImageInfo | undefined
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
   onTogglePlay: () => Promise<void>
@@ -24,8 +25,7 @@ type Props = {
 
 const AlbumArtwork = ({
   size,
-  src,
-  objectFit = "contain",
+  image,
   smaller,
   isPlaying,
   onTogglePlay,
@@ -54,6 +54,12 @@ const AlbumArtwork = ({
     await onNextTrack()
   }, [onNextTrack])
 
+  /** 画像サイズが正方形に近ければ余白を消した状態(objectFit: cover)で表示する */
+  const objectFit = useMemo(() => {
+    if (!image) return "cover"
+    return isSquareApproximate(image.width, image.height) ? "cover" : "contain"
+  }, [image])
+
   return (
     <Box
       h="100%"
@@ -66,7 +72,7 @@ const AlbumArtwork = ({
         zIndex: ZINDEX_NUMBERS.ALBUM_ARTWORK
       }}
     >
-      {!src ? (
+      {!image ? (
         <Center h="100%" w="100%" bg="#eaeaea">
           <MdOutlineLibraryMusic
             size={setRespVal("2rem", "2.5rem", "2.5rem")}
@@ -79,7 +85,7 @@ const AlbumArtwork = ({
             // 高さ・幅はとりあえず指定しないといけないので適当に指定
             height={1000}
             width={1000}
-            src={src}
+            src={image.src}
             alt="album artwork"
             style={{
               objectFit,

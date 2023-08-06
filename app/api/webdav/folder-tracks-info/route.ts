@@ -51,11 +51,15 @@ export const POST = async (req: NextRequest) => {
         title: common.title || "",
         albumTitle: common.album || "",
         artist: common.artists ? common.artists.join(", ") : "",
-        imgSrc,
-        imgHeight: 0, // クライアント側で情報を付与する
-        imgWidth: 0, // クライアント側で情報を付与する
+        image: imgSrc
+          ? {
+              src: imgSrc,
+              height: 0, // クライアント側で情報を付与する
+              width: 0 // クライアント側で情報を付与する
+            }
+          : undefined,
         duration: 0 // parseStreamから取得できるが、undefined許容のため、クライアント側にて確実に曲の長さを取得する
-      }
+      } as TrackWithPath
     })
   )
 
