@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
+import useWebDAVApi from "./useWebDAVApi"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -14,7 +15,10 @@ const useSearch = () => {
 
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const [isSearching, setIsSearching] = useState(false)
-  const { searchTracksByKeyword: searchWebDAVTracks } = useWebDAVTrackDatabase()
+  const { searchTracks: searchWebDAVTrackDatabase } = useWebDAVTrackDatabase()
+  const { searchTracks: searchWebDAVTracks } = useWebDAVApi({
+    initialize: false
+  })
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
     initialize: false
   })
@@ -37,9 +41,11 @@ const useSearch = () => {
         "true"
     )
   }, [])
+  const [webDAVTrackDatabaseSearchResult, setWebDAVTrackDatabaseSearchResult] =
+    useState<ListItemDetail[]>([]) // WebDAV (IndexedDBに楽曲情報をキャッシュ済み)
   const [webDAVSearchResult, setWebDAVSearchResult] = useState<
     ListItemDetail[]
-  >([])
+  >([]) // WebDAV (IndexedDBに楽曲情報のキャッシュ無し)
 
   const handleKeywordChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,18 +68,39 @@ const useSearch = () => {
           ? searchSpotifyTracks(input, spotifySearchNextOffset)
           : Promise.resolve({ data: [], nextOffset: 0 })
 
-        const webDAVSearchPromise = isWebDAVAuthorized
-          ? searchWebDAVTracks(input)
+        const webDAVTrackDatabaseSearchPromise = isWebDAVAuthorized
+          ? searchWebDAVTrackDatabase(input)
           : Promise.resolve([])
 
+        const folderPaths = localStorage.getItem(
+          LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
+        )
+        const webDAVTracksSearchPromise =
+          isWebDAVAuthorized && folderPaths
+            ? searchWebDAVTracks(JSON.parse(folderPaths), input)
+            : Promise.resolve([])
+
         try {
-          const [spotifyRes, webDAVRes] = await Promise.all([
-            spotifySearchPromise,
-            webDAVSearchPromise
-          ])
+          const [spotifyRes, webDAVTrackDatabaseRes, webDAVRes] =
+            await Promise.all([
+              spotifySearchPromise,
+              webDAVTrackDatabaseSearchPromise,
+              webDAVTracksSearchPromise
+            ])
 
           setSpotifySearchResult(spotifyRes.data)
           setSpotifySearchNextOffset(spotifyRes.nextOffset)
+
+          setWebDAVTrackDatabaseSearchResult(
+            webDAVTrackDatabaseRes.map(track => {
+              return {
+                id: track.id,
+                image: track.image,
+                title: track.title,
+                caption: track.artist
+              }
+            })
+          )
 
           setWebDAVSearchResult(
             webDAVRes.map(track => {
@@ -90,7 +117,6 @@ const useSearch = () => {
         } finally {
           setIsSearching(false)
         }
-        //TODO: WebDAV(未キャッシュ)の検索処理がここに入る
       }, 500)
     },
     [
@@ -99,6 +125,7 @@ const useSearch = () => {
       setErrorModalInstance,
       spotifySearchNextOffset,
       isWebDAVAuthorized,
+      searchWebDAVTrackDatabase,
       searchWebDAVTracks
     ]
   )
@@ -124,9 +151,10 @@ const useSearch = () => {
     isSpotifyAuthorized,
     isWebDAVAuthorized,
     spotifySearchResult,
-    webDAVSearchResult,
+    webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
-    isSearching
+    isSearching,
+    webDAVSearchResult
   } as const
 }
 

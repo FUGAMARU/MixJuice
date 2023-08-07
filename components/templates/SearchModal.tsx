@@ -14,16 +14,17 @@ type Props = {
 }
 
 const SearchModal = ({ isOpen, onClose }: Props) => {
-  const { setRespVal, breakPoint } = useBreakPoints()
+  const { breakPoint } = useBreakPoints()
   const {
     keyword,
     handleKeywordChange,
     isSpotifyAuthorized,
     isWebDAVAuthorized,
     spotifySearchResult,
-    webDAVSearchResult,
+    webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
-    isSearching
+    isSearching,
+    webDAVSearchResult
   } = useSearch()
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -103,90 +104,73 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
         )}
 
         {isWebDAVAuthorized && (
-          <Box>
-            <Flex mb="xs" align="center" gap="xs">
-              <ProviderHeading
-                providerIconSrc="/server-icon.png"
-                provider="webdav"
-              />
-              <Text fz="0.8rem" color="#adadad">
-                (キャッシュ済み)
-              </Text>
-            </Flex>
+          <>
+            <Box>
+              <Flex mb="xs" align="center" gap="xs">
+                <ProviderHeading
+                  providerIconSrc="/server-icon.png"
+                  provider="webdav"
+                />
+                <Text fz="0.8rem" color="#adadad">
+                  (キャッシュ済み)
+                </Text>
+              </Flex>
 
-            {webDAVSearchResult.length > 0 && keyword.length > 0 ? (
-              <>
-                {webDAVSearchResult.map(track => (
-                  <ListItemContainer key={track.id}>
-                    <Box sx={{ flex: "1", overflow: "hidden" }}>
-                      <ListItem
-                        image={track.image}
-                        title={track.title}
-                        caption={track.caption}
-                      />
-                    </Box>
-                  </ListItemContainer>
-                ))}
-              </>
-            ) : (
-              <Text ta="center" fz="0.8rem" color="#adadad">
-                検索結果はありません
-              </Text>
-            )}
-          </Box>
+              {webDAVTrackDatabaseSearchResult.length > 0 &&
+              keyword.length > 0 ? (
+                <>
+                  {webDAVTrackDatabaseSearchResult.map(track => (
+                    <ListItemContainer key={track.id}>
+                      <Box sx={{ flex: "1", overflow: "hidden" }}>
+                        <ListItem
+                          image={track.image}
+                          title={track.title}
+                          caption={track.caption}
+                        />
+                      </Box>
+                    </ListItemContainer>
+                  ))}
+                </>
+              ) : (
+                <Text ta="center" fz="0.8rem" color="#adadad">
+                  検索結果はありません
+                </Text>
+              )}
+            </Box>
+
+            <Box>
+              <Flex mb="xs" align="center" gap="xs">
+                <ProviderHeading
+                  providerIconSrc="/server-icon.png"
+                  provider="webdav"
+                />
+                <Text fz="0.8rem" color="#adadad">
+                  (未キャッシュ)
+                </Text>
+              </Flex>
+
+              {webDAVSearchResult.length > 0 && keyword.length > 0 ? (
+                <>
+                  {webDAVSearchResult.map(track => (
+                    <ListItemContainer key={track.id}>
+                      <Box sx={{ flex: "1", overflow: "hidden" }}>
+                        <ListItem
+                          image={track.image}
+                          title={track.title}
+                          caption={track.caption}
+                        />
+                      </Box>
+                    </ListItemContainer>
+                  ))}
+                </>
+              ) : (
+                <Text ta="center" fz="0.8rem" color="#adadad">
+                  検索結果はありません
+                </Text>
+              )}
+            </Box>
+          </>
         )}
-
-        <Box>
-          <Flex mb="xs" align="center" gap="xs">
-            <ProviderHeading
-              providerIconSrc="/server-icon.png"
-              provider="webdav"
-            />
-            <Text fz="0.8rem" color="#adadad">
-              (未キャッシュ)
-            </Text>
-          </Flex>
-
-          <Flex
-            px={setRespVal("xs", "md", "md")}
-            py="xs"
-            align="center"
-            gap="md"
-            sx={{
-              cursor: "pointer",
-              borderRadius: "10px",
-              transition: "background-color 0.3s ease-out",
-              ":hover": { backgroundColor: "#f5f5f5" }
-            }}
-          >
-            <Box sx={{ flex: "1", overflow: "hidden" }}>
-              <ListItem
-                image={undefined}
-                title={
-                  "テストテストテストテストテストテストテストテストテストテストテストテストテストテスト"
-                }
-                caption={
-                  "説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明説明"
-                }
-              />
-            </Box>
-          </Flex>
-
-          <Box
-            px={setRespVal("xs", "md", "md")}
-            py="xs"
-            sx={{
-              cursor: "pointer",
-              borderRadius: "10px",
-              transition: "background-color 0.3s ease-out",
-              ":hover": { backgroundColor: "#f5f5f5" }
-            }}
-          >
-            <Box sx={{ flex: "1", overflow: "hidden" }}>
-              <ListItem image={undefined} title={"テスト2"} caption={"説明2"} />
-            </Box>
-          </Box>
-        </Box>
       </Stack>
     </ModalDefault>
   )

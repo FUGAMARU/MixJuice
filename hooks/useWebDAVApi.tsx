@@ -1,10 +1,12 @@
 import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { TrackWithPath } from "@/types/Track"
+import { Track, TrackWithPath } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
-import { getAudioDurationFromUrl } from "@/utils/getAudioDurationFromUrl"
-import { getImageSizeFromBase64 } from "@/utils/getImageSizeFromBase64"
+import {
+  expandTrackInfo,
+  expandTrackInfoWithPath
+} from "@/utils/expandTrackInfo"
 
 export const webDAVApi = axios.create({
   baseURL: "/api/webdav",
@@ -124,24 +126,7 @@ const useWebDAVApi = ({ initialize }: Props) => {
         ).data
 
         const tracks: TrackWithPath[] = await Promise.all(
-          res.map(async track => {
-            const duration = await getAudioDurationFromUrl(track.id) // 結果はミリ秒で返ってくる
-            const imgSize = track.image
-              ? await getImageSizeFromBase64(track.image.src)
-              : undefined
-
-            return {
-              ...track,
-              duration,
-              image: track.image?.src
-                ? {
-                    src: track.image.src,
-                    height: imgSize!.height,
-                    width: imgSize!.width
-                  }
-                : undefined
-            }
-          })
+          res.map(async track => expandTrackInfoWithPath(track)) // TODO: await付ける必要あるかも？ 動作不安定になることがあったら修正
         )
 
         return tracks
@@ -153,11 +138,33 @@ const useWebDAVApi = ({ initialize }: Props) => {
     []
   )
 
+  const searchTracks = useCallback(
+    async (folderPaths: string[], keyword: string) => {
+      try {
+        const res = await webDAVApi.post<Track[]>("/search-tracks", {
+          folderPaths,
+          keyword
+        })
+
+        const tracks: Track[] = await Promise.all(
+          res.data.map(async track => expandTrackInfo(track)) // TODO: await付ける必要あるかも？ 動作不安定になることがあったら修正
+        )
+
+        return tracks
+      } catch (e) {
+        console.log("🟥ERROR: ", e)
+        throw Error("楽曲の検索に失敗しました")
+      }
+    },
+    []
+  )
+
   return {
     checkAuth,
     checkIsFolderExists,
     getFolderTracks,
-    getFolderTrackInfo
+    getFolderTrackInfo,
+    searchTracks
   } as const
 }
 
