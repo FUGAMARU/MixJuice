@@ -1,25 +1,6 @@
-import { Track, TrackWithPath } from "@/types/Track"
+import { Track } from "@/types/Track"
 
-export const expandTrackInfo = async (trackInfo: Track) => {
-  const duration = await getAudioDurationFromUrl(trackInfo.id) // 結果はミリ秒で返ってくる
-  const imgSize = trackInfo.image
-    ? await getImageSizeFromBase64(trackInfo.image.src)
-    : undefined
-
-  return {
-    ...trackInfo,
-    duration,
-    image: trackInfo.image?.src
-      ? {
-          src: trackInfo.image.src,
-          height: imgSize!.height,
-          width: imgSize!.width
-        }
-      : undefined
-  }
-}
-
-export const expandTrackInfoWithPath = async (trackInfo: TrackWithPath) => {
+export const expandTrackInfo = async <T extends Track>(trackInfo: T) => {
   const duration = await getAudioDurationFromUrl(trackInfo.id) // 結果はミリ秒で返ってくる
   const imgSize = trackInfo.image
     ? await getImageSizeFromBase64(trackInfo.image.src)

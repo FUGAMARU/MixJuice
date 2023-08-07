@@ -1,7 +1,8 @@
 import { ImageInfo } from "./ImageInfo"
 import { Provider } from "./Provider"
 
-export type Track = {
+/* expandTrackInfoにてジェネリクス型を使用している関係でtypeじゃなくてinterfaceで型定義 */
+export interface Track {
   id: string // SpotifyのトラックID、WebDAVのダウンロードリンク
   provider: Provider
   title: string
@@ -11,4 +12,6 @@ export type Track = {
   duration: number // 単位: ミリ秒
 }
 
-export type TrackWithPath = Track & { path: string } // WebDAVのIndexedDB関連でのみ扱う型 | path: オーディオファイルの絶対パス
+export interface TrackWithPath extends Track {
+  path: string
+} // WebDAVのIndexedDB関連でのみ扱う型 | path: オーディオファイルの絶対パス

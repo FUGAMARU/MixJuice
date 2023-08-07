@@ -3,10 +3,7 @@ import { useCallback, useEffect } from "react"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Track, TrackWithPath } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
-import {
-  expandTrackInfo,
-  expandTrackInfoWithPath
-} from "@/utils/expandTrackInfo"
+import { expandTrackInfo } from "@/utils/expandTrackInfo"
 
 export const webDAVApi = axios.create({
   baseURL: "/api/webdav",
@@ -126,7 +123,7 @@ const useWebDAVApi = ({ initialize }: Props) => {
         ).data
 
         const tracks: TrackWithPath[] = await Promise.all(
-          res.map(async track => expandTrackInfoWithPath(track)) // TODO: await付ける必要あるかも？ 動作不安定になることがあったら修正
+          res.map(async track => expandTrackInfo(track)) // TODO: await付ける必要あるかも？ 動作不安定になることがあったら修正
         )
 
         return tracks
