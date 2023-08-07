@@ -4,7 +4,6 @@ import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
 import useWebDAVApi from "./useWebDAVApi"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 import { Track, TrackWithPath } from "@/types/Track"
@@ -64,7 +63,7 @@ const useMIX = () => {
   )
 
   const getWebDAVFolderTracks = useCallback(
-    async (folderPaths: string[]) => {
+    async (folderPaths: NavbarItem[]) => {
       if (!(await isDatabaseExists())) {
         notifications.show({
           withCloseButton: true,
@@ -79,7 +78,7 @@ const useMIX = () => {
 
       const foldersTracks = await Promise.all(
         folderPaths.map(async folderPath => {
-          return await getFolderTracks(folderPath)
+          return await getFolderTracks(folderPath.id)
         })
       )
 
@@ -151,11 +150,7 @@ const useMIX = () => {
 
       const webdavTracksPromise =
         webDAVFolders.length > 0
-          ? getWebDAVFolderTracks(
-              JSON.parse(
-                localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS)! // MIXボタンが押下できている時点でnullではない
-              )
-            )
+          ? getWebDAVFolderTracks(webDAVFolders)
           : Promise.resolve([])
 
       const [spotifyPlaylistTracks, webdavFolderTracks] = await Promise.all([
