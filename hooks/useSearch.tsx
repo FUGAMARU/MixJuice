@@ -64,44 +64,58 @@ const useSearch = () => {
       timer = setTimeout(async () => {
         setIsSearching(true)
 
-        const spotifySearchPromise = isSpotifyAuthorized
-          ? searchSpotifyTracks(input, spotifySearchNextOffset)
-          : Promise.resolve({ data: [], nextOffset: 0 })
-
-        const webDAVTrackDatabaseSearchPromise = isWebDAVAuthorized
-          ? searchWebDAVTrackDatabase(input)
-          : Promise.resolve([])
-
-        const folderPaths = localStorage.getItem(
-          LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
-        )
-        const webDAVTracksSearchPromise =
-          isWebDAVAuthorized && folderPaths
-            ? searchWebDAVTracks(JSON.parse(folderPaths), input)
-            : Promise.resolve([])
-
-        try {
-          const [spotifyRes, webDAVTrackDatabaseRes, webDAVRes] =
-            await Promise.all([
-              spotifySearchPromise,
-              webDAVTrackDatabaseSearchPromise,
-              webDAVTracksSearchPromise
-            ])
-
+        const spotifyPromise = new Promise<{
+          data: []
+          nextOffset: number
+        } | void>(async resolve => {
+          if (!isSpotifyAuthorized) {
+            resolve({ data: [], nextOffset: 0 })
+          }
+          const spotifyRes = await searchSpotifyTracks(
+            input,
+            spotifySearchNextOffset
+          )
           setSpotifySearchResult(spotifyRes.data)
           setSpotifySearchNextOffset(spotifyRes.nextOffset)
+          resolve()
+        })
 
-          setWebDAVTrackDatabaseSearchResult(
-            webDAVTrackDatabaseRes.map(track => {
-              return {
-                id: track.id,
-                image: track.image,
-                title: track.title,
-                caption: track.artist
-              }
-            })
+        const webDAVTrackDatabasePromise = new Promise<[] | void>(
+          async resolve => {
+            if (!isWebDAVAuthorized) {
+              resolve([])
+            }
+
+            const webDAVTrackDatabaseRes = await searchWebDAVTrackDatabase(
+              input
+            )
+            setWebDAVTrackDatabaseSearchResult(
+              webDAVTrackDatabaseRes.map(track => {
+                return {
+                  id: track.id,
+                  image: track.image,
+                  title: track.title,
+                  caption: track.artist
+                }
+              })
+            )
+            resolve()
+          }
+        )
+
+        const webDAVPromise = new Promise<[] | void>(async resolve => {
+          const folderPaths = localStorage.getItem(
+            LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
           )
 
+          if (!isWebDAVAuthorized || !folderPaths) {
+            resolve([])
+          }
+
+          const webDAVRes = await searchWebDAVTracks(
+            JSON.parse(folderPaths!),
+            input
+          )
           setWebDAVSearchResult(
             webDAVRes.map(track => {
               return {
@@ -112,6 +126,15 @@ const useSearch = () => {
               }
             })
           )
+          resolve()
+        })
+
+        try {
+          await Promise.all([
+            spotifyPromise,
+            webDAVTrackDatabasePromise,
+            webDAVPromise
+          ])
         } catch (e) {
           setErrorModalInstance(prev => [...prev, e])
         } finally {
