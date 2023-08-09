@@ -13,6 +13,7 @@ import { loadingAtom } from "@/atoms/loadingAtom"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
+import useSpotifyToken from "@/hooks/useSpotifyToken"
 import useWebDAVApi from "@/hooks/useWebDAVApi"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
@@ -48,6 +49,7 @@ const Curtain = ({ children }: Props) => {
 
   useSpotifyApi({ initialize: true })
   useWebDAVApi({ initialize: true })
+  useSpotifyToken({ initialize: true })
 
   return (
     <>

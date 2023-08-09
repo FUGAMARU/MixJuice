@@ -9,7 +9,7 @@ import useSpotifyToken from "@/hooks/useSpotifyToken"
 const SpotifyApiCallbackPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { getAccessToken } = useSpotifyToken()
+  const { getAccessToken } = useSpotifyToken({ initialize: false })
   const hasApiCalledRef = useRef(false)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
 

@@ -6,7 +6,11 @@ import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Pkce } from "@/types/Pkce"
 
-const useSpotifyToken = () => {
+type Props = {
+  initialize: boolean
+}
+
+const useSpotifyToken = ({ initialize }: Props) => {
   /** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
 
   const [accessToken, setAccessToken] = useRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
@@ -155,11 +159,20 @@ const useSpotifyToken = () => {
         }
       })
 
-      const accessToken = res.data.access_token as string
+      const token = res.data.access_token as string
+      const expiresAt =
+        Math.floor(Date.now() / 1000) + Number(res.data.expires_in)
+
+      console.log("🟩DEBUG: アクセストークンの更新に成功しました")
+      console.log(
+        `新しく取得したアクセストークンの失効日時は ${new Date(
+          expiresAt * 1000
+        )} です`
+      )
 
       setAccessToken({
-        token: accessToken,
-        expiresAt: Math.floor(Date.now() / 1000) + Number(res.data.expires_in)
+        token,
+        expiresAt
       })
 
       localStorage.setItem(
@@ -167,7 +180,7 @@ const useSpotifyToken = () => {
         res.data.refresh_token
       )
 
-      return accessToken
+      return token
     } catch (e) {
       // 例外が発生した場合の起点なので(eには自分で設定したエラーメッセージは入っていないので)setErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
@@ -186,6 +199,27 @@ const useSpotifyToken = () => {
       accessToken.expiresAt - offset > Math.floor(Date.now() / 1000)
     )
   }, [accessToken])
+
+  /** 30分毎に自動でアクセストークンを更新する
+   * Spotify WebPlayback SDKは一定間隔でhttps://cpapi.spotify.com/v1/client/{id}/get_next?timestamp={timestamp}を叩いているようだが、
+   * WebPlayback SDKによるAPIアクセスはAxiosのインターセプターを経由しないため、アクセストークンの期限切れが感知できず、アクセストークンの更新処理も行うことができない。
+   * 仕方がないのでイベントドリブンでは無い方法でアクセストークンを自動的に定期的に更新する
+   */
+  useEffect(() => {
+    if (!initialize) return
+
+    const interval = setInterval(
+      async () => {
+        if (!accessToken) return
+        await refreshAccessToken()
+      },
+      1000 * 60 * 30 // 30分
+    )
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [refreshAccessToken, accessToken, initialize])
 
   return {
     redirectUri,

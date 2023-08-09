@@ -22,7 +22,9 @@ type Props = {
 
 const useSpotifyApi = ({ initialize }: Props) => {
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
-  const { refreshAccessToken, hasValidAccessTokenState } = useSpotifyToken()
+  const { refreshAccessToken, hasValidAccessTokenState } = useSpotifyToken({
+    initialize: false
+  })
 
   useEffect(() => {
     if (!initialize) return

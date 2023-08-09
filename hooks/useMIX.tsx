@@ -10,7 +10,7 @@ import { Track, TrackWithPath } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
 const useMIX = () => {
-  const { hasValidAccessTokenState } = useSpotifyToken()
+  const { hasValidAccessTokenState } = useSpotifyToken({ initialize: false })
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
   const { getFolderTracks, getFolderTrackInfo } = useWebDAVApi({
     initialize: false
