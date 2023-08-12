@@ -63,6 +63,7 @@ const FolderListModal = ({
       JSON.stringify(newFolderPaths)
     )
     setFolderPaths(newFolderPaths)
+    setInputFolderPath("")
   }, [folderPaths, inputFolderPath, setFolderPaths, checkIsFolderExists])
 
   const removeFolderPath = useCallback(
