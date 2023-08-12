@@ -11,7 +11,7 @@ import {
 import ModalDefault from "../parts/ModalDefault"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useWebDAVApi from "@/hooks/useWebDAVApi"
+import useWebDAVServer from "@/hooks/useWebDAVServer"
 
 type Props = {
   isOpen: boolean
@@ -30,7 +30,7 @@ const FolderListModal = ({
   const [inputFolderPath, setInputFolderPath] = useState("")
   const [isCheckingFolderExists, setIsCheckingFolderExists] = useState(false)
   const [isFolderNotExists, setIsFolderNotExists] = useState(false)
-  const { checkIsFolderExists } = useWebDAVApi({ initialize: false })
+  const { checkIsFolderExists } = useWebDAVServer()
 
   /** モーダルが開かれる時に以前追加したフォルダーの項目を復元する */
   useEffect(() => {
@@ -43,24 +43,26 @@ const FolderListModal = ({
   const handleAddFolderPathButtonClick = useCallback(async () => {
     if (inputFolderPath === undefined) return
 
-    try {
-      const folderPathWithoutSlash = inputFolderPath.replace(/\/$/, "") // inputFolderPathの末尾にスラッシュが入っていたら取り除く
-      setIsCheckingFolderExists(true)
-      await checkIsFolderExists(folderPathWithoutSlash)
-      setIsFolderNotExists(false)
+    setIsCheckingFolderExists(true)
+    const folderPathWithoutSlash = inputFolderPath.replace(/\/$/, "") // inputFolderPathの末尾にスラッシュが入っていたら取り除く
 
-      const newFolderPaths = [...folderPaths, folderPathWithoutSlash]
-
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS,
-        JSON.stringify(newFolderPaths)
-      )
-      setFolderPaths(newFolderPaths)
-    } catch (e) {
+    const isExists = await checkIsFolderExists(folderPathWithoutSlash)
+    if (!isExists) {
       setIsFolderNotExists(true)
-    } finally {
       setIsCheckingFolderExists(false)
+      return
     }
+
+    setIsFolderNotExists(false)
+    setIsCheckingFolderExists(false)
+
+    const newFolderPaths = [...folderPaths, folderPathWithoutSlash]
+
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS,
+      JSON.stringify(newFolderPaths)
+    )
+    setFolderPaths(newFolderPaths)
   }, [folderPaths, inputFolderPath, setFolderPaths, checkIsFolderExists])
 
   const removeFolderPath = useCallback(

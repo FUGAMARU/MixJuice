@@ -11,7 +11,7 @@ import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import FolderListModal from "@/components/templates/FolderListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useWebDAVApi from "@/hooks/useWebDAVApi"
+import useWebDAVServer from "@/hooks/useWebDAVServer"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import styles from "@/styles/WebDAVConnector.module.css"
 
@@ -25,7 +25,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { breakPoint } = useBreakPoints()
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { settingState } = useWebDAVSettingState()
-  const { checkAuth } = useWebDAVApi({ initialize: false })
+  const { checkAuth } = useWebDAVServer()
   const [isConnecting, setIsConnecting] = useState(false)
   const [
     isFolderPathInputModalOpen,

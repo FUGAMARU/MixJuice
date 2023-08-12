@@ -1,22 +1,28 @@
 import { notifications } from "@mantine/notifications"
 import { useCallback } from "react"
+import { useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
-import useWebDAVApi from "./useWebDAVApi"
+import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
+import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { NavbarItem } from "@/types/NavbarItem"
 import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 import { Track, TrackWithPath } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
 const useMIX = () => {
+  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { hasValidAccessTokenState } = useSpotifyToken({ initialize: false })
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
-  const { getFolderTracks, getFolderTrackInfo } = useWebDAVApi({
-    initialize: false
-  })
-  const { isDatabaseExists, saveTrackInfo, isTrackInfoExists, getTrackInfo } =
-    useWebDAVTrackDatabase()
+  const { getFolderTracks, getTrackInfo: getWebDAVServerTrackInfo } =
+    useWebDAVServer()
+  const {
+    isDatabaseExists,
+    saveTrackInfo,
+    isTrackInfoExists,
+    getTrackInfo: getIndexedDBTrackInfo
+  } = useWebDAVTrackDatabase()
 
   const getSpotifyPlaylistTracks = useCallback(
     async (playlists: NavbarItem[]) => {
@@ -64,80 +70,71 @@ const useMIX = () => {
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
-      if (!(await isDatabaseExists())) {
-        notifications.show({
-          withCloseButton: true,
-          title: "楽曲情報のキャッシュを作成中…",
-          message:
-            "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1秒を要します。)",
-          color: "webdav",
-          loading: true,
-          autoClose: false
-        })
-      }
+      try {
+        if (!(await isDatabaseExists())) {
+          notifications.show({
+            withCloseButton: true,
+            title: "楽曲情報のキャッシュを作成中…",
+            message:
+              "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
+            color: "webdav",
+            loading: true,
+            autoClose: false
+          })
+        }
 
-      const foldersTracks = await Promise.all(
-        folderPaths.map(async folderPath => {
-          return await getFolderTracks(folderPath.id)
-        })
-      )
-
-      /** どのフォルダーにも楽曲ファイルが存在しない場合 */
-      if (foldersTracks.every(folderTracks => folderTracks.length === 0))
-        return []
-
-      /** 以下、「Object.filename」はそのファイルのフルパスを表す */
-
-      const flattenFoldersTracks = foldersTracks.flat()
-
-      const whetherKnow = await Promise.all(
-        flattenFoldersTracks.map(async trackFile => {
-          return await isTrackInfoExists(trackFile.filename)
-        })
-      )
-
-      const unknownTracks = whetherKnow.filter(isKnown => !isKnown)
-      const newlyKnownTracksInfo =
-        unknownTracks.length > 0
-          ? await getFolderTrackInfo(
-              unknownTracks.map((_, idx) => flattenFoldersTracks[idx])
-            )
-          : []
-
-      if (newlyKnownTracksInfo.length > 0) {
-        await Promise.all(
-          newlyKnownTracksInfo.map(async trackInfo => {
-            await saveTrackInfo(trackInfo)
+        const foldersTracks = await Promise.all(
+          folderPaths.map(async folderPath => {
+            return await getFolderTracks(folderPath.id, "")
           })
         )
+
+        /** どのフォルダーにも楽曲ファイルが存在しない場合 */
+        if (foldersTracks.every(folderTracks => folderTracks.length === 0))
+          return []
+
+        /** 以下、「Object.filename」はそのファイルのフルパスを表す */
+
+        const flattenFoldersTracks = foldersTracks.flat()
+
+        /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
+        const tracksInformations: TrackWithPath[] = []
+
+        /** フォルダーに入っているトラックが多い状態で並列処理すると楽曲情報の取得が終了しないことがあるのでPromise.allは使わない */
+        for (const trackFile of flattenFoldersTracks) {
+          const isKnown = await isTrackInfoExists(trackFile.filename)
+
+          let trackInfo
+
+          if (isKnown) {
+            trackInfo = (await getIndexedDBTrackInfo(
+              trackFile.filename
+            )) as TrackWithPath
+          } else {
+            trackInfo = await getWebDAVServerTrackInfo(trackFile)
+            await saveTrackInfo(trackInfo)
+          }
+
+          tracksInformations.push(trackInfo)
+        }
+
+        return tracksInformations.map(
+          // pathプロパティーはこの先使わないので削除する
+          // eslint-disable-next-line unused-imports/no-unused-vars
+          ({ path, ...rest }) => rest
+        ) as Track[]
+      } catch (e) {
+        setErrorModalInstance(prev => [...prev, e])
       }
-
-      const knewTracks = whetherKnow.filter(isKnown => isKnown)
-      const knewTracksInfo: TrackWithPath[] =
-        knewTracks.length > 0
-          ? await Promise.all(
-              knewTracks.map(
-                async (_, idx) =>
-                  (await getTrackInfo(
-                    flattenFoldersTracks[idx].filename
-                  )) as TrackWithPath // isTrackInfoExistsによるチェックを挟んでいるのでundefinedでないことが保証されている
-              )
-            )
-          : []
-
-      return newlyKnownTracksInfo.concat(knewTracksInfo).map(
-        // pathプロパティーはこの先使わないので削除する
-        // eslint-disable-next-line unused-imports/no-unused-vars
-        ({ path, ...rest }) => rest
-      ) as Track[]
     },
     [
       isDatabaseExists,
-      getFolderTrackInfo,
-      getTrackInfo,
+      getIndexedDBTrackInfo,
       getFolderTracks,
       isTrackInfoExists,
-      saveTrackInfo
+      saveTrackInfo,
+      getWebDAVServerTrackInfo,
+      setErrorModalInstance
     ]
   )
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
-import useWebDAVApi from "./useWebDAVApi"
+import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -16,9 +16,7 @@ const useSearch = () => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const [isSearching, setIsSearching] = useState(false)
   const { searchTracks: searchWebDAVTrackDatabase } = useWebDAVTrackDatabase()
-  const { searchTracks: searchWebDAVTracks } = useWebDAVApi({
-    initialize: false
-  })
+  const { searchTracks: searchWebDAVTracks } = useWebDAVServer()
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
     initialize: false
   })
