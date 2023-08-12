@@ -11,6 +11,8 @@ import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
 import { Track, TrackWithPath } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
+let hasDisplayedNotification = false
+
 const useMIX = () => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { hasValidAccessTokenState } = useSpotifyToken({ initialize: false })
@@ -18,7 +20,6 @@ const useMIX = () => {
   const { getFolderTracks, getTrackInfo: getWebDAVServerTrackInfo } =
     useWebDAVServer()
   const {
-    isDatabaseExists,
     saveTrackInfo,
     isTrackInfoExists,
     getTrackInfo: getIndexedDBTrackInfo
@@ -71,18 +72,6 @@ const useMIX = () => {
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
       try {
-        if (!(await isDatabaseExists())) {
-          notifications.show({
-            withCloseButton: true,
-            title: "楽曲情報のキャッシュを作成中…",
-            message:
-              "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
-            color: "webdav",
-            loading: true,
-            autoClose: false
-          })
-        }
-
         const foldersTracks = await Promise.all(
           folderPaths.map(async folderPath => {
             return await getFolderTracks(folderPath.id, "")
@@ -111,12 +100,27 @@ const useMIX = () => {
               trackFile.filename
             )) as TrackWithPath
           } else {
+            if (!hasDisplayedNotification) {
+              notifications.show({
+                withCloseButton: true,
+                title: "楽曲情報のキャッシュを作成中…",
+                message:
+                  "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
+                color: "webdav",
+                loading: true,
+                autoClose: false
+              })
+              hasDisplayedNotification = true
+            }
+
             trackInfo = await getWebDAVServerTrackInfo(trackFile)
             await saveTrackInfo(trackInfo)
           }
 
           tracksInformations.push(trackInfo)
         }
+
+        hasDisplayedNotification = false
 
         return tracksInformations.map(
           // pathプロパティーはこの先使わないので削除する
@@ -128,7 +132,6 @@ const useMIX = () => {
       }
     },
     [
-      isDatabaseExists,
       getIndexedDBTrackInfo,
       getFolderTracks,
       isTrackInfoExists,
