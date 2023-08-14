@@ -1,3 +1,5 @@
+import { notifications } from "@mantine/notifications"
+import retry from "async-retry"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from "recoil"
@@ -114,6 +116,7 @@ const usePlayer = ({ initialize }: Props) => {
     switch (currentTrackInfo.provider) {
       case "spotify":
         await onSpotifyPause()
+        onPauseDummyAudio()
         break
       case "webdav":
         onWebDAVPause()
@@ -121,6 +124,7 @@ const usePlayer = ({ initialize }: Props) => {
     }
 
     setIsPlaying(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackInfo, onSpotifyPause, onWebDAVPause])
 
   /** 曲送りをする際に、再生中の曲のProviderと次の曲のProviderの組み合わせによって、現在の再生を一時停止させるかどうかが変わってくるので、このsmartPauseで吸収する */
@@ -161,23 +165,31 @@ const usePlayer = ({ initialize }: Props) => {
     switch (currentTrackInfo?.provider) {
       case "spotify":
         await onSpotifyResume()
+        onResumeDummyAudio()
         break
       case "webdav":
         await onWebDAVResume()
         break
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackInfo, onSpotifyResume, onWebDAVResume])
 
-  const { onPlayDummyAudio, onDummyAudioSeekTo, clearDummyAudio } =
-    useMediaSession({
-      initialize,
-      trackInfo: currentTrackInfo,
-      playbackPosition,
-      onPause,
-      onResume,
-      onNextTrack,
-      onSeekTo
-    })
+  const {
+    onPlayDummyAudio,
+    onDummyAudioSeekTo,
+    clearDummyAudio,
+    onPauseDummyAudio,
+    onResumeDummyAudio
+  } = useMediaSession({
+    initialize,
+    trackInfo: currentTrackInfo,
+    playbackPosition,
+    isPlaying,
+    onPause,
+    onResume,
+    onNextTrack,
+    onSeekTo
+  })
 
   const onTogglePlay = useCallback(async () => {
     setIsPlaying(prev => !prev)
@@ -193,19 +205,52 @@ const usePlayer = ({ initialize }: Props) => {
     async (track: Track) => {
       setIsPreparingPlayback(true)
 
-      switch (track.provider) {
-        case "spotify":
-          await onSpotifyPlay(track.id)
-          await onPlayDummyAudio(track.duration)
-          break
-        case "webdav":
-          await onWebDAVPlay(track.id)
-          break
-      }
+      try {
+        await retry(
+          async () => {
+            switch (track.provider) {
+              case "spotify":
+                await onSpotifyPlay(track.id)
+                await onPlayDummyAudio(track.duration)
+                break
+              case "webdav":
+                await onWebDAVPlay(track.id)
+                break
+            }
+          },
+          {
+            retries: 3,
+            factor: 1.5,
+            minTimeout: 500,
+            onRetry: () => console.log("🟧DEBUG: onPlay()をリトライします...")
+          }
+        )
 
-      setIsPlaying(true)
+        /** 再生開始が正常に完了した場合はここに処理が遷移する */
+        setIsPlaying(true)
+      } catch (e) {
+        /** エラーモーダルは表示せずにトースト表示のみ */
+        console.log("🟥ERROR: onPlay()実行時にエラーが発生しました")
+        console.log(`🟥ERROR: ${e}`)
+
+        onNextTrack()
+        notifications.show({
+          withCloseButton: true,
+          title: "再生をスキップしました",
+          message:
+            "再生開始処理に何度か失敗したため当該楽曲の再生をスキップしました",
+          color: "gray",
+          autoClose: 5000
+        })
+      }
     },
-    [onSpotifyPlay, onWebDAVPlay, onPlayDummyAudio, setIsPreparingPlayback]
+    [
+      onSpotifyPlay,
+      onWebDAVPlay,
+      onPlayDummyAudio,
+      setIsPreparingPlayback,
+      onNextTrack
+    ]
   )
 
   const onSkipTo = useCallback(

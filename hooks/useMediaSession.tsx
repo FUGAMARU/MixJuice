@@ -8,6 +8,7 @@ type Props = {
   initialize: boolean
   trackInfo: Track | undefined
   playbackPosition: number
+  isPlaying: boolean
   onPause: () => Promise<void>
   onResume: () => Promise<void>
   onNextTrack: () => void
@@ -18,6 +19,7 @@ const useMediaSession = ({
   initialize,
   trackInfo,
   playbackPosition,
+  isPlaying,
   onPause,
   onResume,
   onNextTrack,
@@ -42,29 +44,40 @@ const useMediaSession = ({
     })
   }, [])
 
-  const onPlayDummyAudio = useCallback(
-    async (duration: number) => {
-      try {
-        const audioBlob = await createSilentAudioBlob(duration)
-        console.log("🟩DEBUG: AudioBlobの生成が完了しました")
-        console.log(audioBlob)
+  const onPlayDummyAudio = useCallback(async (duration: number) => {
+    try {
+      const audioBlob = await createSilentAudioBlob(duration)
+      console.log("🟩DEBUG: AudioBlobの生成が完了しました")
+      console.log(audioBlob)
 
-        const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
-        dummyAudioRef.current = dummyAudio
-        await dummyAudio.play()
-        navigator.mediaSession.playbackState = "playing"
-      } catch (e) {
-        console.log("🟥ERROR: ", e)
-        setErrorModalInstance(prev => [
+      const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
+      dummyAudioRef.current = dummyAudio
+      await dummyAudio.play()
+      navigator.mediaSession.playbackState = "playing"
+    } catch (e) {
+      console.log("🟥ERROR: ", e)
+      /*setErrorModalInstance(prev => [
           ...prev,
           new Error(
             "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
           )
-        ])
-      }
-    },
-    [setErrorModalInstance]
-  )
+        ])*/ // TODO: 一旦消して様子見
+      throw e
+    }
+  }, [])
+
+  const onPauseDummyAudio = useCallback(() => {
+    dummyAudioRef.current?.pause()
+    navigator.mediaSession.playbackState = "paused"
+  }, [])
+
+  const onResumeDummyAudio = useCallback(() => {
+    dummyAudioRef.current?.play()
+    navigator.mediaSession.playbackState = "playing"
+
+    if (!trackInfo) return
+    setMediaMetadata(trackInfo)
+  }, [setMediaMetadata, trackInfo])
 
   const onDummyAudioSeekTo = useCallback(
     (position: number) => {
@@ -92,6 +105,15 @@ const useMediaSession = ({
       position
     })
   }, [playbackPosition, trackInfo])
+
+  useEffect(() => {
+    if (!isPlaying) {
+      navigator.mediaSession.playbackState = "paused"
+      return
+    }
+
+    navigator.mediaSession.playbackState = "playing"
+  }, [isPlaying])
 
   useEffect(() => {
     ;(async () => {
@@ -147,7 +169,9 @@ const useMediaSession = ({
   return {
     onPlayDummyAudio,
     onDummyAudioSeekTo,
-    clearDummyAudio
+    clearDummyAudio,
+    onPauseDummyAudio,
+    onResumeDummyAudio
   } as const
 }
 

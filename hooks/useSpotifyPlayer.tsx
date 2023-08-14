@@ -47,12 +47,13 @@ const useSpotifyPlayer = ({
       try {
         await startPlayback(deviceId.current, trackId)
       } catch (e) {
-        setErrorModalInstance(prev => [...prev, e])
+        //setErrorModalInstance(prev => [...prev, e])
+        throw e // TODO: 再生開始の自動リトライがうまく行っているようだったら整理
       } finally {
         setIsPreparingPlayback(false)
       }
     },
-    [startPlayback, setErrorModalInstance, setIsPreparingPlayback]
+    [startPlayback, setIsPreparingPlayback]
   )
 
   const onPause = useCallback(async () => {
