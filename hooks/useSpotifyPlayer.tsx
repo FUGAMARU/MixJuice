@@ -7,7 +7,7 @@ import {
   useRef,
   useState
 } from "react"
-import { useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
@@ -74,9 +74,15 @@ const useSpotifyPlayer = ({
     [player]
   )
 
-  const getLatestToken = useCallback(() => {
-    return accessToken!.token // useEffect内でundefinedチェックがあるのでこの関数が実行される時点でaccessTokenがundefinedになることはない
-  }, [accessToken])
+  /** useEffectの中でaccessToken.tokenを直接参照すると更新後の最新のトークンを取得できないので、最新のトークン取得用関数として外出しする */
+  const getLatestToken = useRecoilCallback(
+    ({ snapshot }) =>
+      async () => {
+        const latestToken = await snapshot.getPromise(spotifyAccessTokenAtom)
+        return latestToken!.token // useEffect内でundefinedチェックがあるのでこの関数が実行される時点でaccessTokenがundefinedになることはない
+      },
+    []
+  )
 
   /** Web Playback SDK */
   useEffect(() => {
@@ -91,7 +97,10 @@ const useSpotifyPlayer = ({
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "MixJuice",
-        getOAuthToken: setToken => setToken(getLatestToken()),
+        getOAuthToken: async setToken => {
+          const token = await getLatestToken()
+          setToken(token)
+        },
         volume: 0.5
       })
 
