@@ -38,6 +38,9 @@ const MainPage = () => {
     hasSomeTrack,
     onSkipTo,
     onMoveToFront,
+    onAddToFront,
+    checkCanMoveToFront,
+    checkCanAddToFront,
     spotifyPlaybackQuality,
     isPreparingPlayback
   } = usePlayer({
@@ -60,7 +63,13 @@ const MainPage = () => {
       </Box>
 
       <Box w="100%">
-        <Queue onSkipTo={onSkipTo} onMoveToFront={onMoveToFront} />
+        <Queue
+          onSkipTo={onSkipTo}
+          onMoveToFront={onMoveToFront}
+          onAddToFront={onAddToFront}
+          checkCanMoveToFront={checkCanMoveToFront}
+          checkCanAddToFront={checkCanAddToFront}
+        />
       </Box>
 
       <Box

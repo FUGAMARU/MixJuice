@@ -175,7 +175,12 @@ const LayoutNavbar = () => {
 
       if (tracks.length === 0) return // 読み込む曲が存在しないので以降の処理をする必要はない
 
-      setQueue(tracks)
+      setQueue(
+        tracks.map(track => ({
+          ...track,
+          playNext: false
+        }))
+      )
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
     } finally {

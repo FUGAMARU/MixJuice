@@ -33,6 +33,31 @@ const usePlayer = ({ initialize }: Props) => {
     [queue.length, currentTrackInfo]
   )
 
+  const lastPlayNextIdx = useMemo(
+    () =>
+      queue.reduceRight((acc, item, index) => {
+        if (item.playNext && acc === -1) {
+          return index
+        }
+        return acc
+      }, -1),
+    [queue]
+  )
+
+  const checkCanMoveToFront = useCallback((idx: number) => {
+    if (idx === 0) return false
+    return true
+  }, [])
+
+  const checkCanAddToFront = useCallback(
+    (idx: number, nextPlay: boolean) => {
+      if (idx === 0 || nextPlay) return false
+      if (lastPlayNextIdx === -1 || idx === lastPlayNextIdx + 1) return false
+      return true
+    },
+    [lastPlayNextIdx]
+  )
+
   /** キューの先頭にあるトラックを再生開始する */
   const pickUpTrack = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -286,14 +311,31 @@ const usePlayer = ({ initialize }: Props) => {
   const onMoveToFront = useCallback(
     (id: string) => {
       const idx = queue.findIndex(item => item.id === id)
-      if (idx === 0 || idx === -1) return
+      if (idx === -1) return
 
       const newQueue = [...queue]
       const [item] = newQueue.splice(idx, 1)
-      newQueue.unshift(item)
+      const newItem = { ...item, playNext: true }
+      newQueue.unshift(newItem)
       setQueue(newQueue)
     },
     [queue, setQueue]
+  )
+
+  const onAddToFront = useCallback(
+    (id: string) => {
+      const idx = queue.findIndex(item => item.id === id)
+      if (idx === -1 || lastPlayNextIdx === -1) return
+
+      const newQueue = [...queue]
+
+      const itemToMove = { ...newQueue[idx], playNext: true }
+      newQueue.splice(idx, 1)
+      newQueue.splice(lastPlayNextIdx + 1, 0, itemToMove)
+
+      setQueue(newQueue)
+    },
+    [queue, setQueue, lastPlayNextIdx]
   )
 
   /** 再生位置の更新 */
@@ -343,6 +385,9 @@ const usePlayer = ({ initialize }: Props) => {
     onNextTrack,
     onSkipTo,
     onMoveToFront,
+    onAddToFront,
+    checkCanMoveToFront,
+    checkCanAddToFront,
     onTogglePlay,
     hasSomeTrack,
     spotifyPlaybackQuality,

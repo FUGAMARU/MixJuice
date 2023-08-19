@@ -25,11 +25,10 @@ const useWebDAVServer = () => {
     async (address: string, username: string, password: string) => {
       try {
         // この時点ではまだLocalStorageに認証情報がないので認証情報は引数として受け取る
-        const quota = await createClient(address, {
+        await createClient(address, {
           username,
           password
         }).getQuota()
-        console.log(quota)
       } catch (e) {
         console.log(`🟥ERROR: ${e}`)
         throw new Error("WebDAVサーバに接続・認証できませんでした")

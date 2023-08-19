@@ -1,7 +1,7 @@
 import { Box, Flex, Text, Tooltip } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { memo, useCallback, useMemo } from "react"
-import { LuListStart } from "react-icons/lu"
+import { LuListPlus, LuListStart } from "react-icons/lu"
 import { FixedSizeList } from "react-window"
 import { useRecoilValue } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
@@ -19,9 +19,18 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 type Props = {
   onSkipTo: (trackId: string) => Promise<void>
   onMoveToFront: (trackId: string) => void
+  onAddToFront: (trackId: string) => void
+  checkCanMoveToFront: (idx: number) => boolean
+  checkCanAddToFront: (idx: number, nextPlay: boolean) => boolean
 }
 
-const Queue = ({ onSkipTo, onMoveToFront }: Props) => {
+const Queue = ({
+  onSkipTo,
+  onMoveToFront,
+  onAddToFront,
+  checkCanMoveToFront,
+  checkCanAddToFront
+}: Props) => {
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const playerHeight = useRecoilValue(playerHeightAtom)
@@ -85,16 +94,45 @@ const Queue = ({ onSkipTo, onMoveToFront }: Props) => {
                   />
                 </Flex>
 
-                <Tooltip label="キューの先頭に移動">
-                  <Box>
-                    <LuListStart
-                      size="1.3rem"
-                      color={TEXT_COLOR_DEFAULT}
-                      style={{ flexShrink: 0, cursor: "pointer" }}
-                      onClick={() => onMoveToFront(data.id)}
-                    />
+                <Flex gap="md">
+                  <Box
+                    sx={{
+                      visibility: checkCanMoveToFront(index)
+                        ? "visible"
+                        : "hidden"
+                    }}
+                  >
+                    <Tooltip label="キューの先頭に移動">
+                      <Box>
+                        <LuListStart
+                          size="1.3rem"
+                          color={TEXT_COLOR_DEFAULT}
+                          style={{ flexShrink: 0, cursor: "pointer" }}
+                          onClick={() => onMoveToFront(data.id)}
+                        />
+                      </Box>
+                    </Tooltip>
                   </Box>
-                </Tooltip>
+
+                  <Box
+                    sx={{
+                      visibility: checkCanAddToFront(index, data.playNext)
+                        ? "visible"
+                        : "hidden"
+                    }}
+                  >
+                    <Tooltip label="キューの先頭に追加">
+                      <Box>
+                        <LuListPlus
+                          size="1.3rem"
+                          color={TEXT_COLOR_DEFAULT}
+                          style={{ flexShrink: 0, cursor: "pointer" }}
+                          onClick={() => onAddToFront(data.id)}
+                        />
+                      </Box>
+                    </Tooltip>
+                  </Box>
+                </Flex>
               </Flex>
             </div>
           )

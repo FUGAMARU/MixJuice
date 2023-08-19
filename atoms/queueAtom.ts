@@ -1,7 +1,7 @@
 import { atom } from "recoil"
-import { Track } from "@/types/Track"
+import { Queue } from "@/types/Queue"
 
-export const queueAtom = atom<Track[]>({
+export const queueAtom = atom<Queue[]>({
   key: "queueAtom",
   default: []
 })
