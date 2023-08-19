@@ -74,6 +74,10 @@ const useSpotifyPlayer = ({
     [player]
   )
 
+  const getLatestToken = useCallback(() => {
+    return accessToken!.token // useEffect内でundefinedチェックがあるのでこの関数が実行される時点でaccessTokenがundefinedになることはない
+  }, [accessToken])
+
   /** Web Playback SDK */
   useEffect(() => {
     if (accessToken === undefined || player || !initialize) return
@@ -87,9 +91,7 @@ const useSpotifyPlayer = ({
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "MixJuice",
-        getOAuthToken: callback => {
-          callback(accessToken.token)
-        },
+        getOAuthToken: setToken => setToken(getLatestToken()),
         volume: 0.5
       })
 
@@ -133,7 +135,7 @@ const useSpotifyPlayer = ({
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken, initialize, onTrackFinish, player])
+  }, [accessToken, initialize, onTrackFinish, player, getLatestToken])
 
   return {
     playbackPosition,
