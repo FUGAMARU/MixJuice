@@ -5,8 +5,8 @@ import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { ListItemDetail } from "@/types/ListItemDetail"
-import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
+import { Provider } from "@/types/Provider"
+import { Track } from "@/types/Track"
 
 let timer: NodeJS.Timer
 
@@ -28,9 +28,7 @@ const useSearch = () => {
     )
   }, [])
   const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState(0)
-  const [spotifySearchResult, setSpotifySearchResult] = useState<
-    SpotifyApiTrack["track"][]
-  >([])
+  const [spotifySearchResult, setSpotifySearchResult] = useState<Track[]>([])
 
   const [isWebDAVAuthorized, setIsWebDAVAuthorized] = useState(false)
   useEffect(() => {
@@ -40,10 +38,8 @@ const useSearch = () => {
     )
   }, [])
   const [webDAVTrackDatabaseSearchResult, setWebDAVTrackDatabaseSearchResult] =
-    useState<ListItemDetail[]>([]) // WebDAV (IndexedDBに楽曲情報をキャッシュ済み)
-  const [webDAVSearchResult, setWebDAVSearchResult] = useState<
-    ListItemDetail[]
-  >([]) // WebDAV (IndexedDBに楽曲情報のキャッシュ無し)
+    useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報をキャッシュ済み)
+  const [webDAVSearchResult, setWebDAVSearchResult] = useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報のキャッシュ無し)
 
   const handleKeywordChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +69,25 @@ const useSearch = () => {
             input,
             spotifySearchNextOffset
           )
-          setSpotifySearchResult(spotifyRes.data)
+          setSpotifySearchResult(
+            spotifyRes.data.map(searchResultItem => {
+              return {
+                id: searchResultItem.id,
+                provider: "spotify",
+                title: searchResultItem.name,
+                albumTitle: searchResultItem.album.name,
+                artist: searchResultItem.artists
+                  .map(artist => artist.name)
+                  .join(", "),
+                image: {
+                  src: searchResultItem.album.images[0].url,
+                  height: searchResultItem.album.images[0].height,
+                  width: searchResultItem.album.images[0].width
+                },
+                duration: searchResultItem.duration_ms
+              }
+            })
+          )
           setSpotifySearchNextOffset(spotifyRes.nextOffset)
           resolve()
         })
@@ -88,14 +102,10 @@ const useSearch = () => {
               input
             )
             setWebDAVTrackDatabaseSearchResult(
-              webDAVTrackDatabaseRes.map(track => {
-                return {
-                  id: track.id,
-                  image: track.image,
-                  title: track.title,
-                  caption: track.artist
-                }
-              })
+              webDAVTrackDatabaseRes.map(
+                // eslint-disable-next-line unused-imports/no-unused-vars
+                ({ path, ...rest }) => rest
+              ) as Track[]
             )
             resolve()
           }
@@ -114,16 +124,7 @@ const useSearch = () => {
             JSON.parse(folderPaths!),
             input
           )
-          setWebDAVSearchResult(
-            webDAVRes.map(track => {
-              return {
-                id: track.id,
-                image: track.image,
-                title: track.title,
-                caption: track.artist
-              }
-            })
-          )
+          setWebDAVSearchResult(webDAVRes)
           resolve()
         })
 
@@ -154,7 +155,24 @@ const useSearch = () => {
   const showMoreSpotifySearchResult = useCallback(async () => {
     try {
       const res = await searchSpotifyTracks(keyword, spotifySearchNextOffset)
-      setSpotifySearchResult(prev => [...prev, ...res.data])
+      const convertedRes = res.data.map(searchResultItem => {
+        return {
+          id: searchResultItem.id,
+          provider: "spotify" as Provider,
+          title: searchResultItem.name,
+          albumTitle: searchResultItem.album.name,
+          artist: searchResultItem.artists
+            .map(artist => artist.name)
+            .join("・"),
+          image: {
+            src: searchResultItem.album.images[0].url,
+            height: searchResultItem.album.images[0].height,
+            width: searchResultItem.album.images[0].width
+          },
+          duration: searchResultItem.duration_ms
+        }
+      })
+      setSpotifySearchResult(prev => [...prev, ...convertedRes])
       setSpotifySearchNextOffset(res.nextOffset)
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
@@ -166,6 +184,13 @@ const useSearch = () => {
     spotifySearchNextOffset
   ])
 
+  const resetAll = useCallback(() => {
+    setKeyword("")
+    setSpotifySearchResult([])
+    setWebDAVTrackDatabaseSearchResult([])
+    setWebDAVSearchResult([])
+  }, [])
+
   return {
     keyword,
     handleKeywordChange,
@@ -175,7 +200,8 @@ const useSearch = () => {
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
     isSearching,
-    webDAVSearchResult
+    webDAVSearchResult,
+    resetAll
   } as const
 }
 

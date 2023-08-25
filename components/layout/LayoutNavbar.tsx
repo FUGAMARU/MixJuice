@@ -11,18 +11,18 @@ import {
   Box,
   Kbd
 } from "@mantine/core"
-import { useDisclosure, useHotkeys } from "@mantine/hooks"
+import { useHotkeys } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
-import SearchModal from "../templates/SearchModal"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
+import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
@@ -48,13 +48,10 @@ const LayoutNavbar = () => {
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { mixAllTracks } = useMIX()
-  const [
-    isSearchModalOpen,
-    { open: onSearchModalOpen, close: onSearchModalClose }
-  ] = useDisclosure(false)
+  const setIsSearchModalOpen = useSetRecoilState(searchModalAtom)
   useHotkeys([
-    ["Slash", () => onSearchModalOpen()],
-    ["mod+K", () => onSearchModalOpen()]
+    ["Slash", () => setIsSearchModalOpen(true)],
+    ["mod+K", () => setIsSearchModalOpen(true)]
   ])
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
@@ -216,7 +213,7 @@ const LayoutNavbar = () => {
             icon={<BiSearchAlt size="1.3rem" style={{ lineHeight: 0 }} />}
             rightSection={<Kbd lh={1}>/</Kbd>}
             placeholder="楽曲を検索"
-            onClick={onSearchModalOpen}
+            onClick={() => setIsSearchModalOpen(true)}
           />
 
           <Button
@@ -336,8 +333,6 @@ const LayoutNavbar = () => {
           <Text weight={600}>MixJuiceについて</Text>
         </Flex>
       </Navbar.Section>
-
-      <SearchModal isOpen={isSearchModalOpen} onClose={onSearchModalClose} />
     </Navbar>
   )
 }

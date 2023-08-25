@@ -278,6 +278,15 @@ const usePlayer = ({ initialize }: Props) => {
     ]
   )
 
+  const onSearchModalPlay = useCallback(
+    async (track: Track) => {
+      setCurrentTrackInfo(track)
+      await smartPause(track.provider)
+      await onPlay(track)
+    },
+    [onPlay, smartPause]
+  )
+
   const onSkipTo = useCallback(
     async (id: string) => {
       if (queue.some(item => item === undefined)) {
@@ -391,7 +400,8 @@ const usePlayer = ({ initialize }: Props) => {
     onTogglePlay,
     hasSomeTrack,
     spotifyPlaybackQuality,
-    isPreparingPlayback
+    isPreparingPlayback,
+    onSearchModalPlay
   } as const
 }
 

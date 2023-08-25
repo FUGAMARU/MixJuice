@@ -3,10 +3,12 @@
 import { Box } from "@mantine/core"
 import { useRouter } from "next/navigation"
 import { memo, useEffect } from "react"
-import { useSetRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import Player from "@/app/(main)/templates/Player"
 import Queue from "@/app/(main)/templates/Queue"
+import { searchModalAtom } from "@/atoms/searchModalAtom"
+import SearchModal from "@/components/templates/SearchModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
@@ -15,6 +17,8 @@ const MainPage = () => {
   const router = useRouter()
   const { breakPoint, setRespVal } = useBreakPoints()
   const setIsLoading = useSetRecoilState(loadingAtom)
+  const [isSearchModalOpen, setIsSearchModalOpen] =
+    useRecoilState(searchModalAtom)
 
   useEffect(() => {
     const selectedSpotifyPlaylists = localStorage.getItem(
@@ -42,7 +46,8 @@ const MainPage = () => {
     checkCanMoveToFront,
     checkCanAddToFront,
     spotifyPlaybackQuality,
-    isPreparingPlayback
+    isPreparingPlayback,
+    onSearchModalPlay
   } = usePlayer({
     initialize: true
   })
@@ -86,6 +91,12 @@ const MainPage = () => {
       >
         {breakPoint}
       </Box>
+
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onSearchModalPlay={onSearchModalPlay}
+      />
     </>
   )
 }

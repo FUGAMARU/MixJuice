@@ -1,5 +1,5 @@
 import { Box, Center, Flex, Input, Loader, Stack, Text } from "@mantine/core"
-import { memo, useEffect, useRef } from "react"
+import { memo, useCallback, useEffect, useRef } from "react"
 import ArrowTextButton from "../parts/ArrowTextButton"
 import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
@@ -7,13 +7,15 @@ import ModalDefault from "../parts/ModalDefault"
 import ProviderHeading from "../parts/ProviderHeading"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSearch from "@/hooks/useSearch"
+import { Track } from "@/types/Track"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
+  onSearchModalPlay: (track: Track) => Promise<void>
 }
 
-const SearchModal = ({ isOpen, onClose }: Props) => {
+const SearchModal = ({ isOpen, onClose, onSearchModalPlay }: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
     keyword,
@@ -24,7 +26,8 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
     isSearching,
-    webDAVSearchResult
+    webDAVSearchResult,
+    resetAll
   } = useSearch()
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -32,6 +35,15 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
   useEffect(() => {
     if (isOpen) inputRef.current?.focus()
   }, [isOpen])
+
+  const handleArtworkPlayButtonClick = useCallback(
+    async (track: Track) => {
+      await onSearchModalPlay(track)
+      onClose()
+      resetAll()
+    },
+    [onClose, onSearchModalPlay, resetAll]
+  )
 
   return (
     <ModalDefault
@@ -72,15 +84,21 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                   <ListItemContainer key={track.id}>
                     <Box sx={{ flex: "1", overflow: "hidden" }}>
                       <ListItem
-                        image={{
-                          src: track.album.images[0].url,
-                          height: track.album.images[0].height,
-                          width: track.album.images[0].width
-                        }}
-                        title={track.name}
-                        caption={`/ ${track.artists
-                          .map(artist => artist.name)
-                          .join(", ")}`}
+                        image={
+                          track.image
+                            ? {
+                                src: track.image.src,
+                                height: track.image.height,
+                                width: track.image.width
+                              }
+                            : undefined
+                        }
+                        title={track.title}
+                        caption={`/ ${track.artist}`}
+                        playable
+                        onArtworkPlayButtonClick={() =>
+                          handleArtworkPlayButtonClick(track)
+                        }
                       />
                     </Box>
                   </ListItemContainer>
@@ -125,7 +143,11 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                         <ListItem
                           image={track.image}
                           title={track.title}
-                          caption={track.caption}
+                          caption={track.artist}
+                          playable
+                          onArtworkPlayButtonClick={() =>
+                            handleArtworkPlayButtonClick(track)
+                          }
                         />
                       </Box>
                     </ListItemContainer>
@@ -157,7 +179,11 @@ const SearchModal = ({ isOpen, onClose }: Props) => {
                         <ListItem
                           image={track.image}
                           title={track.title}
-                          caption={track.caption}
+                          caption={track.artist}
+                          playable
+                          onArtworkPlayButtonClick={() =>
+                            handleArtworkPlayButtonClick(track)
+                          }
                         />
                       </Box>
                     </ListItemContainer>
