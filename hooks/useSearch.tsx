@@ -5,8 +5,7 @@ import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { Provider } from "@/types/Provider"
-import { Track } from "@/types/Track"
+import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
 let timer: NodeJS.Timer
 
@@ -27,7 +26,9 @@ const useSearch = () => {
       localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN) !== null
     )
   }, [])
-  const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState(0)
+  const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState<
+    number | undefined
+  >(0)
   const [spotifySearchResult, setSpotifySearchResult] = useState<Track[]>([])
 
   const [isWebDAVAuthorized, setIsWebDAVAuthorized] = useState(false)
@@ -67,26 +68,12 @@ const useSearch = () => {
           }
           const spotifyRes = await searchSpotifyTracks(
             input,
-            spotifySearchNextOffset
+            spotifySearchNextOffset as number // キーワードが変更される度にSpotifySearchNextOffsetは0にリセットされるのでundefinedにはならない
           )
           setSpotifySearchResult(
-            spotifyRes.data.map(searchResultItem => {
-              return {
-                id: searchResultItem.id,
-                provider: "spotify",
-                title: searchResultItem.name,
-                albumTitle: searchResultItem.album.name,
-                artist: searchResultItem.artists
-                  .map(artist => artist.name)
-                  .join(", "),
-                image: {
-                  src: searchResultItem.album.images[0].url,
-                  height: searchResultItem.album.images[0].height,
-                  width: searchResultItem.album.images[0].width
-                },
-                duration: searchResultItem.duration_ms
-              }
-            })
+            spotifyRes.data.map(searchResultItem =>
+              formatFromSpotifyTrack(searchResultItem)
+            )
           )
           setSpotifySearchNextOffset(spotifyRes.nextOffset)
           resolve()
@@ -154,24 +141,12 @@ const useSearch = () => {
 
   const showMoreSpotifySearchResult = useCallback(async () => {
     try {
+      if (spotifySearchNextOffset === undefined) return
+
       const res = await searchSpotifyTracks(keyword, spotifySearchNextOffset)
-      const convertedRes = res.data.map(searchResultItem => {
-        return {
-          id: searchResultItem.id,
-          provider: "spotify" as Provider,
-          title: searchResultItem.name,
-          albumTitle: searchResultItem.album.name,
-          artist: searchResultItem.artists
-            .map(artist => artist.name)
-            .join("・"),
-          image: {
-            src: searchResultItem.album.images[0].url,
-            height: searchResultItem.album.images[0].height,
-            width: searchResultItem.album.images[0].width
-          },
-          duration: searchResultItem.duration_ms
-        }
-      })
+      const convertedRes = res.data.map(searchResultItem =>
+        formatFromSpotifyTrack(searchResultItem)
+      )
       setSpotifySearchResult(prev => [...prev, ...convertedRes])
       setSpotifySearchNextOffset(res.nextOffset)
     } catch (e) {
@@ -186,6 +161,7 @@ const useSearch = () => {
 
   const resetAll = useCallback(() => {
     setKeyword("")
+    setSpotifySearchNextOffset(0)
     setSpotifySearchResult([])
     setWebDAVTrackDatabaseSearchResult([])
     setWebDAVSearchResult([])

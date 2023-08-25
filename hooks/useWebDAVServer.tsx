@@ -105,7 +105,7 @@ const useWebDAVServer = () => {
         provider: "webdav",
         title: common.title || "",
         albumTitle: common.album || "",
-        artist: common.artists ? common.artists.join(", ") : "",
+        artist: common.artists ? common.artists.join("・") : "",
         image: imgSrc
           ? {
               src: imgSrc,

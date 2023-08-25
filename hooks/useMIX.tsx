@@ -7,8 +7,7 @@ import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { NavbarItem } from "@/types/NavbarItem"
-import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
-import { Track, TrackWithPath } from "@/types/Track"
+import { Track, TrackWithPath, formatFromSpotifyTrack } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
 let hasDisplayedNotification = false
@@ -33,19 +32,7 @@ const useMIX = () => {
         playlistId: string
       ): Promise<Track[]> => {
         const res = await getPlaylistTracks(playlistId)
-        return res.map((item: SpotifyApiTrack) => ({
-          id: item.track.id,
-          provider: "spotify",
-          title: item.track.name,
-          albumTitle: item.track.album.name,
-          artist: item.track.artists.map(artist => artist.name).join("・"),
-          image: {
-            src: item.track.album.images[0].url,
-            height: item.track.album.images[0].height,
-            width: item.track.album.images[0].width
-          },
-          duration: item.track.duration_ms
-        }))
+        return res.map(item => formatFromSpotifyTrack(item))
       }
 
       const selectedPlaylists = playlists.filter(p => p.checked === true)

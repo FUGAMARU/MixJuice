@@ -3,7 +3,11 @@ import { useCallback, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import useSpotifyToken from "./useSpotifyToken"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
-import { SpotifyApiTrack } from "@/types/SpotifyApiTrack"
+import {
+  SpotifyApiPlaylistTracksResponse,
+  SpotifyApiTrackSearchResponse,
+  SpotifyTrack
+} from "@/types/SpotifyApiResponse"
 import { extractOffsetValue } from "@/utils/extractOffsetValue"
 
 export const spotifyApi = axios.create({
@@ -121,23 +125,28 @@ const useSpotifyApi = ({ initialize }: Props) => {
    * https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
    */
   const getPlaylistTracks = useCallback(async (playlistId: string) => {
-    let tracks: SpotifyApiTrack[] = []
+    let tracks: SpotifyTrack[] = []
 
     try {
       while (true) {
-        const res = await spotifyApi.get(`/playlists/${playlistId}/tracks`, {
-          params: {
-            limit: 50,
-            offset: tracks.length,
-            market: "JP",
-            fields:
-              "next, items(track(album(name,images),artists(name),name,id,uri,duration_ms))" // nextの指定を忘れると無限ループになってしまう
+        const res = await spotifyApi.get<SpotifyApiPlaylistTracksResponse>(
+          `/playlists/${playlistId}/tracks`,
+          {
+            params: {
+              limit: 50,
+              offset: tracks.length,
+              market: "JP",
+              fields:
+                "next, items(track(album(name,images),artists(name),name,id,uri,duration_ms))" // nextの指定を忘れると無限ループになってしまう
+            }
           }
-        })
-
-        const obj: SpotifyApiTrack[] = res.data.items.filter(
-          (item: SpotifyApiTrack) => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
         )
+
+        const obj = res.data.items
+          .filter(
+            item => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
+          )
+          .map(item => item.track)
 
         tracks = [...tracks, ...obj]
 
@@ -185,19 +194,24 @@ const useSpotifyApi = ({ initialize }: Props) => {
    */
   const searchTracks = useCallback(async (query: string, offset: number) => {
     try {
-      const res = await spotifyApi.get("/search", {
-        params: {
-          q: query,
-          type: "track",
-          market: "JP",
-          limit: 5,
-          offset
+      const res = await spotifyApi.get<SpotifyApiTrackSearchResponse>(
+        "/search",
+        {
+          params: {
+            q: query,
+            type: "track",
+            market: "JP",
+            limit: 5,
+            offset
+          }
         }
-      })
+      )
 
       return {
-        data: res.data.tracks.items as SpotifyApiTrack["track"][],
-        nextOffset: extractOffsetValue(res.data.tracks.next)
+        data: res.data.tracks.items,
+        nextOffset: res.data.tracks.next
+          ? extractOffsetValue(res.data.tracks.next)
+          : undefined
       }
     } catch (e) {
       // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
