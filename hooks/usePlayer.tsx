@@ -363,11 +363,11 @@ const usePlayer = ({ initialize }: Props) => {
 
   /** キューが更新されたらアイテムの1番目の曲を再生開始する */
   useEffect(() => {
-    if (isInitialized && queue.length > 0) {
+    if (isInitialized && queue.length > 0 && !isPlaying) {
       pickUpTrack()
       setIsInitialized(false)
     }
-  }, [isInitialized, pickUpTrack, queue])
+  }, [isInitialized, pickUpTrack, queue, isPlaying])
 
   useEffect(() => {
     if (queue.length === 0) setIsInitialized(true)
