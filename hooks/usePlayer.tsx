@@ -423,7 +423,8 @@ const usePlayer = ({ initialize }: Props) => {
     isPreparingPlayback,
     onSearchModalPlay,
     onMoveNewTrackToFront,
-    onAddNewTrackToFront
+    onAddNewTrackToFront,
+    onSeekTo
   } as const
 }
 

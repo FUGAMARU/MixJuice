@@ -50,7 +50,8 @@ const MainPage = () => {
     isPreparingPlayback,
     onSearchModalPlay,
     onMoveNewTrackToFront,
-    onAddNewTrackToFront
+    onAddNewTrackToFront,
+    onSeekTo
   } = usePlayer({
     initialize: true
   })
@@ -66,6 +67,7 @@ const MainPage = () => {
           isPlaying={isPlaying}
           onNextTrack={onNextTrack}
           onTogglePlay={onTogglePlay}
+          onSeekTo={onSeekTo}
           hasSomeTrack={hasSomeTrack}
           spotifyPlaybackQuality={spotifyPlaybackQuality}
           isPreparingPlayback={isPreparingPlayback}

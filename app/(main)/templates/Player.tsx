@@ -1,5 +1,5 @@
 import { Box, Flex, Tooltip } from "@mantine/core"
-import { useElementSize } from "@mantine/hooks"
+import { useElementSize, useHover } from "@mantine/hooks"
 import { memo, useEffect, useMemo, useState } from "react"
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
 import { HiVolumeUp } from "react-icons/hi"
@@ -21,6 +21,7 @@ type Props = {
   isPlaying: boolean
   onNextTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
+  onSeekTo: (position: number) => Promise<void>
   hasSomeTrack: boolean
   spotifyPlaybackQuality: string | undefined
   isPreparingPlayback: boolean
@@ -32,6 +33,7 @@ const Player = ({
   isPlaying,
   onNextTrack,
   onTogglePlay,
+  onSeekTo,
   hasSomeTrack,
   spotifyPlaybackQuality,
   isPreparingPlayback
@@ -75,6 +77,8 @@ const Player = ({
 
     return () => clearTimeout(animationTimeoutId)
   }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
+
+  const { hovered: isSeekbarHovered, ref: seekbarRef } = useHover()
 
   return (
     <>
@@ -146,18 +150,44 @@ const Player = ({
 
       <Flex
         className={fadeAnimationClassNames}
+        h={isSeekbarHovered ? "0.7rem" : "0.3rem"}
+        ref={seekbarRef}
         pos="relative"
         sx={{
+          cursor: "pointer",
+          transition: "all 0.2s ease-out",
           visibility: isSeekbarShown ? "visible" : "hidden",
           zIndex: ZINDEX_NUMBERS.SEEKBAR_CONTAINER
         }}
+        onClick={async e => {
+          if (seekbarRef.current && currentTrackInfo) {
+            const rect = seekbarRef.current.getBoundingClientRect()
+            const width0PercentX = rect.left
+            const width100PercentX = rect.right
+            const clickX = e.clientX
+
+            const clickPercentage =
+              (clickX - width0PercentX) / (width100PercentX - width0PercentX)
+            await onSeekTo(currentTrackInfo.duration * clickPercentage)
+          }
+        }}
       >
-        <Box w="0.3rem" h="0.3rem" bg="#0bec7c" />
+        <div
+          className={isSeekbarHovered ? styles.overlayHovered : styles.overlay}
+          style={{
+            left: `${playbackPercentage}%`
+          }}
+        />
         {/** MantineのBoxコンポーネントを使用してシークバーを実装すると、再生位置が更新される度にheadタグ内にMantineが生成したstyleタグが追加されてしまうのでdivにて実装 */}
         <div
-          className={styles.loader}
-          style={{ width: `${playbackPercentage}%` }}
-        />
+          className={styles.seekbarContainer}
+          style={{
+            width: `${playbackPercentage}%`
+          }}
+        >
+          <div className={styles.seekbarLine} />
+          <div className={styles.seekbarDot} />
+        </div>
       </Flex>
     </>
   )
