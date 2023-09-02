@@ -1,19 +1,15 @@
-import { Box, Flex, Text, Tooltip } from "@mantine/core"
+import { Box, Flex, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { memo, useCallback, useMemo } from "react"
-import { LuListPlus, LuListStart } from "react-icons/lu"
 import { FixedSizeList } from "react-window"
 import { useRecoilValue } from "recoil"
 import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
+import QueueOperator from "@/components/parts/QueueOperator"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
-import {
-  HEADER_HEIGHT,
-  QUEUE_PADDING_TOP,
-  TEXT_COLOR_DEFAULT
-} from "@/constants/Styling"
+import { HEADER_HEIGHT, QUEUE_PADDING_TOP } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
@@ -94,45 +90,12 @@ const Queue = ({
                   />
                 </Flex>
 
-                <Flex gap="md">
-                  <Box
-                    sx={{
-                      visibility: checkCanMoveToFront(index)
-                        ? "visible"
-                        : "hidden"
-                    }}
-                  >
-                    <Tooltip label="キューの先頭に移動">
-                      <Box>
-                        <LuListStart
-                          size="1.3rem"
-                          color={TEXT_COLOR_DEFAULT}
-                          style={{ flexShrink: 0, cursor: "pointer" }}
-                          onClick={() => onMoveToFront(data.id)}
-                        />
-                      </Box>
-                    </Tooltip>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      visibility: checkCanAddToFront(index, data.playNext)
-                        ? "visible"
-                        : "hidden"
-                    }}
-                  >
-                    <Tooltip label="キューの先頭に追加">
-                      <Box>
-                        <LuListPlus
-                          size="1.3rem"
-                          color={TEXT_COLOR_DEFAULT}
-                          style={{ flexShrink: 0, cursor: "pointer" }}
-                          onClick={() => onAddToFront(data.id)}
-                        />
-                      </Box>
-                    </Tooltip>
-                  </Box>
-                </Flex>
+                <QueueOperator
+                  canMoveToFront={checkCanMoveToFront(index)}
+                  canAddToFront={checkCanAddToFront(index, data.playNext)}
+                  onMoveToFront={() => onMoveToFront(data.id)}
+                  onAddToFront={() => onAddToFront(data.id)}
+                />
               </Flex>
             </div>
           )

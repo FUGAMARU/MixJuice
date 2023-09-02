@@ -347,6 +347,26 @@ const usePlayer = ({ initialize }: Props) => {
     [queue, setQueue, lastPlayNextIdx]
   )
 
+  const onMoveNewTrackToFront = useCallback(
+    (track: Track) => {
+      const newQueue = [...queue]
+      const newItem = { ...track, playNext: true }
+      newQueue.unshift(newItem)
+      setQueue(newQueue)
+    },
+    [queue, setQueue]
+  )
+
+  const onAddNewTrackToFront = useCallback(
+    (track: Track) => {
+      const newQueue = [...queue]
+      const newItem = { ...track, playNext: true }
+      newQueue.splice(lastPlayNextIdx + 1, 0, newItem)
+      setQueue(newQueue)
+    },
+    [queue, setQueue, lastPlayNextIdx]
+  )
+
   /** 再生位置の更新 */
   useEffect(() => {
     if (currentTrackInfo === undefined) return
@@ -401,7 +421,9 @@ const usePlayer = ({ initialize }: Props) => {
     hasSomeTrack,
     spotifyPlaybackQuality,
     isPreparingPlayback,
-    onSearchModalPlay
+    onSearchModalPlay,
+    onMoveNewTrackToFront,
+    onAddNewTrackToFront
   } as const
 }
 

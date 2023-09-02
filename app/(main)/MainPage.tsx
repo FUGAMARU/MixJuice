@@ -3,10 +3,11 @@
 import { Box } from "@mantine/core"
 import { useRouter } from "next/navigation"
 import { memo, useEffect } from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import Player from "@/app/(main)/templates/Player"
 import Queue from "@/app/(main)/templates/Queue"
+import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import SearchModal from "@/components/templates/SearchModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -47,10 +48,14 @@ const MainPage = () => {
     checkCanAddToFront,
     spotifyPlaybackQuality,
     isPreparingPlayback,
-    onSearchModalPlay
+    onSearchModalPlay,
+    onMoveNewTrackToFront,
+    onAddNewTrackToFront
   } = usePlayer({
     initialize: true
   })
+
+  const queue = useRecoilValue(queueAtom)
 
   return (
     <>
@@ -94,8 +99,12 @@ const MainPage = () => {
 
       <SearchModal
         isOpen={isSearchModalOpen}
+        canMoveToFront={queue.length > 0}
+        canAddToFront={queue.some(q => q.playNext)}
         onClose={() => setIsSearchModalOpen(false)}
         onSearchModalPlay={onSearchModalPlay}
+        onMoveNewTrackToFront={onMoveNewTrackToFront}
+        onAddNewTrackToFront={onAddNewTrackToFront}
       />
     </>
   )

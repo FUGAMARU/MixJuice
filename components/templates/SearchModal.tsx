@@ -5,17 +5,30 @@ import ListItem from "../parts/ListItem"
 import ListItemContainer from "../parts/ListItemContainer"
 import ModalDefault from "../parts/ModalDefault"
 import ProviderHeading from "../parts/ProviderHeading"
+import QueueOperator from "../parts/QueueOperator"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSearch from "@/hooks/useSearch"
 import { Track } from "@/types/Track"
 
 type Props = {
   isOpen: boolean
+  canMoveToFront: boolean
+  canAddToFront: boolean
   onClose: () => void
   onSearchModalPlay: (track: Track) => Promise<void>
+  onMoveNewTrackToFront: (track: Track) => void
+  onAddNewTrackToFront: (track: Track) => void
 }
 
-const SearchModal = ({ isOpen, onClose, onSearchModalPlay }: Props) => {
+const SearchModal = ({
+  isOpen,
+  canMoveToFront,
+  canAddToFront,
+  onClose,
+  onSearchModalPlay,
+  onMoveNewTrackToFront,
+  onAddNewTrackToFront
+}: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
     keyword,
@@ -82,7 +95,11 @@ const SearchModal = ({ isOpen, onClose, onSearchModalPlay }: Props) => {
               <>
                 {spotifySearchResult.map(track => (
                   <ListItemContainer key={track.id}>
-                    <Box sx={{ flex: "1", overflow: "hidden" }}>
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      sx={{ flex: "1", overflow: "hidden" }}
+                    >
                       <ListItem
                         image={
                           track.image
@@ -100,7 +117,14 @@ const SearchModal = ({ isOpen, onClose, onSearchModalPlay }: Props) => {
                           handleArtworkPlayButtonClick(track)
                         }
                       />
-                    </Box>
+
+                      <QueueOperator
+                        canMoveToFront={canMoveToFront}
+                        canAddToFront={canAddToFront}
+                        onMoveToFront={() => onMoveNewTrackToFront(track)}
+                        onAddToFront={() => onAddNewTrackToFront(track)}
+                      />
+                    </Flex>
                   </ListItemContainer>
                 ))}
 
