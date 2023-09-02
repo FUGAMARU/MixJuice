@@ -84,6 +84,7 @@ const Player = ({
           image={currentTrackInfo?.image}
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
+          isPreparingPlayback={isPreparingPlayback}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />

@@ -19,6 +19,7 @@ type Props = {
   image: ImageInfo | undefined
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
+  isPreparingPlayback: boolean
   onTogglePlay: () => Promise<void>
   onNextTrack: () => Promise<void>
 }
@@ -28,6 +29,7 @@ const AlbumArtwork = ({
   image,
   smaller,
   isPlaying,
+  isPreparingPlayback,
   onTogglePlay,
   onNextTrack
 }: Props) => {
@@ -104,7 +106,12 @@ const AlbumArtwork = ({
                 <IoPlayBack
                   color="white"
                   size={smaller ? "1.5rem" : "2rem"}
-                  style={{ cursor: "pointer" }}
+                  style={{
+                    cursor: "pointer",
+                    transition: "all .2s ease-in-out"
+                  }}
+                  opacity={isPreparingPlayback ? 0.5 : 1}
+                  pointerEvents={isPreparingPlayback ? "none" : "auto"}
                 />
                 {isPlaying ? (
                   <IoPauseCircleSharp
@@ -124,7 +131,12 @@ const AlbumArtwork = ({
                 <IoPlayForward
                   color="white"
                   size={smaller ? "1.5rem" : "2rem"}
-                  style={{ cursor: "pointer" }}
+                  style={{
+                    cursor: "pointer",
+                    transition: "all .2s ease-in-out"
+                  }}
+                  opacity={isPreparingPlayback ? 0.5 : 1}
+                  pointerEvents={isPreparingPlayback ? "none" : "auto"}
                   onClick={handlePlayForwardButtonClick}
                 />
               </Group>
