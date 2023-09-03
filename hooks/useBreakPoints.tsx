@@ -1,35 +1,27 @@
-import { useMediaQuery } from "@mantine/hooks"
+import { useViewportSize } from "@mantine/hooks"
 import { useCallback, useMemo } from "react"
 
 const useBreakPoints = () => {
-  const bp1 = useMediaQuery("(max-width: 599px)")
-  const bp2 = useMediaQuery("(max-width: 1024px)")
-  const bp3 = useMediaQuery("(min-width: 1025px)")
-
-  const isHamburgerMenuVisible = useMediaQuery("(max-width: 48em)") // TODO: 脱AppShellをしたら定義し直す | 48emはMantineのsmブレイクポイント相当
+  const { width: vw } = useViewportSize()
 
   const breakPoint = useMemo(() => {
-    if (bp1 && bp2) return "SmartPhone"
+    if (vw === 0) return undefined
+    if (vw <= 599) return "SmartPhone"
+    if (vw <= 1024) return "Tablet"
 
-    if (bp2) return "Tablet"
-
-    if (bp3) return "PC"
-
-    return "SmartPhone"
-  }, [bp1, bp2, bp3])
+    return "PC" // 横幅が1025px以上
+  }, [vw])
 
   const setRespVal = useCallback(
     (val1: string, val2: string, val3: string) => {
       if (breakPoint === "SmartPhone") return val1
-
       if (breakPoint === "Tablet") return val2
-
       if (breakPoint === "PC") return val3
     },
     [breakPoint]
   )
 
-  return { breakPoint, setRespVal, isHamburgerMenuVisible } as const
+  return { breakPoint, setRespVal } as const
 }
 
 export default useBreakPoints

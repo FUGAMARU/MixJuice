@@ -1,16 +1,18 @@
-import { Box, Burger, Flex, Header, MediaQuery, Space } from "@mantine/core"
+import { Box, Burger, Flex, Space } from "@mantine/core"
 import Image from "next/image"
-import { memo, useCallback } from "react"
+import { memo, useCallback, useMemo } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { HEADER_HEIGHT, TEXT_COLOR_DEFAULT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import useBreakPoints from "@/hooks/useBreakPoints"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const LayoutHeader = () => {
   const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
+  const { breakPoint } = useBreakPoints()
   const isConnectPage = useRecoilValue(connectAtom)
 
   const handleBurgerClick = useCallback(() => {
@@ -26,29 +28,32 @@ const LayoutHeader = () => {
     }
   }, [isNavbarOpened, setNavbarClassName, setNavbarOpened])
 
+  const headerIndex = useMemo(() => generateRandomNumber(1, 12), []) // メモ化しないとハンバーガーメニューでNavbarを開閉する度にアイコンが変わってしまう
+
   return (
-    <Header
-      height={HEADER_HEIGHT}
-      zIndex={ZINDEX_NUMBERS.HEADER}
-      sx={theme => ({ boxShadow: theme.shadows.sm })}
+    <Box
+      h={HEADER_HEIGHT}
+      pos="relative"
+      sx={theme => ({
+        boxShadow: theme.shadows.sm,
+        zIndex: ZINDEX_NUMBERS.HEADER
+      })}
     >
       <Flex h="100%" px="lg" align="center" justify="space-between">
         <Box w="1.8rem">
-          {!isConnectPage && (
-            <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-              <Burger
-                opened={isNavbarOpened}
-                onClick={handleBurgerClick}
-                size="sm"
-                color={TEXT_COLOR_DEFAULT}
-                mr="xl"
-              />
-            </MediaQuery>
+          {!isConnectPage && breakPoint !== "PC" && (
+            <Burger
+              opened={isNavbarOpened}
+              onClick={handleBurgerClick}
+              size="sm"
+              color={TEXT_COLOR_DEFAULT}
+              mr="xl"
+            />
           )}
         </Box>
 
         <Image
-          src={`/header-logos/header-${generateRandomNumber(1, 12)}.png`}
+          src={`/header-logos/header-${headerIndex}.png`}
           width={152}
           height={40}
           alt="Randomized MixJuice Logo"
@@ -56,7 +61,7 @@ const LayoutHeader = () => {
 
         <Space w="1.8rem" />
       </Flex>
-    </Header>
+    </Box>
   )
 }
 

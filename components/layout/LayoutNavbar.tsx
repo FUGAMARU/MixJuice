@@ -25,22 +25,20 @@ import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NAVBAR_PADDING } from "@/constants/Styling"
-import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
-import useBreakPoints from "@/hooks/useBreakPoints"
 import useMIX from "@/hooks/useMIX"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
+import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
-const LayoutNavbar = () => {
+type Props = {
+  isPlaying: boolean
+  onPlay: (track: Track) => Promise<void>
+}
+
+const LayoutNavbar = ({ isPlaying, onPlay }: Props) => {
   const { isTouchDevice } = useTouchDevice()
-  const { breakPoint, isHamburgerMenuVisible } = useBreakPoints()
-  const navbarWidth = useMemo(() => {
-    if (breakPoint === "SmartPhone") return "60%"
-    if (breakPoint === "Tablet") return "30%"
-    if (breakPoint === "PC") return "20%"
-  }, [breakPoint])
   const [isMixing, setIsMixing] = useState(false)
   const setIsPreparingPlayback = useSetRecoilState(preparingPlaybackAtom)
   const isOpened = useRecoilValue(navbarAtom)
@@ -149,14 +147,6 @@ const LayoutNavbar = () => {
     setIsMixing(true)
     setIsPreparingPlayback(true)
 
-    /**
-     * Safariの『NotAllowedError』対策
-     * 参考: https://yukiyuriweb.com/2021/03/12/how-to-handle-notallowederror-in-safari/
-     */
-    const audio = new Audio("/empty.mp3")
-    audio.play().catch(() => undefined)
-    audio.pause()
-
     const checkedSpotifyPlaylists = spotifyPlaylists.filter(
       p => p.checked === true
     )
@@ -171,6 +161,11 @@ const LayoutNavbar = () => {
       )
 
       if (tracks.length === 0) return // 読み込む曲が存在しないので以降の処理をする必要はない
+
+      if (!isPlaying) {
+        await onPlay(tracks[0])
+        tracks.shift()
+      }
 
       setQueue(
         tracks.map(track => ({
@@ -190,21 +185,17 @@ const LayoutNavbar = () => {
     mixAllTracks,
     setQueue,
     setErrorModalInstance,
-    setIsPreparingPlayback
+    setIsPreparingPlayback,
+    isPlaying,
+    onPlay
   ])
 
   return (
     <Navbar
       className={navbarClassName}
-      width={{ base: navbarWidth }}
-      height="auto" //明示的に指定しないとスクロールエリアの高さが正しく計算されない
+      width={{ base: "100%" }}
+      height="100%"
       p={`${NAVBAR_PADDING}px`}
-      zIndex={
-        isHamburgerMenuVisible
-          ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED
-          : ZINDEX_NUMBERS.NAVBAR_EXPANDED
-      }
-      hiddenBreakpoint="sm"
       hidden={!isOpened}
     >
       <Navbar.Section pb="md">

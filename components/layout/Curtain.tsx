@@ -1,16 +1,15 @@
 "use client"
 
-import { AppShell, Box } from "@mantine/core"
+import { Box } from "@mantine/core"
 import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, memo, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
-import LayoutNavbar from "./LayoutNavbar"
 import NowLoading from "./NowLoading"
 import { loadingAtom } from "@/atoms/loadingAtom"
-import { NAVBAR_PADDING } from "@/constants/Styling"
+import { HEADER_HEIGHT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -22,6 +21,11 @@ type Props = {
 
 const Curtain = ({ children }: Props) => {
   const pathname = usePathname()
+
+  const screenHeightWithoutHeader = useMemo(
+    () => `calc(100vh - ${HEADER_HEIGHT}px)`,
+    []
+  )
   const isConnectPage = useMemo(() => pathname === "/connect", [pathname])
 
   const isLoading = useRecoilValue(loadingAtom)
@@ -67,19 +71,13 @@ const Curtain = ({ children }: Props) => {
         <NowLoading />
       </Box>
 
-      <AppShell
-        header={<LayoutHeader />}
-        navbar={isConnectPage ? <></> : <LayoutNavbar />}
-        navbarOffsetBreakpoint="sm"
-        styles={{
-          main: {
-            minHeight: `calc(100dvh + ${NAVBAR_PADDING}px)`,
-            margin: "-1rem -1rem 0" // この1remはMantineによって自動的に設定されるAppShellのpaddingを打ち消すため
-          }
-        }}
-      >
-        {children}
-      </AppShell>
+      <LayoutHeader />
+
+      {isConnectPage ? (
+        <Box h={screenHeightWithoutHeader}>{children}</Box>
+      ) : (
+        children
+      )}
 
       <ErrorModal />
     </>

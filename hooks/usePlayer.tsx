@@ -26,7 +26,6 @@ const usePlayer = ({ initialize }: Props) => {
   const [isPreparingPlayback, setIsPreparingPlayback] = useRecoilState(
     preparingPlaybackAtom
   )
-  const [isInitialized, setIsInitialized] = useState(true)
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
@@ -229,6 +228,7 @@ const usePlayer = ({ initialize }: Props) => {
   const onPlay = useCallback(
     async (track: Track) => {
       setIsPreparingPlayback(true)
+      setCurrentTrackInfo(track)
 
       try {
         await retry(
@@ -381,18 +381,6 @@ const usePlayer = ({ initialize }: Props) => {
     }
   }, [currentTrackInfo, spotifyPlaybackPosition, webDAVPlaybackPosition])
 
-  /** キューが更新されたらアイテムの1番目の曲を再生開始する */
-  useEffect(() => {
-    if (isInitialized && queue.length > 0 && !isPlaying) {
-      pickUpTrack()
-      setIsInitialized(false)
-    }
-  }, [isInitialized, pickUpTrack, queue, isPlaying])
-
-  useEffect(() => {
-    if (queue.length === 0) setIsInitialized(true)
-  }, [queue, setIsInitialized])
-
   const playbackPercentage = useMemo(() => {
     if (currentTrackInfo === undefined) return 0
 
@@ -413,6 +401,7 @@ const usePlayer = ({ initialize }: Props) => {
     setVolume,
     onNextTrack,
     onSkipTo,
+    onPlay,
     onMoveToFront,
     onAddToFront,
     checkCanMoveToFront,

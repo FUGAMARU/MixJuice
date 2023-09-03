@@ -101,8 +101,7 @@ const useSpotifyPlayer = ({
           const token = await getLatestToken()
           setToken(token)
         },
-        volume: 0.5,
-        enableMediaSession: true
+        volume: 0.5
       })
 
       setPlayer(spotifyPlayer)

@@ -1,5 +1,6 @@
 export const LOCAL_STORAGE_KEYS = {
   NAVBAR_CHECKED_ITEMS: "navbarCheckedItems", // Navbarでチェックされているアイテムの一覧
+  NAVBAR_DRAGGED_WIDTH: "navbarDraggedWidth", // Navbarの幅をドラッグで変更した際の幅
   PKCE_CONFIG: "pkceConfig", // SpotifyのPKCE認証フローで使用する情報
   SPOTIFY_CLIENT_ID: "spotifyClientId", // Spotify APIを利用する際のクライアントID
   SPOTIFY_ACCESS_TOKEN: "spotifyAccessToken", // Spotify APIを利用する際のアクセストークン TODO: このまま使わないようであれば削除
