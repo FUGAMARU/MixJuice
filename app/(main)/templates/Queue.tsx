@@ -83,7 +83,6 @@ const Queue = ({
                     image={data.image}
                     title={data.title}
                     caption={` / ${data.artist}`}
-                    playable
                     onArtworkPlayButtonClick={() =>
                       handleArtworkPlayButtonClick(data.id)
                     }

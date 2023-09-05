@@ -112,7 +112,6 @@ const SearchModal = ({
                         }
                         title={track.title}
                         caption={`/ ${track.artist}`}
-                        playable
                         onArtworkPlayButtonClick={() =>
                           handleArtworkPlayButtonClick(track)
                         }
@@ -168,7 +167,6 @@ const SearchModal = ({
                           image={track.image}
                           title={track.title}
                           caption={track.artist}
-                          playable
                           onArtworkPlayButtonClick={() =>
                             handleArtworkPlayButtonClick(track)
                           }
@@ -204,7 +202,6 @@ const SearchModal = ({
                           image={track.image}
                           title={track.title}
                           caption={track.artist}
-                          playable
                           onArtworkPlayButtonClick={() =>
                             handleArtworkPlayButtonClick(track)
                           }

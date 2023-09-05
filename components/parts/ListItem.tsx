@@ -10,11 +10,9 @@ import { isSquareApproximate } from "@/utils/isSquareApproximate"
 
 type Props =
   | ({
-      playable: true
       onArtworkPlayButtonClick: () => void
     } & Omit<ListItemDetail, "id">)
   | ({
-      playable?: false
       onArtworkPlayButtonClick?: never
     } & Omit<ListItemDetail, "id">)
 
@@ -22,7 +20,6 @@ const ListItem = ({
   image,
   title,
   caption,
-  playable = false,
   onArtworkPlayButtonClick
 }: Props) => {
   const { setRespVal } = useBreakPoints()
@@ -73,7 +70,7 @@ const ListItem = ({
           />
         )}
 
-        {playable && isPlayerControlShown && (
+        {onArtworkPlayButtonClick && isPlayerControlShown && (
           <Overlay
             className={overlayClassNames}
             center
