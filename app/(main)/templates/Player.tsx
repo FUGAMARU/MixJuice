@@ -89,6 +89,7 @@ const Player = ({
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
           isPreparingPlayback={isPreparingPlayback}
+          isTrackAvailable={currentTrackInfo !== undefined}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />
