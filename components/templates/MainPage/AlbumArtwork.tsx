@@ -4,7 +4,7 @@ import Image from "next/image"
 import { memo, useMemo } from "react"
 
 import { MdOutlineLibraryMusic } from "react-icons/md"
-import ArtworkOverlay from "./ArtworkOverlay"
+import ArtworkOverlay from "../../parts/ArtworkOverlay"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { ImageInfo } from "@/types/ImageInfo"

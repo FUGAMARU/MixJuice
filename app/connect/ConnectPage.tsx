@@ -10,9 +10,9 @@ import {
   useState
 } from "react"
 import { useSetRecoilState } from "recoil"
-import ProviderSelector from "./templates/ProviderSelector"
-import SpotifyConnector from "./templates/SpotifyConnector"
-import WebDAVConnector from "./templates/WebDAVConnector"
+import ProviderSelector from "../../components/templates/ConnectPage/ProviderSelector"
+import SpotifyConnector from "../../components/templates/ConnectPage/SpotifyConnector"
+import WebDAVConnector from "../../components/templates/ConnectPage/WebDAVConnector"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import useBreakPoints from "@/hooks/useBreakPoints"
 

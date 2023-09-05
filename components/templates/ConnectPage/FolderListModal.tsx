@@ -8,7 +8,7 @@ import {
   useEffect,
   useState
 } from "react"
-import ModalDefault from "../parts/ModalDefault"
+import ModalDefault from "../../parts/ModalDefault"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useWebDAVServer from "@/hooks/useWebDAVServer"

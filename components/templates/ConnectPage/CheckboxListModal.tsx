@@ -1,8 +1,8 @@
 import { Box, Checkbox } from "@mantine/core"
 import { SetStateAction, Dispatch, useCallback, memo } from "react"
-import ListItem from "../parts/ListItem"
-import ListItemContainer from "../parts/ListItemContainer"
-import ModalDefault from "../parts/ModalDefault"
+import ListItem from "../../parts/ListItem"
+import ListItemContainer from "../../parts/ListItemContainer"
+import ModalDefault from "../../parts/ModalDefault"
 import { ListItemDetail } from "@/types/ListItemDetail"
 
 type Props = {
