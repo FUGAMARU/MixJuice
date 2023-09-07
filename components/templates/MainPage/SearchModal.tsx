@@ -38,7 +38,9 @@ const SearchModal = ({
     spotifySearchResult,
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
-    isSearching,
+    isSearchingSpotify,
+    isSearchingWebDAV,
+    isSearchingWebDAVTrackDatabase,
     webDAVSearchResult,
     resetAll
   } = useSearch()
@@ -60,12 +62,7 @@ const SearchModal = ({
 
   return (
     <ModalDefault
-      title={
-        <Flex align="center" gap="sm">
-          <Text>🔍 楽曲を検索</Text>
-          {isSearching && <Loader color="gray" size="1.2rem" />}
-        </Flex>
-      }
+      title={<Text>🔍 楽曲を検索</Text>}
       isOpen={isOpen}
       onClose={onClose}
       withoutCloseButton
@@ -84,12 +81,13 @@ const SearchModal = ({
       >
         {isSpotifyAuthorized && (
           <Box>
-            <Box mb="xs">
+            <Flex mb="xs" align="center" gap="xs">
               <ProviderHeading
                 providerIconSrc="/spotify-logo.png"
                 provider="spotify"
               />
-            </Box>
+              {isSearchingSpotify && <Loader color="spotify" size="1.2rem" />}
+            </Flex>
 
             {spotifySearchResult.length > 0 && keyword.length > 0 ? (
               <>
@@ -155,6 +153,9 @@ const SearchModal = ({
                 <Text fz="0.8rem" color="#adadad">
                   (キャッシュ済み)
                 </Text>
+                {isSearchingWebDAVTrackDatabase && (
+                  <Loader color="webdav" size="1.2rem" />
+                )}
               </Flex>
 
               {webDAVTrackDatabaseSearchResult.length > 0 &&
@@ -191,6 +192,7 @@ const SearchModal = ({
                 <Text fz="0.8rem" color="#adadad">
                   (未キャッシュ)
                 </Text>
+                {isSearchingWebDAV && <Loader color="webdav" size="1.2rem" />}
               </Flex>
 
               {webDAVSearchResult.length > 0 && keyword.length > 0 ? (

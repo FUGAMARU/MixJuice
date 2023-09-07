@@ -13,7 +13,10 @@ const useSearch = () => {
   const [keyword, setKeyword] = useState("")
 
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const [isSearching, setIsSearching] = useState(false)
+  const [isSearchingSpotify, setIsSearchingSpotify] = useState(false)
+  const [isSearchingWebDAV, setIsSearchingWebDAV] = useState(false)
+  const [isSearchingWebDAVTrackDatabase, setIsSearchingWebDAVTrackDatabase] =
+    useState(false)
   const { searchTracks: searchWebDAVTrackDatabase } = useWebDAVTrackDatabase()
   const { searchTracks: searchWebDAVTracks } = useWebDAVServer()
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
@@ -57,7 +60,9 @@ const useSearch = () => {
 
       /** 検索窓に文字が入力されてから500ミリ秒後にAPIを叩く (入力された瞬間にAPIを叩くとリクエスト過多になる) */
       timer = setTimeout(async () => {
-        setIsSearching(true)
+        setIsSearchingSpotify(true)
+        setIsSearchingWebDAV(true)
+        setIsSearchingWebDAVTrackDatabase(true)
 
         const spotifyPromise = new Promise<{
           data: []
@@ -76,6 +81,7 @@ const useSearch = () => {
             )
           )
           setSpotifySearchNextOffset(spotifyRes.nextOffset)
+          setIsSearchingSpotify(false)
           resolve()
         })
 
@@ -94,6 +100,7 @@ const useSearch = () => {
                 ({ path, ...rest }) => rest
               ) as Track[]
             )
+            setIsSearchingWebDAVTrackDatabase(false)
             resolve()
           }
         )
@@ -112,6 +119,7 @@ const useSearch = () => {
             input
           )
           setWebDAVSearchResult(webDAVRes)
+          setIsSearchingWebDAV(false)
           resolve()
         })
 
@@ -123,8 +131,10 @@ const useSearch = () => {
           ])
         } catch (e) {
           setErrorModalInstance(prev => [...prev, e])
-        } finally {
-          setIsSearching(false)
+          setIsSearchingSpotify(false)
+          setIsSearchingWebDAV(false)
+          setIsSearchingWebDAVTrackDatabase(false)
+          //TODO: 検索が失敗したProviderに合わせたsetStateをすべき (闇雲に全部falseにするのではなく)
         }
       }, 500)
     },
@@ -175,7 +185,9 @@ const useSearch = () => {
     spotifySearchResult,
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
-    isSearching,
+    isSearchingSpotify,
+    isSearchingWebDAV,
+    isSearchingWebDAVTrackDatabase,
     webDAVSearchResult,
     resetAll
   } as const
