@@ -168,7 +168,7 @@ const MainPage = () => {
       <SearchModal
         isOpen={isSearchModalOpen}
         canMoveToFront={queue.length > 0}
-        canAddToFront={queue.some(q => q.playNext)}
+        canAddToFront={isPlaying}
         onClose={() => setIsSearchModalOpen(false)}
         onSearchModalPlay={onSearchModalPlay}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
