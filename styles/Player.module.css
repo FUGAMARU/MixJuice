@@ -39,12 +39,15 @@
 }
 
 .overlayHovered {
-  position: absolute;
-  height: 100%;
   width: 0%;
-  top: 0;
   background-color: rgba(11, 236, 124, 0.3);
   animation: expandWidth 0.5s ease-out forwards;
+}
+
+.overlayBlured {
+  width: 100%;
+  background-color: rgba(11, 236, 124, 0.3);
+  animation: shrinkWidth 0.5s ease-in forwards;
 }
 
 @keyframes animateDot {
@@ -99,5 +102,14 @@
   }
   to {
     width: 100%;
+  }
+}
+
+@keyframes shrinkWidth {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
   }
 }

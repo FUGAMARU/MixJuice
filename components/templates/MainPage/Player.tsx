@@ -27,6 +27,8 @@ type Props = {
   isPreparingPlayback: boolean
 }
 
+let timerId: NodeJS.Timeout
+
 const Player = ({
   currentTrackInfo,
   playbackPercentage,
@@ -79,6 +81,44 @@ const Player = ({
   }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
 
   const { hovered: isSeekbarHovered, ref: seekbarRef } = useHover()
+
+  /** シークバーの上をマウスが一瞬通り過ぎただけでアニメーションが開始してしまうので、シークバーの上にカーソルが100ミリ秒以上いた場合にホバーされた扱いにする
+   * CSSのanimation-delayを使用すると、シークバーの上をマウスが一瞬通り過ぎた時にホバーが外れた用のイベントが発生する関係で一瞬表示がおかしくなるので、JSで管理する
+   */
+  const [isSeekbarHoveredControlled, setIsSeekbarHoveredControlled] =
+    useState(false)
+
+  useEffect(() => {
+    if (timerId) clearTimeout(timerId)
+
+    const newTimerId = setTimeout(() => {
+      setIsSeekbarHoveredControlled(isSeekbarHovered)
+    }, 100)
+
+    timerId = newTimerId
+
+    return () => {
+      if (timerId) clearTimeout(timerId)
+    }
+  }, [isSeekbarHovered])
+
+  /** コンポーネントが描写されてから一度でもシークバーがホバーされたか */
+  const [hasSeekbarHobered, setHasSeekbarHovered] = useState(false)
+  useEffect(() => {
+    if (isSeekbarHoveredControlled) setHasSeekbarHovered(true)
+  }, [isSeekbarHoveredControlled])
+
+  const [seekbarOverlayClassName, setSeekbarOverlayClassName] = useState("")
+  useEffect(() => {
+    if (isSeekbarHoveredControlled) {
+      setSeekbarOverlayClassName(`${styles.overlayHovered}`)
+      return
+    }
+
+    if (hasSeekbarHobered) {
+      setSeekbarOverlayClassName(styles.overlayBlured)
+    }
+  }, [isSeekbarHoveredControlled, hasSeekbarHobered])
 
   return (
     <>
@@ -151,7 +191,7 @@ const Player = ({
 
       <Flex
         className={fadeAnimationClassNames}
-        h={isSeekbarHovered ? "0.7rem" : "0.3rem"}
+        h={isSeekbarHoveredControlled ? "0.7rem" : "0.3rem"}
         ref={seekbarRef}
         pos="relative"
         sx={{
@@ -174,7 +214,7 @@ const Player = ({
         }}
       >
         <div
-          className={isSeekbarHovered ? styles.overlayHovered : styles.overlay}
+          className={`${styles.overlay} ${seekbarOverlayClassName}`}
           style={{
             left: `${playbackPercentage}%`
           }}
