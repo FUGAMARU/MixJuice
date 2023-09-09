@@ -65,7 +65,7 @@ const SearchModal = ({
       title={<Text>🔍 楽曲を検索</Text>}
       isOpen={isOpen}
       onClose={onClose}
-      withoutCloseButton
+      withoutCloseButton // 閉じるボタンを非表示にしないとモーダルを開いたときに検索窓にフォーカルが当たらない
     >
       <Input
         placeholder="楽曲タイトルを入力…"

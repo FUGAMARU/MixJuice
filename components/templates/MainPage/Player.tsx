@@ -12,6 +12,7 @@ import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
 import { Track } from "@/types/Track"
+import { millisecondsToTimeString } from "@/utils/millisecondsToTimeString"
 
 let animationTimeoutId: NodeJS.Timer
 
@@ -120,6 +121,15 @@ const Player = ({
     }
   }, [isSeekbarHoveredControlled, hasSeekbarHobered])
 
+  const remainingTime = useMemo(() => {
+    if (!currentTrackInfo) return "0:00"
+
+    const currentTime = currentTrackInfo.duration * (playbackPercentage / 100)
+    const remainingTime = currentTrackInfo.duration - currentTime
+
+    return remainingTime < 0 ? "0:00" : millisecondsToTimeString(remainingTime)
+  }, [currentTrackInfo, playbackPercentage])
+
   return (
     <>
       <Flex w="100%" h="100%" pos="relative" ref={containerRef}>
@@ -173,18 +183,24 @@ const Player = ({
               </Flex>
             </PlaybackStateBadge>
 
-            <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
-              <Flex align="center" gap="0.2rem">
-                <Box lh={0}>
-                  {isPlaying ? (
-                    <BsFillPlayFill size="1.2rem" />
-                  ) : (
-                    <BsFillPauseFill size="1.2rem" />
-                  )}
+            {isPlaying && (
+              <Tooltip label="残り再生時間">
+                <Box>
+                  <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
+                    <Flex align="center" gap="0.2rem">
+                      <Box lh={0}>
+                        {isPlaying ? (
+                          <BsFillPlayFill size="1.2rem" />
+                        ) : (
+                          <BsFillPauseFill size="1.2rem" />
+                        )}
+                      </Box>
+                      {remainingTime}
+                    </Flex>
+                  </PlaybackStateBadge>
                 </Box>
-                {Math.round(playbackPercentage)}%
-              </Flex>
-            </PlaybackStateBadge>
+              </Tooltip>
+            )}
           </Flex>
         )}
       </Flex>
