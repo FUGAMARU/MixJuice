@@ -40,6 +40,7 @@ import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
 type Props = {
+  height: string
   isPlaying: boolean
   canSlideNavbar: boolean
   onPlay: (track: Track) => Promise<void>
@@ -47,6 +48,7 @@ type Props = {
 }
 
 const LayoutNavbar = ({
+  height,
   isPlaying,
   canSlideNavbar,
   onPlay,
@@ -226,7 +228,7 @@ const LayoutNavbar = ({
     <Navbar
       className={navbarClassName}
       width={{ base: "100%" }}
-      height="100%"
+      height={height} // 100%だとスクロールが効かなくなる
       p={`${NAVBAR_PADDING}px`}
       hidden={!isOpened}
     >

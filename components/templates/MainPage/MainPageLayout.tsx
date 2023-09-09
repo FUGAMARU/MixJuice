@@ -57,13 +57,20 @@ const MainPageLayout = ({
   const layoutNavbar = useMemo(
     () => (
       <LayoutNavbar
+        height={screenHeightWithoutHeader}
         isPlaying={isPlaying}
         canSlideNavbar={canSlideNavbar}
         onPlay={onPlay}
         setIsPreparingPlayback={setIsPreparingPlayback}
       />
     ),
-    [canSlideNavbar, isPlaying, onPlay, setIsPreparingPlayback]
+    [
+      canSlideNavbar,
+      isPlaying,
+      onPlay,
+      setIsPreparingPlayback,
+      screenHeightWithoutHeader
+    ]
   )
 
   return (
