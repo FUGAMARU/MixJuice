@@ -19,7 +19,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
@@ -33,15 +33,15 @@ import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
 type Props = {
+  isOpened: boolean
   isPlaying: boolean
   onPlay: (track: Track) => Promise<void>
 }
 
-const LayoutNavbar = ({ isPlaying, onPlay }: Props) => {
+const LayoutNavbar = ({ isOpened, isPlaying, onPlay }: Props) => {
   const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
   const setIsPreparingPlayback = useSetRecoilState(preparingPlaybackAtom)
-  const isOpened = useRecoilValue(navbarAtom)
   const navbarClassName = useRecoilValue(navbarClassNameAtom)
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)

@@ -6,6 +6,7 @@ import { memo, useEffect, useMemo, useState } from "react"
 import { Rnd } from "react-rnd"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
+import { navbarAtom } from "@/atoms/navbarAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import LayoutNavbar from "@/components/layout/LayoutNavbar"
@@ -22,6 +23,7 @@ const MainPage = () => {
   const router = useRouter()
   const { breakPoint, setRespVal } = useBreakPoints()
   const setIsLoading = useSetRecoilState(loadingAtom)
+  const isNavbarOpened = useRecoilValue(navbarAtom)
   const [isSearchModalOpen, setIsSearchModalOpen] =
     useRecoilState(searchModalAtom)
 
@@ -106,7 +108,11 @@ const MainPage = () => {
               zIndex: ZINDEX_NUMBERS.NAVBAR_EXPANDED
             }}
           >
-            <LayoutNavbar isPlaying={isPlaying} onPlay={onPlay} />
+            <LayoutNavbar
+              isOpened={isNavbarOpened}
+              isPlaying={isPlaying}
+              onPlay={onPlay}
+            />
           </Rnd>
         ) : (
           <Box
@@ -114,9 +120,15 @@ const MainPage = () => {
             h={screenHeightWithoutHeader}
             pos="absolute"
             left={0}
-            sx={{ zIndex: ZINDEX_NUMBERS.NAVBAR_COLLAPSED }}
+            sx={{
+              zIndex: isNavbarOpened ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED : 0
+            }}
           >
-            <LayoutNavbar isPlaying={isPlaying} onPlay={onPlay} />
+            <LayoutNavbar
+              isOpened={isNavbarOpened}
+              isPlaying={isPlaying}
+              onPlay={onPlay}
+            />
           </Box>
         )}
 
