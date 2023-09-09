@@ -31,7 +31,8 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
           }
         },
         body: {
-          cursor: "pointer"
+          cursor: "pointer",
+          wordBreak: "break-all"
         },
         inner: {
           position: "relative",

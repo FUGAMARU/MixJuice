@@ -4,12 +4,12 @@ import {
   Space,
   Stack,
   Text,
-  ScrollArea,
   Input,
   Button,
   Group,
   Box,
-  Kbd
+  Kbd,
+  ScrollArea
 } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
