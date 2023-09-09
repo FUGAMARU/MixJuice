@@ -1,4 +1,4 @@
-import { Overlay, Group } from "@mantine/core"
+import { Overlay, Group, Center } from "@mantine/core"
 import { memo, useEffect, useState } from "react"
 import {
   IoPlayBack,
@@ -72,12 +72,14 @@ const ArtworkOverlay = ({
       }}
     >
       {simplified ? (
-        <IoPlayCircleSharp
-          color="white"
-          size="2rem"
-          cursor="pointer"
+        <Center
+          w="100%"
+          h="100%"
+          sx={{ cursor: "pointer", borderRadius }}
           onClick={onArtworkPlayButtonClick}
-        />
+        >
+          <IoPlayCircleSharp color="white" size="2rem" />
+        </Center>
       ) : (
         <Group position="center" spacing={smaller ? "xs" : "lg"}>
           <IoPlayBack
