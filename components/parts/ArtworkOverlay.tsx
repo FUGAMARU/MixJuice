@@ -52,10 +52,12 @@ const ArtworkOverlay = ({
 
     if (isHovered) {
       setOverlayClassNames(`${prefix} animate__fadeIn`)
-    } else {
+    }
+
+    if (!isHovered && overlayClassNames) {
       setOverlayClassNames(`${prefix} animate__fadeOut`)
     }
-  }, [isHovered])
+  }, [isHovered, overlayClassNames])
 
   return (
     <Overlay
@@ -64,8 +66,10 @@ const ArtworkOverlay = ({
       gradient={`linear-gradient(145deg, rgba(0, 0, 0, ${
         simplified ? "0.8" : "0.9"
       }) 0%, rgba(0, 0, 0, 0.3) 100%)`}
-      opacity={0.85}
-      sx={{ borderRadius }}
+      sx={{
+        borderRadius,
+        visibility: overlayClassNames ? "visible" : "hidden"
+      }}
     >
       {simplified ? (
         <IoPlayCircleSharp
