@@ -53,7 +53,8 @@ const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
           "&:hover": !isTouchDevice && {
             transform: "translateX(-4px)",
             fontWeight: 700
-          }
+          },
+          lineHeight: 1.4
         }
       })}
     />
