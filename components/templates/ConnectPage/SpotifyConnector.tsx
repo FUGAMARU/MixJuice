@@ -1,8 +1,18 @@
-import { Box, Button, Flex, Input, Title, useMantineTheme } from "@mantine/core"
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Title,
+  useMantineTheme,
+  Text
+} from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
+import { BsInfoCircle } from "react-icons/bs"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
@@ -10,6 +20,7 @@ import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { TEXT_COLOR_BLUE } from "@/constants/Styling"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -138,6 +149,39 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           value={clientId}
           onChange={handleClientIdInputChange}
         />
+
+        <Box mt="0.3rem" pl="2rem" fz="xs" color="#575757">
+          <Flex align="center" gap="0.2rem">
+            <BsInfoCircle size="1rem" color="#575757" />
+
+            <Text>
+              ClientIDの取得方法は
+              <Link
+                href="https://developer.spotify.com/documentation/web-api/concepts/apps"
+                style={{ color: TEXT_COLOR_BLUE }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                こちら
+              </Link>
+            </Text>
+          </Flex>
+
+          <Flex pl="1.2rem" ta="left" align="center" gap="xs">
+            <Text>Redirect URIs:</Text>
+            <Input
+              value={`${window.location.origin}/callback/spotify`}
+              size="1rem"
+              variant="filled"
+              style={{ flex: 1 }}
+              styles={{
+                input: {
+                  fontSize: "0.75rem"
+                }
+              }}
+            />
+          </Flex>
+        </Box>
       </Box>
 
       <Flex align="center" gap="xs">
