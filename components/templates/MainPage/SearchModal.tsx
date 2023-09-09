@@ -8,6 +8,8 @@ import ProviderHeading from "../../parts/ProviderHeading"
 import QueueOperator from "../../parts/QueueOperator"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSearch from "@/hooks/useSearch"
+import useSpotifySettingState from "@/hooks/useSpotifySettingState"
+import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import { Track } from "@/types/Track"
 
 type Props = {
@@ -33,8 +35,6 @@ const SearchModal = ({
   const {
     keyword,
     handleKeywordChange,
-    isSpotifyAuthorized,
-    isWebDAVAuthorized,
     spotifySearchResult,
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
@@ -44,6 +44,8 @@ const SearchModal = ({
     webDAVSearchResult,
     resetAll
   } = useSearch()
+  const { settingState: spotifySettingState } = useSpotifySettingState()
+  const { settingState: webDAVSettingState } = useWebDAVSettingState()
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -79,7 +81,7 @@ const SearchModal = ({
         pl={breakPoint === "SmartPhone" ? 0 : "0.75rem"}
         spacing="xs"
       >
-        {isSpotifyAuthorized && (
+        {spotifySettingState !== "none" && (
           <Box>
             <Flex mb="xs" align="center" gap="xs">
               <ProviderHeading
@@ -142,7 +144,7 @@ const SearchModal = ({
           </Box>
         )}
 
-        {isWebDAVAuthorized && (
+        {webDAVSettingState !== "none" && (
           <>
             <Box>
               <Flex mb="xs" align="center" gap="xs">

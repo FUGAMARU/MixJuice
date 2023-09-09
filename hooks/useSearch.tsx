@@ -1,7 +1,9 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback } from "react"
 import { useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
+import useSpotifySettingState from "./useSpotifySettingState"
 import useWebDAVServer from "./useWebDAVServer"
+import useWebDAVSettingState from "./useWebDAVSettingState"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -23,24 +25,13 @@ const useSearch = () => {
     initialize: false
   })
 
-  const [isSpotifyAuthorized, setIsSpotifyAuthorized] = useState(false)
-  useEffect(() => {
-    setIsSpotifyAuthorized(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN) !== null
-    )
-  }, [])
+  const { settingState: spotifySettingState } = useSpotifySettingState()
   const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState<
     number | undefined
   >(0)
   const [spotifySearchResult, setSpotifySearchResult] = useState<Track[]>([])
 
-  const [isWebDAVAuthorized, setIsWebDAVAuthorized] = useState(false)
-  useEffect(() => {
-    setIsWebDAVAuthorized(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_IS_AUTHENTICATED) ===
-        "true"
-    )
-  }, [])
+  const { settingState: webDAVSettingState } = useWebDAVSettingState()
   const [webDAVTrackDatabaseSearchResult, setWebDAVTrackDatabaseSearchResult] =
     useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報をキャッシュ済み)
   const [webDAVSearchResult, setWebDAVSearchResult] = useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報のキャッシュ無し)
@@ -68,7 +59,7 @@ const useSearch = () => {
           data: []
           nextOffset: number
         } | void>(async resolve => {
-          if (!isSpotifyAuthorized) {
+          if (spotifySettingState === "none") {
             resolve({ data: [], nextOffset: 0 })
           }
           const spotifyRes = await searchSpotifyTracks(
@@ -87,9 +78,7 @@ const useSearch = () => {
 
         const webDAVTrackDatabasePromise = new Promise<[] | void>(
           async resolve => {
-            if (!isWebDAVAuthorized) {
-              resolve([])
-            }
+            if (webDAVSettingState === "none") resolve([])
 
             const webDAVTrackDatabaseRes = await searchWebDAVTrackDatabase(
               input
@@ -110,9 +99,7 @@ const useSearch = () => {
             LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
           )
 
-          if (!isWebDAVAuthorized || !folderPaths) {
-            resolve([])
-          }
+          if (webDAVSettingState === "none" || !folderPaths) resolve([])
 
           const webDAVRes = await searchWebDAVTracks(
             JSON.parse(folderPaths!),
@@ -139,11 +126,11 @@ const useSearch = () => {
       }, 500)
     },
     [
-      isSpotifyAuthorized,
+      spotifySettingState,
       searchSpotifyTracks,
       setErrorModalInstance,
       spotifySearchNextOffset,
-      isWebDAVAuthorized,
+      webDAVSettingState,
       searchWebDAVTrackDatabase,
       searchWebDAVTracks
     ]
@@ -180,8 +167,6 @@ const useSearch = () => {
   return {
     keyword,
     handleKeywordChange,
-    isSpotifyAuthorized,
-    isWebDAVAuthorized,
     spotifySearchResult,
     webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
