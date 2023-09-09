@@ -3,7 +3,6 @@ import { useViewportSize } from "@mantine/hooks"
 import { memo, useCallback, useMemo } from "react"
 import { FixedSizeList } from "react-window"
 import { useRecoilValue } from "recoil"
-import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
@@ -13,6 +12,7 @@ import { HEADER_HEIGHT, QUEUE_PADDING_TOP } from "@/constants/Styling"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
+  playerHeight: number
   onSkipTo: (trackId: string) => Promise<void>
   onMoveToFront: (trackId: string) => void
   onAddToFront: (trackId: string) => void
@@ -21,6 +21,7 @@ type Props = {
 }
 
 const Queue = ({
+  playerHeight,
   onSkipTo,
   onMoveToFront,
   onAddToFront,
@@ -29,7 +30,6 @@ const Queue = ({
 }: Props) => {
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
-  const playerHeight = useRecoilValue(playerHeightAtom)
   const scrollAreaHeight = useMemo(
     () => viewportHeight - HEADER_HEIGHT - playerHeight,
     [viewportHeight, playerHeight]

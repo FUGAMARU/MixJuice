@@ -1,10 +1,15 @@
 import { Box, Flex, Tooltip } from "@mantine/core"
 import { useElementSize, useHover } from "@mantine/hooks"
-import { memo, useEffect, useMemo, useState } from "react"
+import {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useEffect,
+  useMemo,
+  useState
+} from "react"
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
 import { HiVolumeUp } from "react-icons/hi"
-import { useSetRecoilState } from "recoil"
-import { playerHeightAtom } from "@/atoms/playerHeightAtom"
 import PlaybackStateBadge from "@/components/parts/PlaybackStateBadge"
 import AlbumArtwork from "@/components/templates/MainPage/AlbumArtwork"
 import TrackInfo from "@/components/templates/MainPage/TrackInfo"
@@ -26,6 +31,7 @@ type Props = {
   hasSomeTrack: boolean
   spotifyPlaybackQuality: string | undefined
   isPreparingPlayback: boolean
+  setPlayerHeight: Dispatch<SetStateAction<number>>
 }
 
 let timerId: NodeJS.Timeout
@@ -39,7 +45,8 @@ const Player = ({
   onSeekTo,
   hasSomeTrack,
   spotifyPlaybackQuality,
-  isPreparingPlayback
+  isPreparingPlayback,
+  setPlayerHeight
 }: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
@@ -48,7 +55,6 @@ const Player = ({
     width: containerWidth
   } = useElementSize()
 
-  const setPlayerHeight = useSetRecoilState(playerHeightAtom)
   useEffect(() => {
     setPlayerHeight(containerHeight)
   }, [containerHeight, setPlayerHeight])

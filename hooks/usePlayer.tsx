@@ -7,7 +7,6 @@ import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -23,9 +22,7 @@ const usePlayer = ({ initialize }: Props) => {
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
   const [volume, setVolume] = useState(0.5)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isPreparingPlayback, setIsPreparingPlayback] = useRecoilState(
-    preparingPlaybackAtom
-  )
+  const [isPreparingPlayback, setIsPreparingPlayback] = useState(false)
 
   const hasSomeTrack = useMemo(
     () => queue.length > 0 || currentTrackInfo !== undefined,
@@ -410,6 +407,7 @@ const usePlayer = ({ initialize }: Props) => {
     hasSomeTrack,
     spotifyPlaybackQuality,
     isPreparingPlayback,
+    setIsPreparingPlayback,
     onSearchModalPlay,
     onMoveNewTrackToFront,
     onAddNewTrackToFront,

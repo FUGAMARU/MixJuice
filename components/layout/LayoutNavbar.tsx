@@ -12,7 +12,15 @@ import {
   ScrollArea
 } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react"
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { useRecoilState, useSetRecoilState } from "recoil"
@@ -20,7 +28,6 @@ import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -36,12 +43,17 @@ type Props = {
   isPlaying: boolean
   canSlideNavbar: boolean
   onPlay: (track: Track) => Promise<void>
+  setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
 }
 
-const LayoutNavbar = ({ isPlaying, canSlideNavbar, onPlay }: Props) => {
+const LayoutNavbar = ({
+  isPlaying,
+  canSlideNavbar,
+  onPlay,
+  setIsPreparingPlayback
+}: Props) => {
   const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
-  const setIsPreparingPlayback = useSetRecoilState(preparingPlaybackAtom)
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
   const [isOpened, setIsOpened] = useRecoilState(navbarAtom)
