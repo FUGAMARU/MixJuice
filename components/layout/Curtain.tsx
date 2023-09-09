@@ -9,6 +9,7 @@ import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { HEADER_HEIGHT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
@@ -52,6 +53,19 @@ const Curtain = ({ children }: Props) => {
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
+
+  useEffect(() => {
+    const localStorageDataFormatVersion = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.LOCAL_STORAGE_DATA_FORMAT_VERSION
+    )
+
+    if (!localStorageDataFormatVersion) {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.LOCAL_STORAGE_DATA_FORMAT_VERSION,
+        "1"
+      )
+    }
+  }, [])
 
   return (
     <>
