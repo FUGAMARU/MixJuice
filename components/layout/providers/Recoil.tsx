@@ -2,12 +2,9 @@
 
 import { memo } from "react"
 import { RecoilRoot } from "recoil"
+import { Children } from "@/types/Children"
 
-type Props = {
-  children: React.ReactNode
-}
-
-const Recoil = ({ children }: Props) => {
+const Recoil = ({ children }: Children) => {
   return <RecoilRoot>{children}</RecoilRoot>
 }
 

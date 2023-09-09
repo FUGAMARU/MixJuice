@@ -14,13 +14,10 @@ import { HEADER_HEIGHT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
+import { Children } from "@/types/Children"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
-type Props = {
-  children: React.ReactNode
-}
-
-const Curtain = ({ children }: Props) => {
+const Curtain = ({ children }: Children) => {
   const pathname = usePathname()
 
   const screenHeightWithoutHeader = useMemo(

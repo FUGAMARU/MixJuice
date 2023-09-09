@@ -4,12 +4,9 @@ import { MantineProvider } from "@mantine/core"
 import { Notifications } from "@mantine/notifications"
 import { memo } from "react"
 import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { Children } from "@/types/Children"
 
-type Props = {
-  children: React.ReactNode
-}
-
-const MantineUI = ({ children }: Props) => {
+const MantineUI = ({ children }: Children) => {
   return (
     <MantineProvider
       withGlobalStyles

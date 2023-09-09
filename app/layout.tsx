@@ -6,8 +6,9 @@ import CustomFonts from "@/components/layout/CustomFonts"
 import VercelShape from "@/components/layout/VercelShape"
 import MantineUI from "@/components/layout/providers/MantineUI"
 import Recoil from "@/components/layout/providers/Recoil"
+import { Children } from "@/types/Children"
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+const RootLayout = ({ children }: Children) => {
   return (
     <html lang="ja">
       <head>
