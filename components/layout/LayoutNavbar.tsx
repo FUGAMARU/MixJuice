@@ -15,11 +15,11 @@ import { useHotkeys } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
-import { useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { navbarClassNameAtom } from "@/atoms/navbarAtom"
+import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { preparingPlaybackAtom } from "@/atoms/preparingPlaybackAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
@@ -33,16 +33,18 @@ import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
 type Props = {
-  isOpened: boolean
   isPlaying: boolean
+  canSlideNavbar: boolean
   onPlay: (track: Track) => Promise<void>
 }
 
-const LayoutNavbar = ({ isOpened, isPlaying, onPlay }: Props) => {
+const LayoutNavbar = ({ isPlaying, canSlideNavbar, onPlay }: Props) => {
   const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
   const setIsPreparingPlayback = useSetRecoilState(preparingPlaybackAtom)
-  const navbarClassName = useRecoilValue(navbarClassNameAtom)
+  const [navbarClassName, setNavbarClassName] =
+    useRecoilState(navbarClassNameAtom)
+  const [isOpened, setIsOpened] = useRecoilState(navbarAtom)
   const setQueue = useSetRecoilState(queueAtom)
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const { mixAllTracks } = useMIX()
@@ -51,6 +53,20 @@ const LayoutNavbar = ({ isOpened, isPlaying, onPlay }: Props) => {
     ["Slash", () => setIsSearchModalOpen(true)],
     ["mod+K", () => setIsSearchModalOpen(true)]
   ])
+
+  // TODO: LayoutHeaderにあるLayoutNavbarを閉じるロジックと全く同じだから共通化したい
+  const closeOwn = useCallback(() => {
+    const prefix = "animate__animated animate__faster"
+    if (isOpened) {
+      setNavbarClassName(`${prefix} animate__slideOutLeft`)
+      setTimeout(() => {
+        setIsOpened(false)
+      }, 400)
+    } else {
+      setNavbarClassName(`${prefix} animate__slideInLeft`)
+      setIsOpened(true)
+    }
+  }, [isOpened, setNavbarClassName, setIsOpened])
 
   const [playlists, setPlaylists] = useState<NavbarItem[]>([])
   const spotifyPlaylists = useMemo(
@@ -173,6 +189,8 @@ const LayoutNavbar = ({ isOpened, isPlaying, onPlay }: Props) => {
           playNext: false
         }))
       )
+
+      if (canSlideNavbar) closeOwn()
     } catch (e) {
       setErrorModalInstance(prev => [...prev, e])
     } finally {
@@ -187,7 +205,9 @@ const LayoutNavbar = ({ isOpened, isPlaying, onPlay }: Props) => {
     setErrorModalInstance,
     setIsPreparingPlayback,
     isPlaying,
-    onPlay
+    onPlay,
+    canSlideNavbar,
+    closeOwn
   ])
 
   return (

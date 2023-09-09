@@ -10,7 +10,7 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const LayoutHeader = () => {
-  const [isNavbarOpened, setNavbarOpened] = useRecoilState(navbarAtom)
+  const [isNavbarOpened, setIsNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
   const { breakPoint } = useBreakPoints()
   const isConnectPage = useRecoilValue(connectAtom)
@@ -20,13 +20,13 @@ const LayoutHeader = () => {
     if (isNavbarOpened) {
       setNavbarClassName(`${prefix} animate__slideOutLeft`)
       setTimeout(() => {
-        setNavbarOpened(false)
+        setIsNavbarOpened(false)
       }, 400)
     } else {
       setNavbarClassName(`${prefix} animate__slideInLeft`)
-      setNavbarOpened(true)
+      setIsNavbarOpened(true)
     }
-  }, [isNavbarOpened, setNavbarClassName, setNavbarOpened])
+  }, [isNavbarOpened, setNavbarClassName, setIsNavbarOpened])
 
   const headerIndex = useMemo(() => generateRandomNumber(1, 12), []) // メモ化しないとハンバーガーメニューでNavbarを開閉する度にアイコンが変わってしまう
 

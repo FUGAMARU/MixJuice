@@ -84,10 +84,34 @@ const MainPage = () => {
 
   const queue = useRecoilValue(queueAtom)
 
+  const canSlideNavbar = useMemo(() => breakPoint !== "PC", [breakPoint])
+  const layoutNavbar = useMemo(
+    () => (
+      <LayoutNavbar
+        isPlaying={isPlaying}
+        canSlideNavbar={canSlideNavbar}
+        onPlay={onPlay}
+      />
+    ),
+    [canSlideNavbar, isPlaying, onPlay]
+  )
+
   return (
     <>
       <Flex>
-        {breakPoint === "PC" ? (
+        {canSlideNavbar ? (
+          <Box
+            w={defaultNavbarWidth}
+            h={screenHeightWithoutHeader}
+            pos="absolute"
+            left={0}
+            sx={{
+              zIndex: isNavbarOpened ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED : 0
+            }}
+          >
+            {layoutNavbar}
+          </Box>
+        ) : (
           <Rnd
             default={{
               x: 0,
@@ -108,28 +132,8 @@ const MainPage = () => {
               zIndex: ZINDEX_NUMBERS.NAVBAR_EXPANDED
             }}
           >
-            <LayoutNavbar
-              isOpened={isNavbarOpened}
-              isPlaying={isPlaying}
-              onPlay={onPlay}
-            />
+            {layoutNavbar}
           </Rnd>
-        ) : (
-          <Box
-            w={defaultNavbarWidth}
-            h={screenHeightWithoutHeader}
-            pos="absolute"
-            left={0}
-            sx={{
-              zIndex: isNavbarOpened ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED : 0
-            }}
-          >
-            <LayoutNavbar
-              isOpened={isNavbarOpened}
-              isPlaying={isPlaying}
-              onPlay={onPlay}
-            />
-          </Box>
         )}
 
         <Box w="100%" sx={{ flex: 1 }}>
