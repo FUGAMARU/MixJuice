@@ -2,10 +2,10 @@ import { notifications } from "@mantine/notifications"
 import { useCallback } from "react"
 import { useSetRecoilState } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
-import useSpotifyToken from "./useSpotifyToken"
 import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Track, TrackWithPath, formatFromSpotifyTrack } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
@@ -14,10 +14,13 @@ let hasDisplayedNotification = false
 
 const useMIX = () => {
   const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
-  const { hasValidAccessTokenState } = useSpotifyToken({ initialize: false })
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
-  const { getFolderTracks, getTrackInfo: getWebDAVServerTrackInfo } =
-    useWebDAVServer()
+  const {
+    getFolderTracks,
+    getTrackInfo: getWebDAVServerTrackInfo,
+    checkIsFolderExists,
+    checkAuth
+  } = useWebDAVServer()
   const {
     saveTrackInfo,
     isTrackInfoExists,
@@ -26,8 +29,6 @@ const useMIX = () => {
 
   const getSpotifyPlaylistTracks = useCallback(
     async (playlists: NavbarItem[]) => {
-      let tracksForPlaylists: Track[][] = []
-
       const getPlaylistTracksAsync = async (
         playlistId: string
       ): Promise<Track[]> => {
@@ -35,32 +36,63 @@ const useMIX = () => {
         return res.map(item => formatFromSpotifyTrack(item))
       }
 
-      const selectedPlaylists = playlists.filter(p => p.checked === true)
-
-      if (hasValidAccessTokenState()) {
-        console.log("🟦DEBUG: 並列処理でプレイリストの情報を取得します")
-        tracksForPlaylists = await Promise.all(
-          selectedPlaylists.map(playlist => getPlaylistTracksAsync(playlist.id))
-        )
-      } else {
-        /** アクセストークンがRecoilStateにセットされていない状態で並列処理でリクエストするとトークンの更新処理が何回も走ってしまうので逐次処理でリクエストを行う */
-        console.log("🟦DEBUG: 逐次処理でプレイリストの情報を取得します")
-        for (const playlist of selectedPlaylists) {
-          const tracks = await getPlaylistTracksAsync(playlist.id)
-          tracksForPlaylists.push(tracks)
+      const tracksForPlaylists: Track[][] = []
+      for (const playlist of playlists) {
+        try {
+          const playlistTracks = await getPlaylistTracksAsync(playlist.id)
+          tracksForPlaylists.push(playlistTracks)
+        } catch {
+          // 例外が発生しても何もしなくてOK
         }
       }
 
+      if (tracksForPlaylists.length !== playlists.length)
+        /** TODO: Spotifyのプレイリストは削除しても90日経たないと完全削除されないため、Spotify上で削除してからすぐはこのエラーが発生しない
+         * 2023年12月8日以降にプレイリストID「1INkxTlQ2KWyAC5413T72c」を使用してちゃんと動くか検証する必要がある
+         */
+        setErrorModalInstance(prev => [
+          ...prev,
+          new Error(
+            "存在しないSpotifyプレイリストがMIXの対象に含まれていました。当該プレイリストのMIXはスキップされます。"
+          )
+        ])
+
       return tracksForPlaylists.flat()
     },
-    [getPlaylistTracks, hasValidAccessTokenState]
+    [getPlaylistTracks, setErrorModalInstance]
   )
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
       try {
+        const address = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS)
+        const username = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_USER)
+        const password = localStorage.getItem(
+          LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD
+        )
+
+        if (!address || !username || !password)
+          throw new Error("WebDAVサーバーの認証情報が存在しません")
+
+        await checkAuth(address, username, password)
+
+        /** フォルダーが現存するか確認する */
+        const availableFolderPaths: NavbarItem[] = []
+        for (const folderPath of folderPaths) {
+          const isFolderExists = await checkIsFolderExists(folderPath.id)
+          if (isFolderExists) availableFolderPaths.push(folderPath)
+        }
+
+        if (folderPaths.length !== availableFolderPaths.length)
+          setErrorModalInstance(prev => [
+            ...prev,
+            new Error(
+              "存在しないWebDAVフォルダーがMIXの対象に含まれていました。当該フォルダーのMIXはスキップされます。"
+            )
+          ])
+
         const foldersTracks = await Promise.all(
-          folderPaths.map(async folderPath => {
+          availableFolderPaths.map(async folderPath => {
             return await getFolderTracks(folderPath.id, "")
           })
         )
@@ -124,20 +156,25 @@ const useMIX = () => {
       isTrackInfoExists,
       saveTrackInfo,
       getWebDAVServerTrackInfo,
-      setErrorModalInstance
+      setErrorModalInstance,
+      checkIsFolderExists,
+      checkAuth
     ]
   )
 
   const mixAllTracks = useCallback(
-    async (spotifyPlaylists: NavbarItem[], webDAVFolders: NavbarItem[]) => {
+    async (
+      checkedSpotifyPlaylists: NavbarItem[],
+      checkedWebDAVFolders: NavbarItem[]
+    ) => {
       const spotifyTracksPromise =
-        spotifyPlaylists.length > 0
-          ? getSpotifyPlaylistTracks(spotifyPlaylists)
+        checkedSpotifyPlaylists.length > 0
+          ? getSpotifyPlaylistTracks(checkedSpotifyPlaylists)
           : Promise.resolve([])
 
       const webdavTracksPromise =
-        webDAVFolders.length > 0
-          ? getWebDAVFolderTracks(webDAVFolders)
+        checkedWebDAVFolders.length > 0
+          ? getWebDAVFolderTracks(checkedWebDAVFolders)
           : Promise.resolve([])
 
       const [spotifyPlaylistTracks, webdavFolderTracks] = await Promise.all([
