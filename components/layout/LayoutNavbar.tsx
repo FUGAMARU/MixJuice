@@ -12,6 +12,7 @@ import {
   ScrollArea
 } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
+import { useRouter } from "next/navigation"
 import {
   Dispatch,
   SetStateAction,
@@ -23,6 +24,7 @@ import {
 } from "react"
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
+import { GrConnect } from "react-icons/gr"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
@@ -54,6 +56,7 @@ const LayoutNavbar = ({
   onPlay,
   setIsPreparingPlayback
 }: Props) => {
+  const router = useRouter()
   const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
@@ -344,19 +347,29 @@ const LayoutNavbar = ({
         pt="xs"
         sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
       >
-        <Flex align="center" sx={{ cursor: "pointer" }}>
-          <BsClockHistory />
-          <Space w="xs" />
-          <Text weight={600}>再生履歴</Text>
-        </Flex>
+        <Stack spacing="xs">
+          <Flex align="center" sx={{ cursor: "pointer" }}>
+            <BsClockHistory />
+            <Space w="xs" />
+            <Text weight={600}>再生履歴</Text>
+          </Flex>
 
-        <Space h="xs" />
+          <Flex
+            align="center"
+            sx={{ cursor: "pointer" }}
+            onClick={() => router.push("/connect")}
+          >
+            <GrConnect />
+            <Space w="xs" />
+            <Text weight={600}>サービス接続設定</Text>
+          </Flex>
 
-        <Flex align="center" sx={{ cursor: "pointer" }}>
-          <BsInfoCircle />
-          <Space w="xs" />
-          <Text weight={600}>MixJuiceについて</Text>
-        </Flex>
+          <Flex align="center" sx={{ cursor: "pointer" }}>
+            <BsInfoCircle />
+            <Space w="xs" />
+            <Text weight={600}>MixJuiceについて</Text>
+          </Flex>
+        </Stack>
       </Navbar.Section>
     </Navbar>
   )
