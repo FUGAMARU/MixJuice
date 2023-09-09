@@ -163,7 +163,11 @@ const SearchModal = ({
                 <>
                   {webDAVTrackDatabaseSearchResult.map(track => (
                     <ListItemContainer key={track.id}>
-                      <Box sx={{ flex: "1", overflow: "hidden" }}>
+                      <Flex
+                        align="center"
+                        justify="space-between"
+                        sx={{ flex: "1", overflow: "hidden" }}
+                      >
                         <ListItem
                           image={track.image}
                           title={track.title}
@@ -172,7 +176,14 @@ const SearchModal = ({
                             handleArtworkPlayButtonClick(track)
                           }
                         />
-                      </Box>
+
+                        <QueueOperator
+                          canMoveToFront={canMoveToFront}
+                          canAddToFront={canAddToFront}
+                          onMoveToFront={() => onMoveNewTrackToFront(track)}
+                          onAddToFront={() => onAddNewTrackToFront(track)}
+                        />
+                      </Flex>
                     </ListItemContainer>
                   ))}
                 </>
@@ -199,7 +210,11 @@ const SearchModal = ({
                 <>
                   {webDAVSearchResult.map(track => (
                     <ListItemContainer key={track.id}>
-                      <Box sx={{ flex: "1", overflow: "hidden" }}>
+                      <Flex
+                        align="center"
+                        justify="space-between"
+                        sx={{ flex: "1", overflow: "hidden" }}
+                      >
                         <ListItem
                           image={track.image}
                           title={track.title}
@@ -208,7 +223,14 @@ const SearchModal = ({
                             handleArtworkPlayButtonClick(track)
                           }
                         />
-                      </Box>
+
+                        <QueueOperator
+                          canMoveToFront={canMoveToFront}
+                          canAddToFront={canAddToFront}
+                          onMoveToFront={() => onMoveNewTrackToFront(track)}
+                          onAddToFront={() => onAddNewTrackToFront(track)}
+                        />
+                      </Flex>
                     </ListItemContainer>
                   ))}
                 </>
