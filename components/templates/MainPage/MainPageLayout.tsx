@@ -96,6 +96,7 @@ const MainPageLayout = ({
             height: screenHeightWithoutHeader
           }}
           minWidth={215}
+          maxWidth="50%"
           onResize={(_, __, ref, ___, ____) =>
             localStorage.setItem(
               LOCAL_STORAGE_KEYS.NAVBAR_DRAGGED_WIDTH,
