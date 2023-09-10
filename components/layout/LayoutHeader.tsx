@@ -4,7 +4,7 @@ import { memo, useCallback, useMemo } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { connectAtom } from "@/atoms/connectAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import { HEADER_HEIGHT, TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
@@ -32,7 +32,7 @@ const LayoutHeader = () => {
 
   return (
     <Box
-      h={HEADER_HEIGHT}
+      h={STYLING_VALUES.HEADER_HEIGHT}
       pos="relative"
       sx={theme => ({
         boxShadow: theme.shadows.sm,
@@ -46,7 +46,7 @@ const LayoutHeader = () => {
               opened={isNavbarOpened}
               onClick={handleBurgerClick}
               size="sm"
-              color={TEXT_COLOR_DEFAULT}
+              color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
               mr="xl"
             />
           )}

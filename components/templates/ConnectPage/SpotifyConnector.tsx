@@ -20,7 +20,7 @@ import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { TEXT_COLOR_BLUE } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -158,7 +158,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
               ClientIDの取得方法は
               <Link
                 href="https://developer.spotify.com/documentation/web-api/concepts/apps"
-                style={{ color: TEXT_COLOR_BLUE }}
+                style={{ color: STYLING_VALUES.TEXT_COLOR_BLUE }}
                 target="_blank"
                 rel="noopener noreferrer"
               >

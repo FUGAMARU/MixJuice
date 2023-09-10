@@ -3,7 +3,7 @@
 import { MantineProvider } from "@mantine/core"
 import { Notifications } from "@mantine/notifications"
 import { memo } from "react"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { Children } from "@/types/Children"
 
 const MantineUI = ({ children }: Children) => {
@@ -15,27 +15,27 @@ const MantineUI = ({ children }: Children) => {
         components: {
           Box: {
             defaultProps: {
-              color: TEXT_COLOR_DEFAULT
+              color: STYLING_VALUES.TEXT_COLOR_DEFAULT
             }
           },
           Flex: {
             defaultProps: {
-              color: TEXT_COLOR_DEFAULT
+              color: STYLING_VALUES.TEXT_COLOR_DEFAULT
             }
           },
           Text: {
             defaultProps: {
-              color: TEXT_COLOR_DEFAULT
+              color: STYLING_VALUES.TEXT_COLOR_DEFAULT
             }
           },
           Title: {
             defaultProps: {
-              color: TEXT_COLOR_DEFAULT
+              color: STYLING_VALUES.TEXT_COLOR_DEFAULT
             }
           },
           Paper: {
             defaultProps: {
-              color: TEXT_COLOR_DEFAULT
+              color: STYLING_VALUES.TEXT_COLOR_DEFAULT
             }
           }
         },

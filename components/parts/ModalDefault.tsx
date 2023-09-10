@@ -1,6 +1,6 @@
 import { Modal, Box } from "@mantine/core"
 import { memo } from "react"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 
 type Props = {
   title: React.ReactNode
@@ -27,7 +27,7 @@ const ModalDefault = ({
       title={title}
       centered
       styles={{
-        title: { color: TEXT_COLOR_DEFAULT, fontWeight: 700 }
+        title: { color: STYLING_VALUES.TEXT_COLOR_DEFAULT, fontWeight: 700 }
       }}
       withCloseButton={!withoutCloseButton}
     >

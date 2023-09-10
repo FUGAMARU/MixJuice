@@ -8,7 +8,7 @@ import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
 import QueueOperator from "@/components/parts/QueueOperator"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
-import { HEADER_HEIGHT, QUEUE_PADDING_TOP } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 type Props = {
@@ -31,7 +31,7 @@ const Queue = ({
   const { setRespVal } = useBreakPoints()
   const { height: viewportHeight } = useViewportSize()
   const scrollAreaHeight = useMemo(
-    () => viewportHeight - HEADER_HEIGHT - playerHeight,
+    () => viewportHeight - STYLING_VALUES.HEADER_HEIGHT - playerHeight,
     [viewportHeight, playerHeight]
   )
   const queue = useRecoilValue(queueAtom)
@@ -47,7 +47,7 @@ const Queue = ({
     <Box
       h={scrollAreaHeight}
       px={setRespVal("0.5rem", "0.5rem", "1.5rem")}
-      pt={`${QUEUE_PADDING_TOP}px`}
+      pt={`${STYLING_VALUES.QUEUE_PADDING_TOP}px`}
     >
       {queue.length === 0 && (
         <Text ta="center" fz={setRespVal("xs", "sm", "sm")}>
@@ -57,7 +57,7 @@ const Queue = ({
 
       <FixedSizeList
         width="100%"
-        height={scrollAreaHeight - QUEUE_PADDING_TOP}
+        height={scrollAreaHeight - STYLING_VALUES.QUEUE_PADDING_TOP}
         itemCount={queue.length}
         itemSize={80} // キューのアイテム1つ分の高さ
       >

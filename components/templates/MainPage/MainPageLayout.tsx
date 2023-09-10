@@ -13,7 +13,7 @@ import { useRecoilValue } from "recoil"
 import { navbarAtom } from "@/atoms/navbarAtom"
 import LayoutNavbar from "@/components/layout/LayoutNavbar"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { HEADER_HEIGHT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { Provider } from "@/types/Provider"
@@ -56,7 +56,7 @@ const MainPageLayout = ({
     return "20%"
   }, [breakPoint, navbarDraggedWidth])
   const screenHeightWithoutHeader = useMemo(
-    () => `calc(100vh - ${HEADER_HEIGHT}px)`,
+    () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,
     []
   )
 

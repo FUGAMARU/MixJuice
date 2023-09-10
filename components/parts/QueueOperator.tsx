@@ -2,7 +2,7 @@ import { Flex, Box, Tooltip } from "@mantine/core"
 import { Dispatch, SetStateAction, memo, useCallback, useState } from "react"
 import { IoMdCheckmarkCircleOutline } from "react-icons/io"
 import { LuListStart, LuListPlus } from "react-icons/lu"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 
 type Props = {
   canMoveToFront: boolean
@@ -56,13 +56,16 @@ const QueueOperator = ({
       >
         <Tooltip
           label="キューの先頭に移動"
-          transitionProps={{ transition: "fade", duration: 300 }}
+          transitionProps={{
+            transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
+            duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
+          }}
         >
           <Box className={moveButtonClassNames}>
             {isDisplayMoveButton ? (
               <LuListStart
                 size="1.3rem"
-                color={TEXT_COLOR_DEFAULT}
+                color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
                 style={{ flexShrink: 0, cursor: "pointer" }}
                 onClick={() => {
                   onMoveToFront()
@@ -75,7 +78,7 @@ const QueueOperator = ({
             ) : (
               <IoMdCheckmarkCircleOutline
                 size="1.3rem"
-                color={TEXT_COLOR_DEFAULT}
+                color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
                 style={{ flexShrink: 0 }}
               />
             )}
@@ -90,13 +93,16 @@ const QueueOperator = ({
       >
         <Tooltip
           label="キューの先頭に追加"
-          transitionProps={{ transition: "fade", duration: 300 }}
+          transitionProps={{
+            transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
+            duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
+          }}
         >
           <Box className={addButtonClassNames}>
             {isDisplayAddButton ? (
               <LuListPlus
                 size="1.3rem"
-                color={TEXT_COLOR_DEFAULT}
+                color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
                 style={{ flexShrink: 0, cursor: "pointer" }}
                 onClick={() => {
                   onAddToFront()
@@ -106,7 +112,7 @@ const QueueOperator = ({
             ) : (
               <IoMdCheckmarkCircleOutline
                 size="1.3rem"
-                color={TEXT_COLOR_DEFAULT}
+                color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
                 style={{ flexShrink: 0 }}
               />
             )}

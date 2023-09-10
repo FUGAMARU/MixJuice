@@ -3,7 +3,7 @@ import Image from "next/image"
 import { memo } from "react"
 import { BiCheckboxChecked, BiCheckboxMinus } from "react-icons/bi"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
-import { TEXT_COLOR_DEFAULT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { Provider } from "@/types/Provider"
 
 type Props = {
@@ -37,13 +37,13 @@ const ProviderHeading = ({
       {onClick && (
         <Flex pr="md" align="center">
           <BiCheckboxChecked
-            color={TEXT_COLOR_DEFAULT}
+            color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
             size="1.5rem"
             style={{ cursor: "pointer" }}
             onClick={() => onClick && onClick(provider, true)}
           />
           <BiCheckboxMinus
-            color={TEXT_COLOR_DEFAULT}
+            color={STYLING_VALUES.TEXT_COLOR_DEFAULT}
             size="1.5rem"
             style={{ cursor: "pointer" }}
             onClick={() => onClick && onClick(provider, false)}

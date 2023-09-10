@@ -6,7 +6,7 @@ import {
   IoIosArrowForward,
   IoIosArrowUp
 } from "react-icons/io"
-import { TEXT_COLOR_BLUE } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 
 type Props = {
   direction: "up" | "down" | "left" | "right"
@@ -20,13 +20,33 @@ const ArrowTextButton = ({ direction, onClick, children }: Props) => {
   const icon = useMemo(() => {
     switch (direction) {
       case "up":
-        return <IoIosArrowUp color={TEXT_COLOR_BLUE} style={iconStyle} />
+        return (
+          <IoIosArrowUp
+            color={STYLING_VALUES.TEXT_COLOR_BLUE}
+            style={iconStyle}
+          />
+        )
       case "down":
-        return <IoIosArrowDown color={TEXT_COLOR_BLUE} style={iconStyle} />
+        return (
+          <IoIosArrowDown
+            color={STYLING_VALUES.TEXT_COLOR_BLUE}
+            style={iconStyle}
+          />
+        )
       case "left":
-        return <IoIosArrowBack color={TEXT_COLOR_BLUE} style={iconStyle} />
+        return (
+          <IoIosArrowBack
+            color={STYLING_VALUES.TEXT_COLOR_BLUE}
+            style={iconStyle}
+          />
+        )
       case "right":
-        return <IoIosArrowForward color={TEXT_COLOR_BLUE} style={iconStyle} />
+        return (
+          <IoIosArrowForward
+            color={STYLING_VALUES.TEXT_COLOR_BLUE}
+            style={iconStyle}
+          />
+        )
     }
   }, [direction, iconStyle])
 

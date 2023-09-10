@@ -33,7 +33,7 @@ import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { NAVBAR_PADDING } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import useMIX from "@/hooks/useMIX"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { NavbarItem } from "@/types/NavbarItem"
@@ -238,7 +238,7 @@ const LayoutNavbar = ({
       className={navbarClassName}
       width={{ base: "100%" }}
       height={height} // 100%だとスクロールが効かなくなる
-      p={`${NAVBAR_PADDING}px`}
+      p={`${STYLING_VALUES.NAVBAR_PADDING}px`}
       hidden={!isOpened}
     >
       <Navbar.Section pb="md">

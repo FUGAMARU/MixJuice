@@ -13,6 +13,7 @@ import { HiVolumeUp } from "react-icons/hi"
 import PlaybackStateBadge from "@/components/parts/PlaybackStateBadge"
 import AlbumArtwork from "@/components/templates/MainPage/AlbumArtwork"
 import TrackInfo from "@/components/templates/MainPage/TrackInfo"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
@@ -167,7 +168,11 @@ const Player = ({
                   isPreparingPlayback ? "再生準備中…" : "ストリーミング品質"
                 }
                 withArrow
-                transitionProps={{ transition: "fade", duration: 300 }}
+                transitionProps={{
+                  transition:
+                    STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
+                  duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
+                }}
               >
                 <Box>
                   <PlaybackStateBadge
@@ -186,7 +191,10 @@ const Player = ({
             <Tooltip
               label="音量"
               withArrow
-              transitionProps={{ transition: "fade", duration: 300 }}
+              transitionProps={{
+                transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
+                duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
+              }}
             >
               <Box>
                 <PlaybackStateBadge cursor="pointer">
@@ -203,7 +211,10 @@ const Player = ({
             <Tooltip
               label="残り再生時間"
               withArrow
-              transitionProps={{ transition: "fade", duration: 300 }}
+              transitionProps={{
+                transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
+                duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
+              }}
             >
               <Box>
                 <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>

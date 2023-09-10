@@ -10,7 +10,7 @@ import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { HEADER_HEIGHT } from "@/constants/Styling"
+import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -21,7 +21,7 @@ const Curtain = ({ children }: Children) => {
   const pathname = usePathname()
 
   const screenHeightWithoutHeader = useMemo(
-    () => `calc(100vh - ${HEADER_HEIGHT}px)`,
+    () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,
     []
   )
   const isConnectPage = useMemo(() => pathname === "/connect", [pathname])
