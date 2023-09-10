@@ -189,24 +189,22 @@ const Player = ({
               </Flex>
             </PlaybackStateBadge>
 
-            {isPlaying && (
-              <Tooltip label="残り再生時間">
-                <Box>
-                  <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
-                    <Flex align="center" gap="0.2rem">
-                      <Box lh={0}>
-                        {isPlaying ? (
-                          <BsFillPlayFill size="1.2rem" />
-                        ) : (
-                          <BsFillPauseFill size="1.2rem" />
-                        )}
-                      </Box>
-                      {remainingTime}
-                    </Flex>
-                  </PlaybackStateBadge>
-                </Box>
-              </Tooltip>
-            )}
+            <Tooltip label="残り再生時間">
+              <Box>
+                <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
+                  <Flex align="center" gap="0.2rem">
+                    <Box lh={0}>
+                      {isPlaying ? (
+                        <BsFillPlayFill size="1.2rem" />
+                      ) : (
+                        <BsFillPauseFill size="1.2rem" />
+                      )}
+                    </Box>
+                    {remainingTime}
+                  </Flex>
+                </PlaybackStateBadge>
+              </Box>
+            </Tooltip>
           </Flex>
         )}
       </Flex>

@@ -127,6 +127,7 @@ const SearchModal = ({
                         canAddToFront={canAddToFront}
                         onMoveToFront={() => onMoveNewTrackToFront(track)}
                         onAddToFront={() => onAddNewTrackToFront(track)}
+                        animated
                       />
                     </Flex>
                   </ListItemContainer>
@@ -189,6 +190,7 @@ const SearchModal = ({
                           canAddToFront={canAddToFront}
                           onMoveToFront={() => onMoveNewTrackToFront(track)}
                           onAddToFront={() => onAddNewTrackToFront(track)}
+                          animated
                         />
                       </Flex>
                     </ListItemContainer>
@@ -236,6 +238,7 @@ const SearchModal = ({
                           canAddToFront={canAddToFront}
                           onMoveToFront={() => onMoveNewTrackToFront(track)}
                           onAddToFront={() => onAddNewTrackToFront(track)}
+                          animated
                         />
                       </Flex>
                     </ListItemContainer>
