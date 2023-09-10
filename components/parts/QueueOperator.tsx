@@ -54,7 +54,10 @@ const QueueOperator = ({
           visibility: canMoveToFront ? "visible" : "hidden"
         }}
       >
-        <Tooltip label="キューの先頭に移動">
+        <Tooltip
+          label="キューの先頭に移動"
+          transitionProps={{ transition: "fade", duration: 300 }}
+        >
           <Box className={moveButtonClassNames}>
             {isDisplayMoveButton ? (
               <LuListStart
@@ -85,7 +88,10 @@ const QueueOperator = ({
           visibility: canAddToFront ? "visible" : "hidden"
         }}
       >
-        <Tooltip label="キューの先頭に追加">
+        <Tooltip
+          label="キューの先頭に追加"
+          transitionProps={{ transition: "fade", duration: 300 }}
+        >
           <Box className={addButtonClassNames}>
             {isDisplayAddButton ? (
               <LuListPlus

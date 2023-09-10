@@ -11,9 +11,11 @@ import MainPageLayout from "@/components/templates/MainPage/MainPageLayout"
 import Player from "@/components/templates/MainPage/Player"
 import Queue from "@/components/templates/MainPage/Queue"
 import SearchModal from "@/components/templates/MainPage/SearchModal"
+import TrackModal from "@/components/templates/MainPage/TrackModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
+import useTarckModal from "@/hooks/useTrackModal"
 
 const MainPage = () => {
   const router = useRouter()
@@ -22,6 +24,15 @@ const MainPage = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] =
     useRecoilState(searchModalAtom)
   const [playerHeight, setPlayerHeight] = useState(0)
+
+  const {
+    isOpen: isTrackModalOpen,
+    setIsOpen: setIsTrackModalOpen,
+    title: trackModalTitle,
+    provider: trackModalProvider,
+    tracks: tracksForTrackModal,
+    handleNavbarCheckboxLabelClick
+  } = useTarckModal()
 
   useEffect(() => {
     const selectedSpotifyPlaylists = localStorage.getItem(
@@ -52,7 +63,7 @@ const MainPage = () => {
     spotifyPlaybackQuality,
     isPreparingPlayback,
     setIsPreparingPlayback,
-    onSearchModalPlay,
+    onPlayWithTrackInfo,
     onMoveNewTrackToFront,
     onAddNewTrackToFront,
     onSeekTo
@@ -68,6 +79,7 @@ const MainPage = () => {
         isPlaying={isPlaying}
         onPlay={onPlay}
         setIsPreparingPlayback={setIsPreparingPlayback}
+        onCheckboxLabelClick={handleNavbarCheckboxLabelClick}
       >
         <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
           <Player
@@ -101,7 +113,20 @@ const MainPage = () => {
         canMoveToFront={queue.length > 0}
         canAddToFront={isPlaying}
         onClose={() => setIsSearchModalOpen(false)}
-        onSearchModalPlay={onSearchModalPlay}
+        onPlayWithTrackInfo={onPlayWithTrackInfo}
+        onMoveNewTrackToFront={onMoveNewTrackToFront}
+        onAddNewTrackToFront={onAddNewTrackToFront}
+      />
+
+      <TrackModal
+        isOpen={isTrackModalOpen}
+        title={trackModalTitle}
+        provider={trackModalProvider}
+        tracks={tracksForTrackModal}
+        canMoveToFront={queue.length > 0}
+        canAddToFront={isPlaying}
+        onClose={() => setIsTrackModalOpen(false)}
+        onPlayWithTrackInfo={onPlayWithTrackInfo}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
         onAddNewTrackToFront={onAddNewTrackToFront}
       />

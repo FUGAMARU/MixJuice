@@ -17,7 +17,7 @@ type Props = {
   canMoveToFront: boolean
   canAddToFront: boolean
   onClose: () => void
-  onSearchModalPlay: (track: Track) => Promise<void>
+  onPlayWithTrackInfo: (track: Track) => Promise<void>
   onMoveNewTrackToFront: (track: Track) => void
   onAddNewTrackToFront: (track: Track) => void
 }
@@ -27,7 +27,7 @@ const SearchModal = ({
   canMoveToFront,
   canAddToFront,
   onClose,
-  onSearchModalPlay,
+  onPlayWithTrackInfo,
   onMoveNewTrackToFront,
   onAddNewTrackToFront
 }: Props) => {
@@ -61,15 +61,15 @@ const SearchModal = ({
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
       onClose()
-      await onSearchModalPlay(track)
+      await onPlayWithTrackInfo(track)
       resetAll()
     },
-    [onClose, onSearchModalPlay, resetAll]
+    [onClose, onPlayWithTrackInfo, resetAll]
   )
 
   return (
     <ModalDefault
-      title={<Text>🔍 楽曲を検索</Text>}
+      title="🔍 楽曲を検索"
       isOpen={isOpen}
       onClose={onClose}
       withoutCloseButton // 閉じるボタンを非表示にしないとモーダルを開いたときに検索窓にフォーカルが当たらない

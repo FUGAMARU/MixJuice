@@ -16,11 +16,17 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { HEADER_HEIGHT } from "@/constants/Styling"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
 
 type Props = {
   isPlaying: boolean
   onPlay: (track: Track) => Promise<void>
+  onCheckboxLabelClick: (
+    provider: Provider,
+    id: string,
+    title: string
+  ) => Promise<void>
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
   children: ReactNode
 }
@@ -28,6 +34,7 @@ type Props = {
 const MainPageLayout = ({
   isPlaying,
   onPlay,
+  onCheckboxLabelClick,
   setIsPreparingPlayback,
   children
 }: Props) => {
@@ -61,6 +68,7 @@ const MainPageLayout = ({
         isPlaying={isPlaying}
         canSlideNavbar={canSlideNavbar}
         onPlay={onPlay}
+        onCheckboxLabelClick={onCheckboxLabelClick}
         setIsPreparingPlayback={setIsPreparingPlayback}
       />
     ),
@@ -69,7 +77,8 @@ const MainPageLayout = ({
       isPlaying,
       onPlay,
       setIsPreparingPlayback,
-      screenHeightWithoutHeader
+      screenHeightWithoutHeader,
+      onCheckboxLabelClick
     ]
   )
 

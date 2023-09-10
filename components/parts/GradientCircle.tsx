@@ -25,7 +25,11 @@ const GradientCircle = ({
   backgroundColor = "white"
 }: Props) => {
   return (
-    <Tooltip label={tooltipLabel}>
+    <Tooltip
+      label={tooltipLabel}
+      withArrow
+      transitionProps={{ transition: "fade", duration: 300 }}
+    >
       <Center
         w="1.2rem"
         h="1.2rem"

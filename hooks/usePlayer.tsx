@@ -275,7 +275,7 @@ const usePlayer = ({ initialize }: Props) => {
     ]
   )
 
-  const onSearchModalPlay = useCallback(
+  const onPlayWithTrackInfo = useCallback(
     async (track: Track) => {
       setCurrentTrackInfo(track)
       await smartPause(track.provider)
@@ -408,7 +408,7 @@ const usePlayer = ({ initialize }: Props) => {
     spotifyPlaybackQuality,
     isPreparingPlayback,
     setIsPreparingPlayback,
-    onSearchModalPlay,
+    onPlayWithTrackInfo,
     onMoveNewTrackToFront,
     onAddNewTrackToFront,
     onSeekTo

@@ -166,6 +166,8 @@ const Player = ({
                 label={
                   isPreparingPlayback ? "再生準備中…" : "ストリーミング品質"
                 }
+                withArrow
+                transitionProps={{ transition: "fade", duration: 300 }}
               >
                 <Box>
                   <PlaybackStateBadge
@@ -180,16 +182,29 @@ const Player = ({
                 </Box>
               </Tooltip>
             )}
-            <PlaybackStateBadge cursor="pointer">
-              <Flex align="center" gap="0.4rem">
-                <Box lh={0}>
-                  <HiVolumeUp size="1.2rem" />
-                </Box>
-                0%
-              </Flex>
-            </PlaybackStateBadge>
 
-            <Tooltip label="残り再生時間">
+            <Tooltip
+              label="音量"
+              withArrow
+              transitionProps={{ transition: "fade", duration: 300 }}
+            >
+              <Box>
+                <PlaybackStateBadge cursor="pointer">
+                  <Flex align="center" gap="0.4rem">
+                    <Box lh={0}>
+                      <HiVolumeUp size="1.2rem" />
+                    </Box>
+                    0%
+                  </Flex>
+                </PlaybackStateBadge>
+              </Box>
+            </Tooltip>
+
+            <Tooltip
+              label="残り再生時間"
+              withArrow
+              transitionProps={{ transition: "fade", duration: 300 }}
+            >
               <Box>
                 <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
                   <Flex align="center" gap="0.2rem">

@@ -6,6 +6,7 @@ type Props = {
   title: React.ReactNode
   isOpen: boolean
   onClose: () => void
+  height?: string | number | undefined
   withoutCloseButton?: boolean
   children: React.ReactNode
 }
@@ -14,6 +15,7 @@ const ModalDefault = ({
   title,
   isOpen,
   onClose,
+  height,
   withoutCloseButton,
   children
 }: Props) => {
@@ -29,7 +31,11 @@ const ModalDefault = ({
       }}
       withCloseButton={!withoutCloseButton}
     >
-      <Box mah="30rem" sx={{ overflowY: "scroll" }}>
+      <Box
+        h={height}
+        mah={height ? undefined : "30rem"}
+        sx={{ overflowY: "scroll" }}
+      >
         {children}
       </Box>
     </Modal>

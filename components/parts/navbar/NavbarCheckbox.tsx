@@ -1,5 +1,5 @@
-import { Checkbox } from "@mantine/core"
-import { memo } from "react"
+import { Box, Checkbox, Tooltip } from "@mantine/core"
+import { MouseEvent, memo, useCallback } from "react"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
@@ -9,15 +9,38 @@ type Props = {
   color: string
   checked: boolean
   onClick: (id: string) => void
+  onLabelClick: () => void
 }
 
-const NavbarCheckbox = ({ id, label, color, checked, onClick }: Props) => {
+const NavbarCheckbox = ({
+  id,
+  label,
+  color,
+  checked,
+  onClick,
+  onLabelClick
+}: Props) => {
   const { isTouchDevice } = useTouchDevice()
+
+  const handleLabelClick = useCallback(
+    (e: MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onLabelClick()
+    },
+    [onLabelClick]
+  )
 
   return (
     <Checkbox
       p="0.4rem"
-      label={label}
+      label={
+        <Tooltip.Floating label={`${label}の楽曲一覧を見る`}>
+          <Box w="100%" onClick={handleLabelClick}>
+            {label}
+          </Box>
+        </Tooltip.Floating>
+      }
       checked={checked}
       size="md"
       color={color}

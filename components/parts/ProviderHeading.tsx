@@ -9,10 +9,16 @@ import { Provider } from "@/types/Provider"
 type Props = {
   providerIconSrc: string
   provider: Provider
+  customText?: string | undefined
   onClick?: (provider: Provider, to: boolean) => void
 }
 
-const ProviderHeading = ({ providerIconSrc, provider, onClick }: Props) => {
+const ProviderHeading = ({
+  providerIconSrc,
+  provider,
+  customText,
+  onClick
+}: Props) => {
   return (
     <Flex align="center" justify="space-between">
       <Flex align="end">
@@ -24,7 +30,7 @@ const ProviderHeading = ({ providerIconSrc, provider, onClick }: Props) => {
         />
         <Space w="xs" />
         <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
-          {PROVIDER_NAME[provider]}
+          {customText || PROVIDER_NAME[provider]}
         </Title>
       </Flex>
 

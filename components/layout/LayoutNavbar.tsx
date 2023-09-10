@@ -46,6 +46,11 @@ type Props = {
   isPlaying: boolean
   canSlideNavbar: boolean
   onPlay: (track: Track) => Promise<void>
+  onCheckboxLabelClick: (
+    provider: Provider,
+    id: string,
+    title: string
+  ) => Promise<void>
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
 }
 
@@ -54,6 +59,7 @@ const LayoutNavbar = ({
   isPlaying,
   canSlideNavbar,
   onPlay,
+  onCheckboxLabelClick,
   setIsPreparingPlayback
 }: Props) => {
   const router = useRouter()
@@ -307,6 +313,9 @@ const LayoutNavbar = ({
                       checked={p.checked}
                       color={p.color}
                       onClick={handleCheckboxClick}
+                      onLabelClick={() =>
+                        onCheckboxLabelClick(p.provider, p.id, p.title)
+                      }
                     />
                   )
                 })}
@@ -332,6 +341,9 @@ const LayoutNavbar = ({
                       checked={p.checked}
                       color={p.color}
                       onClick={handleCheckboxClick}
+                      onLabelClick={() =>
+                        onCheckboxLabelClick(p.provider, p.id, p.title)
+                      }
                     />
                   )
                 })}
