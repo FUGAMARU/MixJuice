@@ -50,13 +50,18 @@ const SearchModal = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus()
-  }, [isOpen])
+    if (isOpen) {
+      inputRef.current?.focus()
+      return
+    }
+
+    resetAll()
+  }, [isOpen, resetAll])
 
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
-      await onSearchModalPlay(track)
       onClose()
+      await onSearchModalPlay(track)
       resetAll()
     },
     [onClose, onSearchModalPlay, resetAll]
