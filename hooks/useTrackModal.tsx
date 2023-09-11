@@ -2,7 +2,12 @@ import { useState, useCallback } from "react"
 import useSpotifyApi from "./useSpotifyApi"
 import useWebDAVServer from "./useWebDAVServer"
 import { Provider } from "@/types/Provider"
-import { Track, formatFromSpotifyTrack, TrackWithPath } from "@/types/Track"
+import {
+  Track,
+  formatFromSpotifyTrack,
+  TrackWithPath,
+  removePathProperty
+} from "@/types/Track"
 
 const useTarckModal = () => {
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
@@ -36,11 +41,9 @@ const useTarckModal = () => {
             folderTracksInfo.push(trackInfo)
           }
           setTracks(
-            folderTracksInfo.map(
-              // pathプロパティーはこの先使わないので削除する
-              // eslint-disable-next-line unused-imports/no-unused-vars
-              ({ path, ...rest }) => rest
-            ) as Track[]
+            folderTracksInfo.map(trackWithPath =>
+              removePathProperty(trackWithPath)
+            )
           )
           break
       }

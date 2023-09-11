@@ -7,7 +7,12 @@ import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
-import { Track, TrackWithPath, formatFromSpotifyTrack } from "@/types/Track"
+import {
+  Track,
+  TrackWithPath,
+  formatFromSpotifyTrack,
+  removePathProperty
+} from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
 let hasDisplayedNotification = false
@@ -141,11 +146,9 @@ const useMIX = () => {
 
         hasDisplayedNotification = false
 
-        return tracksInformations.map(
-          // pathプロパティーはこの先使わないので削除する
-          // eslint-disable-next-line unused-imports/no-unused-vars
-          ({ path, ...rest }) => rest
-        ) as Track[]
+        return tracksInformations.map(trackWithPath =>
+          removePathProperty(trackWithPath)
+        )
       } catch (e) {
         setErrorModalInstance(prev => [...prev, e])
       }

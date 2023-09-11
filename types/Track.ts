@@ -32,3 +32,9 @@ export const formatFromSpotifyTrack = (spotifyTrack: SpotifyTrack): Track => {
     duration: spotifyTrack.duration_ms
   }
 }
+
+export const removePathProperty = (trackWithPath: TrackWithPath): Track => {
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  const { path, ...trackWithoutPath } = trackWithPath
+  return trackWithoutPath
+}

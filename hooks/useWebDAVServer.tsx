@@ -2,7 +2,7 @@ import { parseBuffer } from "music-metadata-browser"
 import { useCallback } from "react"
 import { createClient } from "webdav"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { Track, TrackWithPath } from "@/types/Track"
+import { TrackWithPath, removePathProperty } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { expandTrackInfo } from "@/utils/expandTrackInfo"
 import { getMimeType } from "@/utils/getMimeType"
@@ -137,11 +137,9 @@ const useWebDAVServer = () => {
           )
         )
 
-        return tracksInformations.map(
-          // pathプロパティーはこの先使わないので削除する
-          // eslint-disable-next-line unused-imports/no-unused-vars
-          ({ path, ...rest }) => rest
-        ) as Track[]
+        return tracksInformations.map(trackWithPath =>
+          removePathProperty(trackWithPath)
+        )
       } catch (e) {
         console.log(`🟥ERROR: ${e}`)
         throw new Error("WebDAVサーバーに存在する楽曲の検索に失敗しました")

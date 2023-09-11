@@ -7,7 +7,11 @@ import useWebDAVSettingState from "./useWebDAVSettingState"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { Track, formatFromSpotifyTrack } from "@/types/Track"
+import {
+  Track,
+  formatFromSpotifyTrack,
+  removePathProperty
+} from "@/types/Track"
 
 let timer: NodeJS.Timer
 
@@ -84,10 +88,9 @@ const useSearch = () => {
               input
             )
             setWebDAVTrackDatabaseSearchResult(
-              webDAVTrackDatabaseRes.map(
-                // eslint-disable-next-line unused-imports/no-unused-vars
-                ({ path, ...rest }) => rest
-              ) as Track[]
+              webDAVTrackDatabaseRes.map(trackWithPath =>
+                removePathProperty(trackWithPath)
+              )
             )
             setIsSearchingWebDAVTrackDatabase(false)
             resolve()
