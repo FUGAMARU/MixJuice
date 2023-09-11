@@ -20,6 +20,7 @@ import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
@@ -130,7 +131,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     <ConnectorContainer
       className={className}
       title="Spotifyと接続する"
-      iconSrc="/spotify-logo.png"
+      iconSrc={PROVIDER_ICON_SRC["spotify"]}
       onBack={onBack}
     >
       <Flex align="center" gap="xs">

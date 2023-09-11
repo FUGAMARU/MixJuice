@@ -10,6 +10,7 @@ import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import FolderListModal from "@/components/templates/ConnectPage/FolderListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
@@ -99,7 +100,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     <ConnectorContainer
       className={className}
       title="WebDAVで接続する"
-      iconSrc="/server-icon.png"
+      iconSrc={PROVIDER_ICON_SRC["webdav"]}
       onBack={onBack}
     >
       <Flex align="center" gap="xs">

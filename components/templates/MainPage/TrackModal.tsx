@@ -5,6 +5,7 @@ import ListItem from "@/components/parts/ListItem"
 import ListItemContainer from "@/components/parts/ListItemContainer"
 import ModalDefault from "@/components/parts/ModalDefault"
 import QueueOperator from "@/components/parts/QueueOperator"
+import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
 
@@ -48,11 +49,7 @@ const TrackModal = ({
         <Flex align="center" gap="xs">
           {provider && (
             <Image
-              src={
-                provider === "spotify"
-                  ? "/spotify-logo.png"
-                  : "/server-icon.png"
-              }
+              src={PROVIDER_ICON_SRC[provider]}
               height={28}
               width={28}
               alt="Provider's logo"

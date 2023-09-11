@@ -1,35 +1,34 @@
 import { Box, Title, Button } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
+import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
+import { PROVIDER_NAME } from "@/constants/ProviderName"
+import { Provider } from "@/types/Provider"
 import { ProviderSettingState } from "@/types/ProviderSettingState"
 
 type Props = {
-  providerName: string
-  providerIconSrc: string
-  buttonColor: string
+  provider: Provider
   settingState: ProviderSettingState
   onButtonClick: () => void
 }
 
 const ProviderSelectorItem = ({
-  providerName,
-  providerIconSrc,
-  buttonColor,
+  provider,
   settingState,
   onButtonClick
 }: Props) => {
   return (
     <Box>
       <Image
-        src={providerIconSrc}
+        src={PROVIDER_ICON_SRC[provider]}
         width={50}
         height={50}
         alt="Provider Logo or Icon"
       />
-      <Title order={5}>{providerName}</Title>
+      <Title order={5}>{PROVIDER_NAME[provider]}</Title>
       <Button
         mt="xs"
-        color={buttonColor}
+        color={provider}
         variant={settingState === "none" ? "outline" : "filled"}
         size="xs"
         onClick={onButtonClick}

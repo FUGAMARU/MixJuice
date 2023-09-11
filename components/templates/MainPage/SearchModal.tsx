@@ -89,10 +89,7 @@ const SearchModal = ({
         {spotifySettingState !== "none" && (
           <Box>
             <Flex mb="xs" align="center" gap="xs">
-              <ProviderHeading
-                providerIconSrc="/spotify-logo.png"
-                provider="spotify"
-              />
+              <ProviderHeading provider="spotify" />
               {isSearchingSpotify && <Loader color="spotify" size="1.2rem" />}
             </Flex>
 
@@ -154,10 +151,7 @@ const SearchModal = ({
           <>
             <Box>
               <Flex mb="xs" align="center" gap="xs">
-                <ProviderHeading
-                  providerIconSrc="/server-icon.png"
-                  provider="webdav"
-                />
+                <ProviderHeading provider="webdav" />
                 <Text fz="0.8rem" color="#adadad">
                   (キャッシュ済み)
                 </Text>
@@ -205,10 +199,7 @@ const SearchModal = ({
 
             <Box>
               <Flex mb="xs" align="center" gap="xs">
-                <ProviderHeading
-                  providerIconSrc="/server-icon.png"
-                  provider="webdav"
-                />
+                <ProviderHeading provider="webdav" />
                 <Text fz="0.8rem" color="#adadad">
                   (未キャッシュ)
                 </Text>

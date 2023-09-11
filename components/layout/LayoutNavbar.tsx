@@ -298,7 +298,6 @@ const LayoutNavbar = ({
           {spotifyPlaylists.length > 0 && (
             <Box>
               <ProviderHeading
-                providerIconSrc="/spotify-logo.png"
                 provider="spotify"
                 onClick={handleProviderCheckboxControllerClick}
               />
@@ -326,7 +325,6 @@ const LayoutNavbar = ({
           {webdavPlaylists.length > 0 && (
             <Box>
               <ProviderHeading
-                providerIconSrc="/server-icon.png"
                 provider="webdav"
                 onClick={handleProviderCheckboxControllerClick}
               />

@@ -44,17 +44,13 @@ const ProviderSelector = ({
 
         <Flex w="100%" mt="2rem" justify="space-around">
           <ProviderSelectorItem
-            providerName="Spotify"
-            providerIconSrc="/spotify-logo.png"
-            buttonColor="spotify"
+            provider="spotify"
             settingState={spotifySettingState}
             onButtonClick={onShowSpotifyConnector}
           />
 
           <ProviderSelectorItem
-            providerName="WebDAV"
-            providerIconSrc="/server-icon.png"
-            buttonColor="webdav"
+            provider="webdav"
             settingState={webDAVSettingState}
             onButtonClick={onShowWebDAVConnector}
           />
