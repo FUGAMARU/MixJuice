@@ -12,6 +12,7 @@ import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import useBreakPoints from "@/hooks/useBreakPoints"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import { Children } from "@/types/Children"
@@ -19,6 +20,7 @@ import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const Curtain = ({ children }: Children) => {
   const pathname = usePathname()
+  const { breakPoint } = useBreakPoints()
 
   const screenHeightWithoutHeader = useMemo(
     () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,
@@ -82,7 +84,7 @@ const Curtain = ({ children }: Children) => {
         <NowLoading />
       </Box>
 
-      <LayoutHeader />
+      <LayoutHeader shouldShowBurger={!isConnectPage && breakPoint !== "PC"} />
 
       {isConnectPage ? (
         <Box h={screenHeightWithoutHeader}>{children}</Box>

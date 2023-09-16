@@ -1,19 +1,19 @@
 import { Box, Burger, Flex, Space } from "@mantine/core"
 import Image from "next/image"
 import { memo, useCallback, useMemo } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
-import { connectAtom } from "@/atoms/connectAtom"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
-import useBreakPoints from "@/hooks/useBreakPoints"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
-const LayoutHeader = () => {
+type Props = {
+  shouldShowBurger: boolean
+}
+
+const LayoutHeader = ({ shouldShowBurger }: Props) => {
   const [isNavbarOpened, setIsNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
-  const { breakPoint } = useBreakPoints()
-  const isConnectPage = useRecoilValue(connectAtom)
 
   const handleBurgerClick = useCallback(() => {
     const prefix = "animate__animated animate__faster"
@@ -41,7 +41,7 @@ const LayoutHeader = () => {
     >
       <Flex h="100%" px="lg" align="center" justify="space-between">
         <Box w="1.8rem">
-          {!isConnectPage && breakPoint !== "PC" && (
+          {shouldShowBurger && (
             <Burger
               opened={isNavbarOpened}
               onClick={handleBurgerClick}
