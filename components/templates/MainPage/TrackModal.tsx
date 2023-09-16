@@ -1,6 +1,7 @@
 import { Flex, Loader } from "@mantine/core"
 import Image from "next/image"
 import { memo, useCallback } from "react"
+import { FixedSizeList } from "react-window"
 import ListItem from "@/components/parts/ListItem"
 import ListItemContainer from "@/components/parts/ListItemContainer"
 import ModalDefault from "@/components/parts/ModalDefault"
@@ -8,6 +9,7 @@ import QueueOperator from "@/components/parts/QueueOperator"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
+import { remToPx } from "@/utils/remToPx"
 
 type Props = {
   isOpen: boolean
@@ -44,7 +46,6 @@ const TrackModal = ({
 
   return (
     <ModalDefault
-      height="30rem"
       title={
         <Flex align="center" gap="xs">
           {provider && (
@@ -63,32 +64,46 @@ const TrackModal = ({
       onClose={onClose}
       withoutCloseButton
     >
-      {tracks?.map(track => (
-        <ListItemContainer key={track.id}>
-          <Flex
-            align="center"
-            justify="space-between"
-            sx={{ flex: "1", overflow: "hidden" }}
-          >
-            <ListItem
-              image={track.image}
-              title={track.title}
-              caption={track.artist}
-              onArtworkPlayButtonClick={() =>
-                handleArtworkPlayButtonClick(track)
-              }
-            />
+      {tracks && (
+        <FixedSizeList
+          width="100%"
+          height={remToPx(30)}
+          itemCount={tracks.length}
+          itemSize={80} // キューのアイテム1つ分の高さ
+        >
+          {({ index, style }) => {
+            const track = tracks[index]
+            return (
+              <div style={style}>
+                <ListItemContainer key={track.id}>
+                  <Flex
+                    align="center"
+                    justify="space-between"
+                    sx={{ flex: "1", overflow: "hidden" }}
+                  >
+                    <ListItem
+                      image={track.image}
+                      title={track.title}
+                      caption={track.artist}
+                      onArtworkPlayButtonClick={() =>
+                        handleArtworkPlayButtonClick(track)
+                      }
+                    />
 
-            <QueueOperator
-              canMoveToFront={canMoveToFront}
-              canAddToFront={canAddToFront}
-              onMoveToFront={() => onMoveNewTrackToFront(track)}
-              onAddToFront={() => onAddNewTrackToFront(track)}
-              animated
-            />
-          </Flex>
-        </ListItemContainer>
-      ))}
+                    <QueueOperator
+                      canMoveToFront={canMoveToFront}
+                      canAddToFront={canAddToFront}
+                      onMoveToFront={() => onMoveNewTrackToFront(track)}
+                      onAddToFront={() => onAddNewTrackToFront(track)}
+                      animated
+                    />
+                  </Flex>
+                </ListItemContainer>
+              </div>
+            )
+          }}
+        </FixedSizeList>
+      )}
     </ModalDefault>
   )
 }

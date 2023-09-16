@@ -346,22 +346,30 @@ const usePlayer = ({ initialize }: Props) => {
 
   const onMoveNewTrackToFront = useCallback(
     (track: Track) => {
-      const newQueue = [...queue]
-      const newItem = { ...track, playNext: true }
-      newQueue.unshift(newItem)
-      setQueue(newQueue)
+      setQueue(prevQueue => {
+        const newItem = { ...track, playNext: true }
+        return [newItem, ...prevQueue]
+      })
     },
-    [queue, setQueue]
+    [setQueue]
   )
 
   const onAddNewTrackToFront = useCallback(
     (track: Track) => {
-      const newQueue = [...queue]
-      const newItem = { ...track, playNext: true }
-      newQueue.splice(lastPlayNextIdx + 1, 0, newItem)
-      setQueue(newQueue)
+      setQueue(prevQueue => {
+        const newItem = { ...track, playNext: true }
+        const newQueue = [...prevQueue]
+        const lastPlayNextIdx = prevQueue.reduceRight((acc, item, index) => {
+          if (item.playNext && acc === -1) {
+            return index
+          }
+          return acc
+        }, -1)
+        newQueue.splice(lastPlayNextIdx + 1, 0, newItem)
+        return newQueue
+      })
     },
-    [queue, setQueue, lastPlayNextIdx]
+    [setQueue]
   )
 
   /** 再生位置の更新 */

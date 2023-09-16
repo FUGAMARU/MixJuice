@@ -2,7 +2,7 @@
 
 import { Box } from "@mantine/core"
 import { useRouter } from "next/navigation"
-import { memo, useEffect, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import { queueAtom } from "@/atoms/queueAtom"
@@ -73,6 +73,10 @@ const MainPage = () => {
 
   const queue = useRecoilValue(queueAtom)
 
+  const handleTrackModalClose = useCallback(() => {
+    setIsTrackModalOpen(false)
+  }, [setIsTrackModalOpen])
+
   return (
     <>
       <MainPageLayout
@@ -125,7 +129,7 @@ const MainPage = () => {
         tracks={tracksForTrackModal}
         canMoveToFront={queue.length > 0}
         canAddToFront={isPlaying}
-        onClose={() => setIsTrackModalOpen(false)}
+        onClose={handleTrackModalClose} // useCallbackを経由せずにコールバックで直接stateを変更すると再レンダリングが走りまくってしまい、react-windowの表示がおかしくなる。
         onPlayWithTrackInfo={onPlayWithTrackInfo}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
         onAddNewTrackToFront={onAddNewTrackToFront}
