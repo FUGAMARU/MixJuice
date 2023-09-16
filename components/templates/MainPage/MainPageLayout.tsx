@@ -90,6 +90,7 @@ const MainPageLayout = ({
           h={screenHeightWithoutHeader}
           pos="absolute"
           left={0}
+          display={isNavbarOpened ? "block" : "none"}
           sx={{
             zIndex: isNavbarOpened ? ZINDEX_NUMBERS.NAVBAR_COLLAPSED : 0
           }}
