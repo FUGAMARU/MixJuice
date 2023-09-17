@@ -1,6 +1,6 @@
-import { Box, Flex, Text } from "@mantine/core"
+import { Box, Button, Flex, Paper, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
-import { memo, useCallback, useMemo } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
 import { useRecoilValue } from "recoil"
 import { queueAtom } from "@/atoms/queueAtom"
@@ -49,6 +49,21 @@ const Queue = ({
     [onSkipTo, showError]
   )
 
+  const [pineconeClassNames, setPineconeClassNames] = useState("")
+  const handleMiniMixButtonClick = useCallback(async () => {
+    if (pineconeClassNames !== "") return
+
+    setPineconeClassNames(
+      "animate__animated  animate__faster animate__fadeInDown"
+    )
+    await new Promise(resolve => setTimeout(resolve, 600))
+    setPineconeClassNames(
+      "animate__animated  animate__faster animate__slideOutUp"
+    )
+    await new Promise(resolve => setTimeout(resolve, 600))
+    setPineconeClassNames("")
+  }, [pineconeClassNames])
+
   return (
     <Box
       h={scrollAreaHeight}
@@ -56,9 +71,52 @@ const Queue = ({
       pt={`${STYLING_VALUES.QUEUE_PADDING_TOP}px`}
     >
       {queue.length === 0 && (
-        <Text ta="center" fz={setRespVal("xs", "sm", "sm")}>
-          プレイリストを選択して『MIX!』ボタンを押してみましょう！
-        </Text>
+        <Paper
+          w="fit-content"
+          mx="auto"
+          mt="xs"
+          px="1rem"
+          py="0.5rem"
+          bg="white"
+          ta="center"
+          shadow="lg"
+          radius="xl"
+          sx={{ cursor: "default" }}
+          pos="relative"
+        >
+          <Flex
+            align="center"
+            gap="0.2rem"
+            fw={500}
+            fz={setRespVal("0.7rem", "0.8rem", "0.8rem")}
+          >
+            <Text>プレイリストを選択して</Text>
+            <Button
+              size="xs"
+              compact
+              ff="GreycliffCF"
+              fw={800}
+              variant="gradient"
+              gradient={{ from: "#2afadf", to: "#4c83ff" }}
+              onClick={handleMiniMixButtonClick}
+            >
+              MIX!
+            </Button>
+            <Text>ボタンを押してみましょう！</Text>
+          </Flex>
+
+          <Text
+            className={pineconeClassNames}
+            pos="absolute"
+            fz={setRespVal("0.7rem", "0.8rem", "0.8rem")}
+            left="36.5%"
+            top={pineconeClassNames === "" ? 0 : "110%"}
+            ta="center"
+            sx={{ zIndex: -1 }}
+          >
+            \ コンニチワ /
+          </Text>
+        </Paper>
       )}
 
       <FixedSizeList
