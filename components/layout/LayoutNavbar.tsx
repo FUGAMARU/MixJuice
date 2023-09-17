@@ -155,7 +155,7 @@ const LayoutNavbar = ({
 
   /** チェックを入れた項目をLocalStorageに保存する */
   useEffect(() => {
-    if (playlists.length === 0 || checkedItems.length === 0) return
+    if (playlists.length === 0) return
 
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS,
