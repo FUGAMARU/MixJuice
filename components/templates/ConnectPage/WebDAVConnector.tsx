@@ -26,7 +26,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { breakPoint } = useBreakPoints()
   const { showError } = useErrorModal()
   const { settingState } = useWebDAVSettingState()
-  const { isServerConnectionValidWithAuthConfig } = useWebDAVServer()
+  const { tryServerConnection } = useWebDAVServer()
   const [isConnecting, setIsConnecting] = useState(false)
   const [
     isFolderPathInputModalOpen,
@@ -73,7 +73,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const handleFolderSelectButtonClick = useCallback(async () => {
     try {
       setIsConnecting(true)
-      await isServerConnectionValidWithAuthConfig(address, user, password)
+      await tryServerConnection(address, user, password)
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
       setIsAuthenticated(true)
       localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
@@ -90,7 +90,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     address,
     user,
     password,
-    isServerConnectionValidWithAuthConfig,
+    tryServerConnection,
     onFolderPathInputModalOpen,
     showError,
     setIsAuthenticated

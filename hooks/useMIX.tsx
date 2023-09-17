@@ -21,8 +21,7 @@ const useMIX = () => {
   const {
     getFolderTracks,
     getTrackInfo: getWebDAVServerTrackInfo,
-    checkIsFolderExists,
-    isServerConnectionValid
+    checkIsFolderExists
   } = useWebDAVServer()
   const {
     saveTrackInfo,
@@ -64,8 +63,6 @@ const useMIX = () => {
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
-      await isServerConnectionValid()
-
       /** フォルダーが現存するか確認する */
       const availableFolderPaths: NavbarItem[] = []
       for (const folderPath of folderPaths) {
@@ -139,8 +136,7 @@ const useMIX = () => {
       saveTrackInfo,
       getWebDAVServerTrackInfo,
       showWarning,
-      checkIsFolderExists,
-      isServerConnectionValid
+      checkIsFolderExists
     ]
   )
 

@@ -21,7 +21,7 @@ const useWebDAVServer = () => {
     })
   }, [])
 
-  const isServerConnectionValidWithAuthConfig = useCallback(
+  const tryServerConnection = useCallback(
     async (address: string, username: string, password: string) => {
       try {
         // この時点ではまだLocalStorageに認証情報がないので認証情報は引数として受け取る
@@ -39,23 +39,6 @@ const useWebDAVServer = () => {
     []
   )
 
-  const isServerConnectionValid = useCallback(async () => {
-    const client = getClient()
-    if (!client)
-      throw new Error(
-        "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
-      )
-
-    try {
-      await client.getQuota()
-    } catch (e) {
-      console.log(`🟥ERROR: ${e}`)
-      throw new Error(
-        "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
-      )
-    }
-  }, [getClient])
-
   const checkIsFolderExists = useCallback(
     async (folderPath: string) => {
       const client = getClient()
@@ -72,11 +55,45 @@ const useWebDAVServer = () => {
     [getClient]
   )
 
+  /** 1. LocalStorageにWebDAVサーバーへの接続情報が記録されているか
+   * 2. LocalStorageに記録されている接続情報を用いて実際にWebDAVサーバーに接続できるか
+   * 3. 指定されたパスのフォルダーやファイルがWebDAVサーバー上に存在するか
+   * を確認する。もしいずれかのチェックに引っかかった場合は例外を投げる
+   */
+  const checkServerConnectionRoutine = useCallback(
+    async (path?: string) => {
+      const client = getClient()
+      if (!client)
+        throw new Error("WebDAVサーバーの接続情報が設定されていません")
+
+      try {
+        await client.getQuota()
+      } catch (e) {
+        console.log(`🟥ERROR: ${e}`)
+        throw new Error(
+          "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
+        )
+      }
+
+      if (!path) return // パスが指定されている場合のみ存在確認を行う
+
+      const isExists = await client.exists(path)
+      if (!isExists)
+        throw new Error(
+          `WebDAVサーバー上に指定されたフォルダーが存在しませんでした (folderPath: ${path})`
+        )
+    },
+    [getClient]
+  )
+
   const getFolderTracks = useCallback(
     async (folderPath: string, keyword: string) => {
       try {
         const client = getClient()
-        if (!client) throw new Error("WebDAVサーバに接続・認証できませんでした")
+        if (!client)
+          throw new Error("WebDAVサーバーの接続情報が設定されていません")
+
+        await checkServerConnectionRoutine(folderPath)
 
         const audioFiles = (await client.getDirectoryContents(
           folderPath
@@ -99,14 +116,17 @@ const useWebDAVServer = () => {
         )
       }
     },
-    [getClient]
+    [getClient, checkServerConnectionRoutine]
   )
 
   const getTrackInfo = useCallback(
     async (fileInfo: WebDAVDirectoryContent) => {
       try {
         const client = getClient()
-        if (!client) throw new Error("WebDAVサーバに接続・認証できませんでした")
+        if (!client)
+          throw new Error("WebDAVサーバーの接続情報が設定されていません")
+
+        await checkServerConnectionRoutine(fileInfo.filename)
 
         const file = (await client.getFileContents(fileInfo.filename)) as Buffer
 
@@ -147,12 +167,14 @@ const useWebDAVServer = () => {
         )
       }
     },
-    [getClient]
+    [getClient, checkServerConnectionRoutine]
   )
 
   const searchTracks = useCallback(
     async (folderPaths: string[], keyword: string) => {
       try {
+        await checkServerConnectionRoutine()
+
         const foldersTracksInformations = await Promise.all(
           folderPaths.map(folderPath => getFolderTracks(folderPath, keyword))
         )
@@ -175,12 +197,11 @@ const useWebDAVServer = () => {
         )
       }
     },
-    [getFolderTracks, getTrackInfo]
+    [getFolderTracks, getTrackInfo, checkServerConnectionRoutine]
   )
 
   return {
-    isServerConnectionValidWithAuthConfig,
-    isServerConnectionValid,
+    tryServerConnection,
     checkIsFolderExists,
     getFolderTracks,
     getTrackInfo,
