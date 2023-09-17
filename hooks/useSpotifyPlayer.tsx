@@ -7,9 +7,8 @@ import {
   useRef,
   useState
 } from "react"
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilCallback, useRecoilValue } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 
 type Props = {
@@ -23,7 +22,6 @@ const useSpotifyPlayer = ({
   setIsPreparingPlayback,
   onTrackFinish
 }: Props) => {
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const [player, setPlayer] = useState<Spotify.Player>()
   const [playbackState, setPlaybackState] = useState<Spotify.PlaybackState>()
@@ -46,9 +44,6 @@ const useSpotifyPlayer = ({
 
       try {
         await startPlayback(deviceId.current, trackId)
-      } catch (e) {
-        //setErrorModalInstance(prev => [...prev, e])
-        throw e // TODO: 再生開始の自動リトライがうまく行っているようだったら整理
       } finally {
         setIsPreparingPlayback(false)
       }

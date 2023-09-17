@@ -10,6 +10,7 @@ import QueueOperator from "@/components/parts/QueueOperator"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useErrorModal from "@/hooks/useErrorModal"
 
 type Props = {
   playerHeight: number
@@ -29,6 +30,7 @@ const Queue = ({
   checkCanAddToFront
 }: Props) => {
   const { setRespVal } = useBreakPoints()
+  const { showError } = useErrorModal()
   const { height: viewportHeight } = useViewportSize()
   const scrollAreaHeight = useMemo(
     () => viewportHeight - STYLING_VALUES.HEADER_HEIGHT - playerHeight,
@@ -38,9 +40,13 @@ const Queue = ({
 
   const handleArtworkPlayButtonClick = useCallback(
     async (id: string) => {
-      await onSkipTo(id)
+      try {
+        await onSkipTo(id)
+      } catch (e) {
+        showError(e)
+      }
     },
-    [onSkipTo]
+    [onSkipTo, showError]
   )
 
   return (

@@ -3,7 +3,6 @@ import { useDisclosure } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { useRecoilState, useSetRecoilState } from "recoil"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import CircleStep from "@/components/parts/CircleStep"
@@ -12,6 +11,7 @@ import FolderListModal from "@/components/templates/ConnectPage/FolderListModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useErrorModal from "@/hooks/useErrorModal"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import styles from "@/styles/WebDAVConnector.module.css"
@@ -24,9 +24,9 @@ type Props = {
 const WebDAVConnector = ({ className, onBack }: Props) => {
   const theme = useMantineTheme()
   const { breakPoint } = useBreakPoints()
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
+  const { showError } = useErrorModal()
   const { settingState } = useWebDAVSettingState()
-  const { checkAuth } = useWebDAVServer()
+  const { isServerConnectionValidWithAuthConfig } = useWebDAVServer()
   const [isConnecting, setIsConnecting] = useState(false)
   const [
     isFolderPathInputModalOpen,
@@ -73,7 +73,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const handleFolderSelectButtonClick = useCallback(async () => {
     try {
       setIsConnecting(true)
-      await checkAuth(address, user, password)
+      await isServerConnectionValidWithAuthConfig(address, user, password)
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
       setIsAuthenticated(true)
       localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
@@ -82,7 +82,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       onFolderPathInputModalOpen()
     } catch (e) {
       setIsAuthenticated(false)
-      setErrorModalInstance(prev => [...prev, e])
+      showError(e)
     } finally {
       setIsConnecting(false)
     }
@@ -90,9 +90,9 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     address,
     user,
     password,
-    checkAuth,
+    isServerConnectionValidWithAuthConfig,
     onFolderPathInputModalOpen,
-    setErrorModalInstance,
+    showError,
     setIsAuthenticated
   ])
 

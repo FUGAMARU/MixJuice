@@ -1,11 +1,10 @@
 import { useState, useCallback } from "react"
-import { useSetRecoilState } from "recoil"
+import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifySettingState from "./useSpotifySettingState"
 import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVSettingState from "./useWebDAVSettingState"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import {
   Track,
@@ -16,9 +15,9 @@ import {
 let timer: NodeJS.Timer
 
 const useSearch = () => {
+  const { showError } = useErrorModal()
   const [keyword, setKeyword] = useState("")
 
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const [isSearchingSpotify, setIsSearchingSpotify] = useState(false)
   const [isSearchingWebDAV, setIsSearchingWebDAV] = useState(false)
   const [isSearchingWebDAVTrackDatabase, setIsSearchingWebDAVTrackDatabase] =
@@ -62,22 +61,28 @@ const useSearch = () => {
         const spotifyPromise = new Promise<{
           data: []
           nextOffset: number
-        } | void>(async resolve => {
+        } | void>(async (resolve, reject) => {
           if (spotifySettingState === "none") {
             resolve({ data: [], nextOffset: 0 })
           }
-          const spotifyRes = await searchSpotifyTracks(
-            input,
-            spotifySearchNextOffset as number // キーワードが変更される度にSpotifySearchNextOffsetは0にリセットされるのでundefinedにはならない
-          )
-          setSpotifySearchResult(
-            spotifyRes.data.map(searchResultItem =>
-              formatFromSpotifyTrack(searchResultItem)
+
+          try {
+            const spotifyRes = await searchSpotifyTracks(
+              input,
+              spotifySearchNextOffset as number // キーワードが変更される度にSpotifySearchNextOffsetは0にリセットされるのでundefinedにはならない
             )
-          )
-          setSpotifySearchNextOffset(spotifyRes.nextOffset)
-          setIsSearchingSpotify(false)
-          resolve()
+            setSpotifySearchResult(
+              spotifyRes.data.map(searchResultItem =>
+                formatFromSpotifyTrack(searchResultItem)
+              )
+            )
+            setSpotifySearchNextOffset(spotifyRes.nextOffset)
+            resolve()
+          } catch (e) {
+            reject(e)
+          } finally {
+            setIsSearchingSpotify(false)
+          }
         })
 
         const webDAVTrackDatabasePromise = new Promise<[] | void>(
@@ -97,21 +102,28 @@ const useSearch = () => {
           }
         )
 
-        const webDAVPromise = new Promise<[] | void>(async resolve => {
-          const folderPaths = localStorage.getItem(
-            LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
-          )
+        const webDAVPromise = new Promise<[] | void>(
+          async (resolve, reject) => {
+            const folderPaths = localStorage.getItem(
+              LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
+            )
 
-          if (webDAVSettingState === "none" || !folderPaths) resolve([])
+            if (webDAVSettingState === "none" || !folderPaths) resolve([])
 
-          const webDAVRes = await searchWebDAVTracks(
-            JSON.parse(folderPaths!),
-            input
-          )
-          setWebDAVSearchResult(webDAVRes)
-          setIsSearchingWebDAV(false)
-          resolve()
-        })
+            try {
+              const webDAVRes = await searchWebDAVTracks(
+                JSON.parse(folderPaths!),
+                input
+              )
+              setWebDAVSearchResult(webDAVRes)
+              resolve()
+            } catch (e) {
+              reject(e)
+            } finally {
+              setIsSearchingWebDAV(false)
+            }
+          }
+        )
 
         try {
           await Promise.all([
@@ -120,7 +132,8 @@ const useSearch = () => {
             webDAVPromise
           ])
         } catch (e) {
-          setErrorModalInstance(prev => [...prev, e])
+          console.log("エラーハンドリング")
+          showError(e)
           setIsSearchingSpotify(false)
           setIsSearchingWebDAV(false)
           setIsSearchingWebDAVTrackDatabase(false)
@@ -131,11 +144,11 @@ const useSearch = () => {
     [
       spotifySettingState,
       searchSpotifyTracks,
-      setErrorModalInstance,
       spotifySearchNextOffset,
       webDAVSettingState,
       searchWebDAVTrackDatabase,
-      searchWebDAVTracks
+      searchWebDAVTracks,
+      showError
     ]
   )
 
@@ -150,14 +163,9 @@ const useSearch = () => {
       setSpotifySearchResult(prev => [...prev, ...convertedRes])
       setSpotifySearchNextOffset(res.nextOffset)
     } catch (e) {
-      setErrorModalInstance(prev => [...prev, e])
+      showError(e)
     }
-  }, [
-    keyword,
-    searchSpotifyTracks,
-    setErrorModalInstance,
-    spotifySearchNextOffset
-  ])
+  }, [keyword, searchSpotifyTracks, showError, spotifySearchNextOffset])
 
   const resetAll = useCallback(() => {
     setKeyword("")

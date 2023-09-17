@@ -1,8 +1,10 @@
 import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { useRecoilValue } from "recoil"
+import useErrorModal from "./useErrorModal"
 import useSpotifyToken from "./useSpotifyToken"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
+import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import {
   SpotifyApiPlaylistTracksResponse,
   SpotifyApiTrackSearchResponse,
@@ -29,6 +31,7 @@ const useSpotifyApi = ({ initialize }: Props) => {
   const { refreshAccessToken, hasValidAccessTokenState } = useSpotifyToken({
     initialize: false
   })
+  const { showError } = useErrorModal()
 
   useEffect(() => {
     if (!initialize) return
@@ -53,6 +56,9 @@ const useSpotifyApi = ({ initialize }: Props) => {
             config.headers.Authorization = `Bearer ${newAccessToken}`
             return config
           } catch (e) {
+            if (e instanceof SpotifyAuthError) {
+              showError(e)
+            }
             return Promise.reject(e)
           } finally {
             isNowRefreshingToken = false
@@ -64,7 +70,7 @@ const useSpotifyApi = ({ initialize }: Props) => {
       },
       error => {
         /** リクエストエラーの処理 */
-        console.log("🟥ERROR: リクエストエラー")
+        console.log("🟥ERROR: [useSpotifyApi] Interceptor リクエストエラー")
         console.log(error)
         return Promise.reject(error)
       }
@@ -78,7 +84,7 @@ const useSpotifyApi = ({ initialize }: Props) => {
       },
       error => {
         /** レスポンス異常 (ステータスコードが2xx以外) */
-        console.log("🟥ERROR: レスポンスエラー")
+        console.log("🟥ERROR: [useSpotifyApi] Interceptor レスポンスエラー")
         console.log(error)
         return Promise.reject(error)
       }
@@ -88,7 +94,13 @@ const useSpotifyApi = ({ initialize }: Props) => {
       spotifyApi.interceptors.request.eject(requestInterceptor)
       spotifyApi.interceptors.response.eject(responseInterceptor)
     }
-  }, [accessToken, refreshAccessToken, hasValidAccessTokenState, initialize])
+  }, [
+    accessToken,
+    refreshAccessToken,
+    hasValidAccessTokenState,
+    initialize,
+    showError
+  ])
 
   /**
    * ログイン中ユーザーのプレイリスト一覧を取得する
@@ -112,9 +124,8 @@ const useSpotifyApi = ({ initialize }: Props) => {
         if (res.data.next === null) break
       }
     } catch (e) {
-      // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
-      throw Error("プレイリストの取得に失敗しました")
+      throw Error("ユーザーのSpotifyプレイリスト一覧の取得に失敗しました")
     }
 
     return playlists
@@ -153,9 +164,10 @@ const useSpotifyApi = ({ initialize }: Props) => {
         if (res.data.next === null) break
       }
     } catch (e) {
-      // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
-      throw Error("プレイリストに存在する楽曲の取得に失敗しました")
+      throw Error(
+        `Spotifyプレイリストに含まれるトラック一覧の取得に失敗しました (playlistId: ${playlistId})`
+      )
     }
 
     return tracks
@@ -180,9 +192,10 @@ const useSpotifyApi = ({ initialize }: Props) => {
           }
         )
       } catch (e) {
-        // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
         console.log("🟥ERROR: ", e)
-        throw Error("トラックの再生開始に失敗しました")
+        throw Error(
+          `Spotifyトラックの再生開始に失敗しました (trackId: ${trackId})`
+        )
       }
     },
     []
@@ -214,9 +227,8 @@ const useSpotifyApi = ({ initialize }: Props) => {
           : undefined
       }
     } catch (e) {
-      // e.messageにはAxiosのエラーメッセージが入っているのでsetErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
-      throw Error("楽曲の検索に失敗しました")
+      throw Error(`Spotifyトラックの検索に失敗しました (query: ${query})`)
     }
   }, [])
 

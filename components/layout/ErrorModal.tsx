@@ -1,79 +1,121 @@
-import { Box, Button, Modal } from "@mantine/core"
+import { Box, Button, Flex, Modal, Text } from "@mantine/core"
 import { useRouter } from "next/navigation"
-import { memo, useCallback } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
+import { BiErrorAlt } from "react-icons/bi"
+import { IoWarningOutline } from "react-icons/io5"
 import { useRecoilState } from "recoil"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
+import { errorModalConfigAtom } from "@/atoms/errorModalConfigAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
+import { ErrorModalConfig } from "@/types/ErrorModalConfig"
 
 const ErrorModal = () => {
   const router = useRouter()
-  const [errorModalInstance, setErrorModalInstance] = useRecoilState(
-    errorModalInstanceAtom
-  )
+  const [errorModalConfigs, setErrorModalConfigs] =
+    useRecoilState(errorModalConfigAtom)
+  const [modalStack, setModalStack] = useState<ErrorModalConfig[]>([])
+  const lastConfig = modalStack[modalStack.length - 1]
 
-  const handleModalClose = useCallback(
-    (idx: number) => {
-      setErrorModalInstance(prev => {
-        const newItems = [...prev]
-        newItems.splice(idx, 1)
-        return newItems
-      })
+  useEffect(() => {
+    const spotifyAuthErrors = errorModalConfigs.filter(
+      item =>
+        (item.instance instanceof Error ||
+          item.instance instanceof SpotifyAuthError) &&
+        item.instance.name === "SpotifyAuthError"
+    )
 
-      if (errorModalInstance[idx] instanceof SpotifyAuthError) {
-        /** ここに処理が来る段階で既にSpotifyの認証情報は削除済み */
-        router.replace("/connect")
-      }
-    },
-    [errorModalInstance, setErrorModalInstance, router]
-  )
+    const nonSpotifyAuthErrors = errorModalConfigs.filter(
+      item =>
+        (item.instance instanceof Error ||
+          item.instance instanceof SpotifyAuthError) &&
+        item.instance.name !== "SpotifyAuthError"
+    )
 
-  return errorModalInstance.map((error, idx) => (
-    <Modal
-      key={`ErrorModal-${idx}`}
-      centered
-      opened
-      title="エラー"
-      withCloseButton={false}
-      closeOnClickOutside={false}
-      closeOnEscape={false}
-      onClose={() => handleModalClose(idx)}
-      styles={{
-        overlay: {
-          backgroundColor: "rgba(0, 0, 0, 0.2)"
-        },
-        header: {
-          backgroundColor: "#ff6459",
-          color: "white"
-        },
-        title: {
-          fontWeight: 700
-        },
-        body: {
-          backgroundColor: "#ff6459",
-          color: "white"
+    setModalStack([...nonSpotifyAuthErrors, ...spotifyAuthErrors])
+  }, [errorModalConfigs])
+
+  const handleModalClose = useCallback(() => {
+    if (lastConfig.instance instanceof SpotifyAuthError) {
+      /** ここに処理が来る段階で既にSpotifyの認証情報は削除済み */
+      router.replace("/connect")
+      setErrorModalConfigs([])
+      return
+    }
+
+    setErrorModalConfigs(prevConfigs =>
+      prevConfigs.filter(config => {
+        if (
+          (config.instance instanceof Error ||
+            config.instance instanceof SpotifyAuthError) &&
+          (lastConfig.instance instanceof Error ||
+            lastConfig.instance instanceof SpotifyAuthError)
+        ) {
+          return config.instance.message !== lastConfig.instance.message
         }
-      }}
-    >
-      {error instanceof Error || error instanceof SpotifyAuthError
-        ? error.message
-        : ""}
+        return false
+      })
+    )
+  }, [setErrorModalConfigs, lastConfig, router])
 
-      <Box mt="md" ta="right">
-        <Button
-          sx={{
-            backgroundColor: "white",
-            color: "#ff6459",
-            ":hover": {
-              backgroundColor: "white"
-            }
-          }}
-          onClick={() => handleModalClose(idx)}
-        >
-          OK
-        </Button>
-      </Box>
-    </Modal>
-  ))
+  return (
+    modalStack.length > 0 && (
+      <Modal
+        centered
+        opened
+        title={
+          <Flex align="center" gap="xs">
+            {lastConfig.level === "error" ? (
+              <BiErrorAlt size="1.2rem" />
+            ) : (
+              <IoWarningOutline size="1.2rem" />
+            )}
+            <Text color="white">
+              {lastConfig.level === "error" ? "エラー" : "注意"}
+            </Text>
+          </Flex>
+        }
+        withCloseButton={false}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        onClose={handleModalClose}
+        styles={{
+          overlay: {
+            backgroundColor: "rgba(0, 0, 0, 0.2)"
+          },
+          header: {
+            backgroundColor:
+              lastConfig.level === "error" ? "#ff6459" : "#fd9353",
+            color: "white"
+          },
+          title: {
+            fontWeight: 700
+          },
+          body: {
+            backgroundColor:
+              lastConfig.level === "error" ? "#ff6459" : "#fd9353",
+            color: "white"
+          }
+        }}
+      >
+        {(lastConfig.instance instanceof Error ||
+          lastConfig.instance instanceof SpotifyAuthError) &&
+          lastConfig.instance.message}
+        <Box mt="md" ta="right">
+          <Button
+            sx={{
+              backgroundColor: "white",
+              color: lastConfig.level === "error" ? "#ff6459" : "#fd9353",
+              ":hover": {
+                backgroundColor: "white"
+              }
+            }}
+            onClick={handleModalClose}
+          >
+            OK
+          </Button>
+        </Box>
+      </Modal>
+    )
+  )
 }
 
 export default memo(ErrorModal)

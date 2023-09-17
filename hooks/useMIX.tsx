@@ -1,11 +1,9 @@
 import { notifications } from "@mantine/notifications"
 import { useCallback } from "react"
-import { useSetRecoilState } from "recoil"
+import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { NavbarItem } from "@/types/NavbarItem"
 import {
   Track,
@@ -18,13 +16,13 @@ import { shuffleArray } from "@/utils/shuffleArray"
 let hasDisplayedNotification = false
 
 const useMIX = () => {
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
+  const { showWarning } = useErrorModal()
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
   const {
     getFolderTracks,
     getTrackInfo: getWebDAVServerTrackInfo,
     checkIsFolderExists,
-    checkAuth
+    isServerConnectionValid
   } = useWebDAVServer()
   const {
     saveTrackInfo,
@@ -55,103 +53,84 @@ const useMIX = () => {
         /** TODO: Spotifyのプレイリストは削除しても90日経たないと完全削除されないため、Spotify上で削除してからすぐはこのエラーが発生しない
          * 2023年12月8日以降にプレイリストID「1INkxTlQ2KWyAC5413T72c」を使用してちゃんと動くか検証する必要がある
          */
-        setErrorModalInstance(prev => [
-          ...prev,
-          new Error(
-            "存在しないSpotifyプレイリストがMIXの対象に含まれていました。当該プレイリストのMIXはスキップされます。"
-          )
-        ])
+        showWarning(
+          "存在しないSpotifyプレイリストがMIXの対象に含まれていました。当該プレイリストのMIXはスキップされます。"
+        )
 
       return tracksForPlaylists.flat()
     },
-    [getPlaylistTracks, setErrorModalInstance]
+    [getPlaylistTracks, showWarning]
   )
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
-      try {
-        const address = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS)
-        const username = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_USER)
-        const password = localStorage.getItem(
-          LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD
+      await isServerConnectionValid()
+
+      /** フォルダーが現存するか確認する */
+      const availableFolderPaths: NavbarItem[] = []
+      for (const folderPath of folderPaths) {
+        const isFolderExists = await checkIsFolderExists(folderPath.id)
+        if (isFolderExists) availableFolderPaths.push(folderPath)
+      }
+
+      if (folderPaths.length !== availableFolderPaths.length)
+        showWarning(
+          "存在しないWebDAVフォルダーがMIXの対象に含まれていました。当該フォルダーのMIXはスキップされます。"
         )
 
-        if (!address || !username || !password)
-          throw new Error("WebDAVサーバーの認証情報が存在しません")
+      const foldersTracks = await Promise.all(
+        availableFolderPaths.map(async folderPath => {
+          return await getFolderTracks(folderPath.id, "")
+        })
+      )
 
-        await checkAuth(address, username, password)
+      /** どのフォルダーにも楽曲ファイルが存在しない場合 */
+      if (foldersTracks.every(folderTracks => folderTracks.length === 0))
+        return []
 
-        /** フォルダーが現存するか確認する */
-        const availableFolderPaths: NavbarItem[] = []
-        for (const folderPath of folderPaths) {
-          const isFolderExists = await checkIsFolderExists(folderPath.id)
-          if (isFolderExists) availableFolderPaths.push(folderPath)
-        }
+      /** 以下、「Object.filename」はそのファイルのフルパスを表す */
 
-        if (folderPaths.length !== availableFolderPaths.length)
-          setErrorModalInstance(prev => [
-            ...prev,
-            new Error(
-              "存在しないWebDAVフォルダーがMIXの対象に含まれていました。当該フォルダーのMIXはスキップされます。"
-            )
-          ])
+      const flattenFoldersTracks = foldersTracks.flat()
 
-        const foldersTracks = await Promise.all(
-          availableFolderPaths.map(async folderPath => {
-            return await getFolderTracks(folderPath.id, "")
-          })
-        )
+      /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
+      const tracksInformations: TrackWithPath[] = []
 
-        /** どのフォルダーにも楽曲ファイルが存在しない場合 */
-        if (foldersTracks.every(folderTracks => folderTracks.length === 0))
-          return []
+      /** フォルダーに入っているトラックが多い状態で並列処理すると楽曲情報の取得が終了しないことがあるのでPromise.allは使わない */
+      for (const trackFile of flattenFoldersTracks) {
+        const isKnown = await isTrackInfoExists(trackFile.filename)
 
-        /** 以下、「Object.filename」はそのファイルのフルパスを表す */
+        let trackInfo
 
-        const flattenFoldersTracks = foldersTracks.flat()
-
-        /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
-        const tracksInformations: TrackWithPath[] = []
-
-        /** フォルダーに入っているトラックが多い状態で並列処理すると楽曲情報の取得が終了しないことがあるのでPromise.allは使わない */
-        for (const trackFile of flattenFoldersTracks) {
-          const isKnown = await isTrackInfoExists(trackFile.filename)
-
-          let trackInfo
-
-          if (isKnown) {
-            trackInfo = (await getIndexedDBTrackInfo(
-              trackFile.filename
-            )) as TrackWithPath
-          } else {
-            if (!hasDisplayedNotification) {
-              notifications.show({
-                withCloseButton: true,
-                title: "楽曲情報のキャッシュを作成中…",
-                message:
-                  "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
-                color: "webdav",
-                loading: true,
-                autoClose: false
-              })
-              hasDisplayedNotification = true
-            }
-
-            trackInfo = await getWebDAVServerTrackInfo(trackFile)
-            await saveTrackInfo(trackInfo)
+        if (isKnown) {
+          trackInfo = (await getIndexedDBTrackInfo(
+            trackFile.filename
+          )) as TrackWithPath
+        } else {
+          if (!hasDisplayedNotification) {
+            notifications.show({
+              withCloseButton: true,
+              title: "楽曲情報のキャッシュを作成中…",
+              message:
+                "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
+              color: "webdav",
+              loading: true,
+              autoClose: false
+            })
+            hasDisplayedNotification = true
           }
 
-          tracksInformations.push(trackInfo)
+          trackInfo = await getWebDAVServerTrackInfo(trackFile)
+          await saveTrackInfo(trackInfo)
         }
 
-        hasDisplayedNotification = false
-
-        return tracksInformations.map(trackWithPath =>
-          removePathProperty(trackWithPath)
-        )
-      } catch (e) {
-        setErrorModalInstance(prev => [...prev, e])
+        tracksInformations.push(trackInfo)
       }
+
+      hasDisplayedNotification = false
+
+      return tracksInformations.map(trackWithPath =>
+        removePathProperty(trackWithPath)
+      )
     },
     [
       getIndexedDBTrackInfo,
@@ -159,9 +138,9 @@ const useMIX = () => {
       isTrackInfoExists,
       saveTrackInfo,
       getWebDAVServerTrackInfo,
-      setErrorModalInstance,
+      showWarning,
       checkIsFolderExists,
-      checkAuth
+      isServerConnectionValid
     ]
   )
 

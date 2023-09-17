@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react"
+import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useWebDAVServer from "./useWebDAVServer"
 import { Provider } from "@/types/Provider"
@@ -10,6 +11,7 @@ import {
 } from "@/types/Track"
 
 const useTarckModal = () => {
+  const { showError } = useErrorModal()
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
   const { getFolderTracks, getTrackInfo } = useWebDAVServer()
 
@@ -17,6 +19,7 @@ const useTarckModal = () => {
   const [title, setTitle] = useState("")
   const [provider, setProvider] = useState<Provider>()
   const [tracks, setTracks] = useState<Track[] | undefined>()
+
   const handleNavbarCheckboxLabelClick = useCallback(
     async (provider: Provider, id: string, title: string) => {
       setTracks(undefined) // 前回のデーターが残っている場合に表示されるのを防ぐ
@@ -24,31 +27,36 @@ const useTarckModal = () => {
       setProvider(provider)
       setIsOpen(true)
 
-      switch (provider) {
-        case "spotify":
-          const playlistTracks = await getPlaylistTracks(id)
-          const tracks = playlistTracks.map(playlistTrack =>
-            formatFromSpotifyTrack(playlistTrack)
-          )
-          setTracks(tracks)
-          break
-        case "webdav":
-          const folderTrackFiles = await getFolderTracks(id, "")
-          const folderTracksInfo: TrackWithPath[] = []
-          for (const trackFile of folderTrackFiles) {
-            // 並列処理でやると全件取得できないかもしれない(未検証)ので逐次処理で取得
-            const trackInfo = await getTrackInfo(trackFile)
-            folderTracksInfo.push(trackInfo)
-          }
-          setTracks(
-            folderTracksInfo.map(trackWithPath =>
-              removePathProperty(trackWithPath)
+      try {
+        switch (provider) {
+          case "spotify":
+            const playlistTracks = await getPlaylistTracks(id)
+            const tracks = playlistTracks.map(playlistTrack =>
+              formatFromSpotifyTrack(playlistTrack)
             )
-          )
-          break
+            setTracks(tracks)
+            break
+          case "webdav":
+            const folderTrackFiles = await getFolderTracks(id, "")
+            const folderTracksInfo: TrackWithPath[] = []
+            for (const trackFile of folderTrackFiles) {
+              // 並列処理でやると全件取得できないかもしれない(未検証)ので逐次処理で取得
+              const trackInfo = await getTrackInfo(trackFile)
+              folderTracksInfo.push(trackInfo)
+            }
+            setTracks(
+              folderTracksInfo.map(trackWithPath =>
+                removePathProperty(trackWithPath)
+              )
+            )
+            break
+        }
+      } catch (e) {
+        showError(e)
+        setIsOpen(false)
       }
     },
-    [getPlaylistTracks, getFolderTracks, getTrackInfo, setIsOpen]
+    [getPlaylistTracks, getFolderTracks, getTrackInfo, setIsOpen, showError]
   )
 
   return {

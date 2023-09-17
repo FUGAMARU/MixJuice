@@ -83,7 +83,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const pkceConfig = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
 
       if (pkceConfig === null)
-        throw Error("アクセストークン取得に必要な情報が存在しません")
+        throw Error(
+          "Spotify APIのアクセストークン取得に必要な情報が存在しません"
+        )
 
       const { clientId, redirectUri, codeVerifier } = JSON.parse(
         pkceConfig
@@ -118,9 +120,8 @@ const useSpotifyToken = ({ initialize }: Props) => {
 
         localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
       } catch (e) {
-        // 例外が発生した場合の起点なので(eには自分で設定したエラーメッセージは入っていないので)setErrorModalInstanceは行わない
         console.log("🟥ERROR: ", e)
-        throw Error("アクセストークンの取得に失敗しました")
+        throw Error("Spotify APIのアクセストークンの取得に失敗しました")
       }
     },
     [setAccessToken]
@@ -132,7 +133,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
   }, [setAccessToken])
 
   const refreshAccessToken = useCallback(async () => {
-    console.log("🟦DEBUG: アクセストークンを更新します")
+    console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
     const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
     const refreshToken = localStorage.getItem(
@@ -142,7 +143,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
     if (clientId === null || refreshToken === null) {
       deleteAuthConfig()
       throw new SpotifyAuthError(
-        "アクセストークンの更新に必要な情報が存在しませんでした。Spotifyに再ログインしてください。"
+        "Spotify APIのアクセストークンの更新に必要な情報が存在しませんでした。Spotifyに再ログインしてください。"
       )
     }
 
@@ -163,9 +164,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const expiresAt =
         Math.floor(Date.now() / 1000) + Number(res.data.expires_in)
 
-      console.log("🟩DEBUG: アクセストークンの更新に成功しました")
+      console.log("🟩DEBUG: Spotify APIのアクセストークンの更新に成功しました")
       console.log(
-        `新しく取得したアクセストークンの失効日時は ${new Date(
+        `新しく取得したSpotify APIのアクセストークンの失効日時は ${new Date(
           expiresAt * 1000
         )} です`
       )
@@ -182,11 +183,10 @@ const useSpotifyToken = ({ initialize }: Props) => {
 
       return token
     } catch (e) {
-      // 例外が発生した場合の起点なので(eには自分で設定したエラーメッセージは入っていないので)setErrorModalInstanceは行わない
       console.log("🟥ERROR: ", e)
       deleteAuthConfig()
       throw new SpotifyAuthError(
-        "アクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
+        "Spotify APIのアクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
   }, [setAccessToken, deleteAuthConfig])

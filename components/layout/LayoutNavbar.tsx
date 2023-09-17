@@ -28,12 +28,12 @@ import { GrConnect } from "react-icons/gr"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import useErrorModal from "@/hooks/useErrorModal"
 import useMIX from "@/hooks/useMIX"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import { NavbarItem } from "@/types/NavbarItem"
@@ -69,7 +69,7 @@ const LayoutNavbar = ({
     useRecoilState(navbarClassNameAtom)
   const [isOpened, setIsOpened] = useRecoilState(navbarAtom)
   const setQueue = useSetRecoilState(queueAtom)
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
+  const { showError } = useErrorModal()
   const { mixAllTracks } = useMIX()
   const setIsSearchModalOpen = useSetRecoilState(searchModalAtom)
   useHotkeys([
@@ -215,7 +215,7 @@ const LayoutNavbar = ({
 
       if (canSlideNavbar) closeOwn()
     } catch (e) {
-      setErrorModalInstance(prev => [...prev, e])
+      showError(e)
     } finally {
       setIsMixing(false)
       setIsPreparingPlayback(false)
@@ -225,7 +225,7 @@ const LayoutNavbar = ({
     webdavPlaylists,
     mixAllTracks,
     setQueue,
-    setErrorModalInstance,
+    showError,
     setIsPreparingPlayback,
     isPlaying,
     onPlay,

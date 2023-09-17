@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef } from "react"
-import { useSetRecoilState } from "recoil"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
 import { Track } from "@/types/Track"
 import { createSilentAudioBlob } from "@/utils/createSilentAudioBlob"
 
@@ -25,7 +23,6 @@ const useMediaSession = ({
   onNextTrack,
   onSeekTo
 }: Props) => {
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
   const dummyAudioRef = useRef<HTMLAudioElement>()
 
   const setMediaMetadata = useCallback((trackInfo: Track) => {
@@ -56,13 +53,9 @@ const useMediaSession = ({
       navigator.mediaSession.playbackState = "playing"
     } catch (e) {
       console.log("🟥ERROR: ", e)
-      /*setErrorModalInstance(prev => [
-          ...prev,
-          new Error(
-            "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
-          )
-        ])*/ // TODO: 一旦消して様子見
-      throw e
+      throw new Error(
+        "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
+      )
     }
   }, [])
 

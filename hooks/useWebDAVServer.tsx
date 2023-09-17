@@ -21,7 +21,7 @@ const useWebDAVServer = () => {
     })
   }, [])
 
-  const checkAuth = useCallback(
+  const isServerConnectionValidWithAuthConfig = useCallback(
     async (address: string, username: string, password: string) => {
       try {
         // この時点ではまだLocalStorageに認証情報がないので認証情報は引数として受け取る
@@ -31,11 +31,30 @@ const useWebDAVServer = () => {
         }).getQuota()
       } catch (e) {
         console.log(`🟥ERROR: ${e}`)
-        throw new Error("WebDAVサーバに接続・認証できませんでした")
+        throw new Error(
+          "指定された認証情報でWebDAVサーバに接続・認証できませんでした"
+        )
       }
     },
     []
   )
+
+  const isServerConnectionValid = useCallback(async () => {
+    const client = getClient()
+    if (!client)
+      throw new Error(
+        "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
+      )
+
+    try {
+      await client.getQuota()
+    } catch (e) {
+      console.log(`🟥ERROR: ${e}`)
+      throw new Error(
+        "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
+      )
+    }
+  }, [getClient])
 
   const checkIsFolderExists = useCallback(
     async (folderPath: string) => {
@@ -75,7 +94,9 @@ const useWebDAVServer = () => {
         return audioFilesFiltered
       } catch (e) {
         console.log(`🟥ERROR: ${e}`)
-        throw new Error("フォルダー内の楽曲一覧の取得に失敗しました")
+        throw new Error(
+          `WebDAVサーバーのフォルダーに含まれるトラック一覧の取得に失敗しました (folderPath: ${folderPath})`
+        )
       }
     },
     [getClient]
@@ -83,41 +104,48 @@ const useWebDAVServer = () => {
 
   const getTrackInfo = useCallback(
     async (fileInfo: WebDAVDirectoryContent) => {
-      const client = getClient()
-      if (!client) throw new Error("WebDAVサーバに接続・認証できませんでした")
+      try {
+        const client = getClient()
+        if (!client) throw new Error("WebDAVサーバに接続・認証できませんでした")
 
-      const file = (await client.getFileContents(fileInfo.filename)) as Buffer
+        const file = (await client.getFileContents(fileInfo.filename)) as Buffer
 
-      const mimeType = getMimeType(fileInfo.filename)
+        const mimeType = getMimeType(fileInfo.filename)
 
-      const { common } = await parseBuffer(new Uint8Array(file), mimeType)
+        const { common } = await parseBuffer(new Uint8Array(file), mimeType)
 
-      const id = client.getFileDownloadLink(fileInfo.filename)
-      const imgSrc = common.picture
-        ? `data:${
-            common.picture[0].format
-          };base64,${common.picture[0].data.toString("base64")}`
-        : undefined
+        const id = client.getFileDownloadLink(fileInfo.filename)
+        const imgSrc = common.picture
+          ? `data:${
+              common.picture[0].format
+            };base64,${common.picture[0].data.toString("base64")}`
+          : undefined
 
-      const trackInfo: TrackWithPath = {
-        id,
-        path: fileInfo.filename,
-        provider: "webdav",
-        title: common.title || "",
-        albumTitle: common.album || "",
-        artist: common.artists ? common.artists.join("・") : "",
-        image: imgSrc
-          ? {
-              src: imgSrc,
-              height: 0, // expandTrackInfoで取得する
-              width: 0 // expandTrackInfoで取得する
-            }
-          : undefined,
-        duration: 0 // expandTrackInfoで取得する
+        const trackInfo: TrackWithPath = {
+          id,
+          path: fileInfo.filename,
+          provider: "webdav",
+          title: common.title || "",
+          albumTitle: common.album || "",
+          artist: common.artists ? common.artists.join("・") : "",
+          image: imgSrc
+            ? {
+                src: imgSrc,
+                height: 0, // expandTrackInfoで取得する
+                width: 0 // expandTrackInfoで取得する
+              }
+            : undefined,
+          duration: 0 // expandTrackInfoで取得する
+        }
+
+        const expandedTrackInfo = await expandTrackInfo(trackInfo)
+        return expandedTrackInfo as TrackWithPath
+      } catch (e) {
+        console.log(`🟥ERROR: ${e}`)
+        throw new Error(
+          `WebDAVサーバーのフォルダーに含まれるトラック情報の取得に失敗しました (filepath: ${fileInfo.filename})`
+        )
       }
-
-      const expandedTrackInfo = await expandTrackInfo(trackInfo)
-      return expandedTrackInfo as TrackWithPath
     },
     [getClient]
   )
@@ -142,14 +170,17 @@ const useWebDAVServer = () => {
         )
       } catch (e) {
         console.log(`🟥ERROR: ${e}`)
-        throw new Error("WebDAVサーバーに存在する楽曲の検索に失敗しました")
+        throw new Error(
+          "WebDAVサーバーのフォルダーに含まれるトラックの検索に失敗しました"
+        )
       }
     },
     [getFolderTracks, getTrackInfo]
   )
 
   return {
-    checkAuth,
+    isServerConnectionValidWithAuthConfig,
+    isServerConnectionValid,
     checkIsFolderExists,
     getFolderTracks,
     getTrackInfo,

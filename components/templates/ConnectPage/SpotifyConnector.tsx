@@ -13,8 +13,7 @@ import { useRouter } from "next/navigation"
 import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { BsInfoCircle } from "react-icons/bs"
-import { useRecoilState, useSetRecoilState } from "recoil"
-import { errorModalInstanceAtom } from "@/atoms/errorModalInstanceAtom"
+import { useRecoilState } from "recoil"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
@@ -22,6 +21,7 @@ import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListMo
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -45,7 +45,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const { redirectUri, getCode } = useSpotifyToken({ initialize: false })
   const { getPlaylists } = useSpotifyApi({ initialize: false })
   const { settingState } = useSpotifySettingState()
-  const setErrorModalInstance = useSetRecoilState(errorModalInstanceAtom)
+  const { showError } = useErrorModal()
 
   const [clientId, setClientId] = useState("")
   useEffect(() => {
@@ -85,11 +85,11 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       )
       onPlaylistSelectorOpen()
     } catch (e) {
-      setErrorModalInstance(prev => [...prev, e])
+      showError(e)
     } finally {
       setIsFetchingPlaylists(false)
     }
-  }, [getPlaylists, onPlaylistSelectorOpen, setErrorModalInstance])
+  }, [getPlaylists, onPlaylistSelectorOpen, showError])
 
   /** 遷移してきた時に過去に選択したプレイリストにチェックを入れておき、プレイリストが選択される度にlocalStorageを更新する */
   const [selectedPlaylists, setSelectedPlaylists] = useRecoilState(
