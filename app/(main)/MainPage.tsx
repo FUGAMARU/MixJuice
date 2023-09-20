@@ -30,7 +30,8 @@ const MainPage = () => {
     setIsOpen: setIsTrackModalOpen,
     title: trackModalTitle,
     provider: trackModalProvider,
-    tracks: tracksForTrackModal,
+    spotifyTracks,
+    mergedWebDAVSearchResult,
     handleNavbarCheckboxLabelClick
   } = useTarckModal()
 
@@ -126,7 +127,8 @@ const MainPage = () => {
         isOpen={isTrackModalOpen}
         title={trackModalTitle}
         provider={trackModalProvider}
-        tracks={tracksForTrackModal}
+        spotifyTracks={spotifyTracks}
+        mergedWebDAVSearchResult={mergedWebDAVSearchResult}
         canMoveToFront={queue.length > 0}
         canAddToFront={isPlaying}
         onClose={handleTrackModalClose} // useCallbackを経由せずにコールバックで直接stateを変更すると再レンダリングが走りまくってしまい、react-windowの表示がおかしくなる。

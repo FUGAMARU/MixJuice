@@ -1,28 +1,35 @@
 import { useState, useCallback } from "react"
 import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
-import useWebDAVServer from "./useWebDAVServer"
+import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { Provider } from "@/types/Provider"
-import {
-  Track,
-  formatFromSpotifyTrack,
-  TrackWithPath,
-  removePathProperty
-} from "@/types/Track"
+import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
 const useTarckModal = () => {
   const { showError } = useErrorModal()
+
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
-  const { getFolderTracks, getTrackInfo } = useWebDAVServer()
+  const [spotifyTracks, setSpotifyTracks] = useState<Track[] | undefined>()
+
+  const {
+    searchTracksWithOriginalSource,
+    mergedSearchResult: mergedWebDAVSearchResult,
+    setMergedSearchResult: setMergedWebDAVSearchResult
+  } = useWebDAVTrackDatabase()
 
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [provider, setProvider] = useState<Provider>()
-  const [tracks, setTracks] = useState<Track[] | undefined>()
 
   const handleNavbarCheckboxLabelClick = useCallback(
     async (provider: Provider, id: string, title: string) => {
-      setTracks(undefined) // 前回のデーターが残っている場合に表示されるのを防ぐ
+      // 前回のデーターが残っている場合に表示されるのを防ぐ
+      setSpotifyTracks(undefined)
+      setMergedWebDAVSearchResult({
+        status: "IDLE",
+        data: []
+      })
+
       setTitle(title)
       setProvider(provider)
       setIsOpen(true)
@@ -34,21 +41,10 @@ const useTarckModal = () => {
             const tracks = playlistTracks.map(playlistTrack =>
               formatFromSpotifyTrack(playlistTrack)
             )
-            setTracks(tracks)
+            setSpotifyTracks(tracks)
             break
           case "webdav":
-            const folderTrackFiles = await getFolderTracks(id, "")
-            const folderTracksInfo: TrackWithPath[] = []
-            for (const trackFile of folderTrackFiles) {
-              // 並列処理でやると全件取得できないかもしれない(未検証)ので逐次処理で取得
-              const trackInfo = await getTrackInfo(trackFile)
-              folderTracksInfo.push(trackInfo)
-            }
-            setTracks(
-              folderTracksInfo.map(trackWithPath =>
-                removePathProperty(trackWithPath)
-              )
-            )
+            await searchTracksWithOriginalSource(id, "")
             break
         }
       } catch (e) {
@@ -56,7 +52,13 @@ const useTarckModal = () => {
         setIsOpen(false)
       }
     },
-    [getPlaylistTracks, getFolderTracks, getTrackInfo, setIsOpen, showError]
+    [
+      getPlaylistTracks,
+      setIsOpen,
+      showError,
+      searchTracksWithOriginalSource,
+      setMergedWebDAVSearchResult
+    ]
   )
 
   return {
@@ -64,8 +66,9 @@ const useTarckModal = () => {
     setIsOpen,
     title,
     provider,
-    tracks,
-    handleNavbarCheckboxLabelClick
+    spotifyTracks,
+    handleNavbarCheckboxLabelClick,
+    mergedWebDAVSearchResult
   } as const
 }
 
