@@ -1,6 +1,6 @@
 import { parseBuffer } from "music-metadata-browser"
 import { useCallback } from "react"
-import { createClient } from "webdav"
+import { AuthType, createClient } from "webdav"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { TrackWithPath, removePathProperty } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
@@ -16,6 +16,7 @@ const useWebDAVServer = () => {
     if (!address || !username || !password) return undefined
 
     return createClient(address, {
+      authType: AuthType.Password,
       username,
       password
     })

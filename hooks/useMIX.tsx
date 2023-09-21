@@ -14,6 +14,7 @@ import {
 import { shuffleArray } from "@/utils/shuffleArray"
 
 let hasDisplayedNotification = false
+let gettingWebDAVTrackInfoProgress = 0
 
 const useMIX = () => {
   const { showWarning } = useErrorModal()
@@ -89,6 +90,10 @@ const useMIX = () => {
 
       const flattenFoldersTracks = foldersTracks.flat()
 
+      console.log(
+        `🟦DEBUG: 全${flattenFoldersTracks.length}曲の楽曲情報をWebDAVサーバー及びIndexedDBから取得します`
+      )
+
       /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
       const tracksInformations: TrackWithPath[] = []
 
@@ -96,12 +101,16 @@ const useMIX = () => {
       for (const trackFile of flattenFoldersTracks) {
         const isKnown = await isTrackInfoExists(trackFile.filename)
 
-        let trackInfo
+        let trackInfo: TrackWithPath
 
         if (isKnown) {
           trackInfo = (await getIndexedDBTrackInfo(
             trackFile.filename
           )) as TrackWithPath
+          gettingWebDAVTrackInfoProgress++
+          console.log(
+            `🟦DEBUG: IndexedDBから楽曲情報を取得しました (${gettingWebDAVTrackInfoProgress}/${flattenFoldersTracks.length})`
+          )
         } else {
           if (!hasDisplayedNotification) {
             notifications.show({
@@ -117,6 +126,10 @@ const useMIX = () => {
           }
 
           trackInfo = await getWebDAVServerTrackInfo(trackFile)
+          gettingWebDAVTrackInfoProgress++
+          console.log(
+            `🟦DEBUG: WebDAVサーバーから新たに楽曲情報を取得しました (${gettingWebDAVTrackInfoProgress}/${flattenFoldersTracks.length})`
+          )
           await saveTrackInfo(trackInfo)
         }
 
@@ -124,6 +137,7 @@ const useMIX = () => {
       }
 
       hasDisplayedNotification = false
+      gettingWebDAVTrackInfoProgress = 0
 
       return tracksInformations.map(trackWithPath =>
         removePathProperty(trackWithPath)
