@@ -182,9 +182,11 @@ const useWebDAVServer = () => {
           id,
           path: fileInfo.filename,
           provider: "webdav",
-          title: common.title || "",
-          albumTitle: common.album || "",
-          artist: common.artists ? common.artists.join("・") : "",
+          title: common.title || "不明なタイトル",
+          albumTitle: common.album || "不明なアルバム",
+          artist: common.artists
+            ? common.artists.join("・")
+            : "不明なアーティスト",
           image: imgSrc
             ? {
                 src: imgSrc,
