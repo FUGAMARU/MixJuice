@@ -36,12 +36,9 @@ const SearchModal = ({
     keyword,
     handleKeywordChange,
     spotifySearchResult,
-    webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
     isSearchingSpotify,
-    isSearchingWebDAV,
-    isSearchingWebDAVTrackDatabase,
-    webDAVSearchResult,
+    mergedWebDAVSearchResult,
     resetAll
   } = useSearch()
   const { settingState: spotifySettingState } = useSpotifySettingState()
@@ -148,100 +145,49 @@ const SearchModal = ({
         )}
 
         {webDAVSettingState !== "none" && (
-          <>
-            <Box>
-              <Flex mb="xs" align="center" gap="xs">
-                <ProviderHeading provider="webdav" />
-                <Text fz="0.8rem" color="#adadad">
-                  (キャッシュ済み)
-                </Text>
-                {isSearchingWebDAVTrackDatabase && (
-                  <Loader color="webdav" size="1.2rem" />
-                )}
-              </Flex>
-
-              {webDAVTrackDatabaseSearchResult.length > 0 &&
-              keyword.length > 0 ? (
-                <>
-                  {webDAVTrackDatabaseSearchResult.map(track => (
-                    <ListItemContainer key={track.id}>
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        sx={{ flex: "1", overflow: "hidden" }}
-                      >
-                        <ListItem
-                          image={track.image}
-                          title={track.title}
-                          caption={track.artist}
-                          onArtworkPlayButtonClick={() =>
-                            handleArtworkPlayButtonClick(track)
-                          }
-                        />
-
-                        <QueueOperator
-                          canMoveToFront={canMoveToFront}
-                          canAddToFront={canAddToFront}
-                          onMoveToFront={() => onMoveNewTrackToFront(track)}
-                          onAddToFront={() => onAddNewTrackToFront(track)}
-                          animated
-                        />
-                      </Flex>
-                    </ListItemContainer>
-                  ))}
-                </>
-              ) : (
-                <Text ta="center" fz="0.8rem" color="#adadad">
-                  検索結果はありません
-                </Text>
+          <Box>
+            <Flex mb="xs" align="center" gap="xs">
+              <ProviderHeading provider="webdav" />
+              {mergedWebDAVSearchResult.status !== "IDLE" && (
+                <Loader color="webdav" size="1.2rem" />
               )}
-            </Box>
+            </Flex>
 
-            <Box>
-              <Flex mb="xs" align="center" gap="xs">
-                <ProviderHeading provider="webdav" />
-                <Text fz="0.8rem" color="#adadad">
-                  (未キャッシュ)
-                </Text>
-                {isSearchingWebDAV && <Loader color="webdav" size="1.2rem" />}
-              </Flex>
+            {mergedWebDAVSearchResult.data.length > 0 && keyword.length > 0 ? (
+              <>
+                {mergedWebDAVSearchResult.data.map(data => (
+                  <ListItemContainer key={data.id}>
+                    <Flex
+                      align="center"
+                      justify="space-between"
+                      sx={{ flex: "1", overflow: "hidden" }}
+                    >
+                      <ListItem
+                        image={data.image}
+                        title={data.title}
+                        caption={data.artist}
+                        onArtworkPlayButtonClick={() =>
+                          handleArtworkPlayButtonClick(data)
+                        }
+                      />
 
-              {webDAVSearchResult.length > 0 && keyword.length > 0 ? (
-                <>
-                  {webDAVSearchResult.map(track => (
-                    <ListItemContainer key={track.id}>
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        sx={{ flex: "1", overflow: "hidden" }}
-                      >
-                        <ListItem
-                          image={track.image}
-                          title={track.title}
-                          caption={track.artist}
-                          onArtworkPlayButtonClick={() =>
-                            handleArtworkPlayButtonClick(track)
-                          }
-                        />
-
-                        <QueueOperator
-                          canMoveToFront={canMoveToFront}
-                          canAddToFront={canAddToFront}
-                          onMoveToFront={() => onMoveNewTrackToFront(track)}
-                          onAddToFront={() => onAddNewTrackToFront(track)}
-                          animated
-                        />
-                      </Flex>
-                    </ListItemContainer>
-                  ))}
-                </>
-              ) : (
-                <Text ta="center" fz="0.8rem" color="#adadad">
-                  検索結果はありません
-                </Text>
-              )}
-            </Box>
-          </>
+                      <QueueOperator
+                        canMoveToFront={canMoveToFront}
+                        canAddToFront={canAddToFront}
+                        onMoveToFront={() => onMoveNewTrackToFront(data)}
+                        onAddToFront={() => onAddNewTrackToFront(data)}
+                        animated
+                      />
+                    </Flex>
+                  </ListItemContainer>
+                ))}
+              </>
+            ) : (
+              <Text ta="center" fz="0.8rem" color="#adadad">
+                検索結果はありません
+              </Text>
+            )}
+          </Box>
         )}
       </Stack>
     </ModalDefault>

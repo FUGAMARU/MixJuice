@@ -1,16 +1,11 @@
 import { useState, useCallback } from "react"
 import useErrorModal from "./useErrorModal"
+import useMergedWebDAVServerData from "./useMergedWebDAVServerData"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifySettingState from "./useSpotifySettingState"
-import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVSettingState from "./useWebDAVSettingState"
-import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import {
-  Track,
-  formatFromSpotifyTrack,
-  removePathProperty
-} from "@/types/Track"
+import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
 let timer: NodeJS.Timer
 
@@ -19,25 +14,20 @@ const useSearch = () => {
   const [keyword, setKeyword] = useState("")
 
   const [isSearchingSpotify, setIsSearchingSpotify] = useState(false)
-  const [isSearchingWebDAV, setIsSearchingWebDAV] = useState(false)
-  const [isSearchingWebDAVTrackDatabase, setIsSearchingWebDAVTrackDatabase] =
-    useState(false)
-  const { searchTracks: searchWebDAVTrackDatabase } = useWebDAVTrackDatabase()
-  const { searchTracks: searchWebDAVTracks } = useWebDAVServer()
+  const {
+    searchAndMergeWebDAVMusicInfo,
+    mergedSearchResult: mergedWebDAVSearchResult,
+    resetMergedSearchResult: resetMergedWebDAVSearchResult
+  } = useMergedWebDAVServerData()
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
     initialize: false
   })
-
+  const { settingState: webDAVSettingState } = useWebDAVSettingState()
   const { settingState: spotifySettingState } = useSpotifySettingState()
   const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState<
     number | undefined
   >(0)
   const [spotifySearchResult, setSpotifySearchResult] = useState<Track[]>([])
-
-  const { settingState: webDAVSettingState } = useWebDAVSettingState()
-  const [webDAVTrackDatabaseSearchResult, setWebDAVTrackDatabaseSearchResult] =
-    useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報をキャッシュ済み)
-  const [webDAVSearchResult, setWebDAVSearchResult] = useState<Track[]>([]) // WebDAV (IndexedDBに楽曲情報のキャッシュ無し)
 
   const handleKeywordChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,14 +44,12 @@ const useSearch = () => {
 
       /** 検索窓に文字が入力されてから500ミリ秒後にAPIを叩く (入力された瞬間にAPIを叩くとリクエスト過多になる) */
       timer = setTimeout(async () => {
-        setIsSearchingSpotify(true)
-        setIsSearchingWebDAV(true)
-        setIsSearchingWebDAVTrackDatabase(true)
-
         const spotifyPromise = new Promise<{
           data: []
           nextOffset: number
         } | void>(async (resolve, reject) => {
+          setIsSearchingSpotify(true)
+
           if (spotifySettingState === "none") {
             resolve({ data: [], nextOffset: 0 })
           }
@@ -85,23 +73,6 @@ const useSearch = () => {
           }
         })
 
-        const webDAVTrackDatabasePromise = new Promise<[] | void>(
-          async resolve => {
-            if (webDAVSettingState === "none") resolve([])
-
-            const webDAVTrackDatabaseRes = await searchWebDAVTrackDatabase(
-              input
-            )
-            setWebDAVTrackDatabaseSearchResult(
-              webDAVTrackDatabaseRes.map(trackWithPath =>
-                removePathProperty(trackWithPath)
-              )
-            )
-            setIsSearchingWebDAVTrackDatabase(false)
-            resolve()
-          }
-        )
-
         const webDAVPromise = new Promise<[] | void>(
           async (resolve, reject) => {
             const folderPaths = localStorage.getItem(
@@ -111,32 +82,22 @@ const useSearch = () => {
             if (webDAVSettingState === "none" || !folderPaths) resolve([])
 
             try {
-              const webDAVRes = await searchWebDAVTracks(
-                JSON.parse(folderPaths!),
-                input
-              )
-              setWebDAVSearchResult(webDAVRes)
+              searchAndMergeWebDAVMusicInfo(JSON.parse(folderPaths!), input) // awaitは意図的につけていない
               resolve()
             } catch (e) {
               reject(e)
             } finally {
-              setIsSearchingWebDAV(false)
+              resetMergedWebDAVSearchResult()
             }
           }
         )
 
         try {
-          await Promise.all([
-            spotifyPromise,
-            webDAVTrackDatabasePromise,
-            webDAVPromise
-          ])
+          await Promise.all([spotifyPromise, webDAVPromise])
         } catch (e) {
-          console.log("エラーハンドリング")
           showError(e)
           setIsSearchingSpotify(false)
-          setIsSearchingWebDAV(false)
-          setIsSearchingWebDAVTrackDatabase(false)
+          resetMergedWebDAVSearchResult()
           //TODO: 検索が失敗したProviderに合わせたsetStateをすべき (闇雲に全部falseにするのではなく)
         }
       }, 500)
@@ -146,9 +107,9 @@ const useSearch = () => {
       searchSpotifyTracks,
       spotifySearchNextOffset,
       webDAVSettingState,
-      searchWebDAVTrackDatabase,
-      searchWebDAVTracks,
-      showError
+      showError,
+      searchAndMergeWebDAVMusicInfo,
+      resetMergedWebDAVSearchResult
     ]
   )
 
@@ -171,20 +132,16 @@ const useSearch = () => {
     setKeyword("")
     setSpotifySearchNextOffset(0)
     setSpotifySearchResult([])
-    setWebDAVTrackDatabaseSearchResult([])
-    setWebDAVSearchResult([])
-  }, [])
+    resetMergedWebDAVSearchResult()
+  }, [resetMergedWebDAVSearchResult])
 
   return {
     keyword,
     handleKeywordChange,
     spotifySearchResult,
-    webDAVTrackDatabaseSearchResult,
     showMoreSpotifySearchResult,
     isSearchingSpotify,
-    isSearchingWebDAV,
-    isSearchingWebDAVTrackDatabase,
-    webDAVSearchResult,
+    mergedWebDAVSearchResult,
     resetAll
   } as const
 }

@@ -12,7 +12,7 @@ const useMergedWebDAVServerData = () => {
     }) // Indexed DBとWebDAVサーバー上の楽曲の検索結果をマージしたもの
 
   const { getFolderTracks, getTrackInfo } = useWebDAVServer()
-  const { searchTracks } = useWebDAVTrackDatabase()
+  const { searchTracks, saveTrackInfo } = useWebDAVTrackDatabase()
 
   /** 最初にIndexedDBにキャッシュされているデーターを用いて楽曲の検索を行うが、その後Indexed DBにキャッシュとして存在しなかった楽曲情報をWebDAVサーバーから引っ張ってきて、最終的にそれぞれのデーターをマージして返す
    * IndexedDBのデーターを用いた楽曲の検索の完了時、WebDAVサーバーから楽曲情報を取得した上での検索完了時と、それぞれの段階毎に検索結果を返したいので、関数の戻り値自体はvoid型にして、検索結果はuseStateで管理する
@@ -42,7 +42,11 @@ const useMergedWebDAVServerData = () => {
             !indexedDBTracks.map(track => track.path).includes(track.filename)
         )
       const folderTracksInfo = await Promise.all(
-        filteredFolderTracks.map(fileInfo => getTrackInfo(fileInfo))
+        filteredFolderTracks.map(async fileInfo => {
+          const trackInfo = await getTrackInfo(fileInfo)
+          saveTrackInfo(trackInfo)
+          return trackInfo
+        })
       )
 
       // indexedDBの検索結果とwebDAVサーバーの検索結果を結合して、楽曲タイトルの昇順にソートする
@@ -60,13 +64,20 @@ const useMergedWebDAVServerData = () => {
         data: mergedTracks
       })
     },
-    [searchTracks, getFolderTracks, getTrackInfo]
+    [searchTracks, getFolderTracks, getTrackInfo, saveTrackInfo]
   )
+
+  const resetMergedSearchResult = useCallback(() => {
+    setMergedSearchResult({
+      status: "IDLE",
+      data: []
+    })
+  }, [])
 
   return {
     searchAndMergeWebDAVMusicInfo,
     mergedSearchResult,
-    setMergedSearchResult
+    resetMergedSearchResult
   } as const
 }
 

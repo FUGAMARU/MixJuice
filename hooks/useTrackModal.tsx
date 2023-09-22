@@ -14,7 +14,7 @@ const useTarckModal = () => {
   const {
     searchAndMergeWebDAVMusicInfo,
     mergedSearchResult: mergedWebDAVSearchResult,
-    setMergedSearchResult: setMergedWebDAVSearchResult
+    resetMergedSearchResult: resetMergedWebDAVSearchResult
   } = useMergedWebDAVServerData()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -25,10 +25,7 @@ const useTarckModal = () => {
     async (provider: Provider, id: string, title: string) => {
       // 前回のデーターが残っている場合に表示されるのを防ぐ
       setSpotifyTracks(undefined)
-      setMergedWebDAVSearchResult({
-        status: "IDLE",
-        data: []
-      })
+      resetMergedWebDAVSearchResult()
 
       setTitle(title)
       setProvider(provider)
@@ -57,7 +54,7 @@ const useTarckModal = () => {
       setIsOpen,
       showError,
       searchAndMergeWebDAVMusicInfo,
-      setMergedWebDAVSearchResult
+      resetMergedWebDAVSearchResult
     ]
   )
 
