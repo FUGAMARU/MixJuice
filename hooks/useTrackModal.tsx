@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import useErrorModal from "./useErrorModal"
+import useMergedWebDAVServerData from "./useMergedWebDAVServerData"
 import useSpotifyApi from "./useSpotifyApi"
-import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { Provider } from "@/types/Provider"
 import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
@@ -12,10 +12,10 @@ const useTarckModal = () => {
   const [spotifyTracks, setSpotifyTracks] = useState<Track[] | undefined>()
 
   const {
-    searchTracksWithOriginalSource,
+    searchAndMergeWebDAVMusicInfo,
     mergedSearchResult: mergedWebDAVSearchResult,
     setMergedSearchResult: setMergedWebDAVSearchResult
-  } = useWebDAVTrackDatabase()
+  } = useMergedWebDAVServerData()
 
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState("")
@@ -44,7 +44,7 @@ const useTarckModal = () => {
             setSpotifyTracks(tracks)
             break
           case "webdav":
-            await searchTracksWithOriginalSource(id, "")
+            await searchAndMergeWebDAVMusicInfo([id], "")
             break
         }
       } catch (e) {
@@ -56,7 +56,7 @@ const useTarckModal = () => {
       getPlaylistTracks,
       setIsOpen,
       showError,
-      searchTracksWithOriginalSource,
+      searchAndMergeWebDAVMusicInfo,
       setMergedWebDAVSearchResult
     ]
   )

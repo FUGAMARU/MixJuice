@@ -120,42 +120,6 @@ const useWebDAVServer = () => {
     [getClient, checkServerConnectionRoutine]
   )
 
-  /** 指定したfolderPathから、指定したfilenames(楽曲ファイルの絶対パス一覧)に含まれないfilenameの楽曲ファイル一覧を取得する
-   * IndexedDBとWebDAVサーバー両方の検索結果をマージしたい時にこの関数を使用する
-   */
-  const getFolderTracksExcept = useCallback(
-    async (folderPath: string, filenames: string[]) => {
-      try {
-        const client = getClient()
-        if (!client)
-          throw new Error("WebDAVサーバーの接続情報が設定されていません")
-
-        await checkServerConnectionRoutine(folderPath)
-
-        const audioFiles = (await client.getDirectoryContents(
-          folderPath
-        )) as unknown as WebDAVDirectoryContent[]
-        const audioFilesFiltered = audioFiles.filter(
-          audioFile =>
-            audioFile.type === "file" &&
-            !filenames.includes(audioFile.filename) &&
-            (audioFile.basename.endsWith(".mp3") ||
-              audioFile.basename.endsWith(".m4a") ||
-              audioFile.basename.endsWith(".flac") ||
-              audioFile.basename.endsWith(".wav"))
-        )
-
-        return audioFilesFiltered
-      } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
-        throw new Error(
-          `WebDAVサーバーのフォルダーから指定したトラックを除外した一覧の取得に失敗しました (folderPath: ${folderPath})`
-        )
-      }
-    },
-    [getClient, checkServerConnectionRoutine]
-  )
-
   const getTrackInfo = useCallback(
     async (fileInfo: WebDAVDirectoryContent) => {
       try {
@@ -239,43 +203,12 @@ const useWebDAVServer = () => {
     [getFolderTracks, getTrackInfo, checkServerConnectionRoutine]
   )
 
-  const searchTracksExcept = useCallback(
-    async (folderPaths: string[], filenames: string[]) => {
-      try {
-        await checkServerConnectionRoutine()
-
-        const foldersTracksInformations = await Promise.all(
-          folderPaths.map(folderPath =>
-            getFolderTracksExcept(folderPath, filenames)
-          )
-        )
-        const flattenFoldersTracksInformations =
-          foldersTracksInformations.flat()
-
-        const tracksInformations = await Promise.all(
-          flattenFoldersTracksInformations.map(fileInfo =>
-            getTrackInfo(fileInfo)
-          )
-        )
-
-        return tracksInformations
-      } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
-        throw new Error(
-          "IndexedDBの検索結果とのマージ中にWebDAVサーバーのフォルダーに含まれるトラックの検索に失敗しました"
-        )
-      }
-    },
-    [getFolderTracksExcept, getTrackInfo, checkServerConnectionRoutine]
-  )
-
   return {
     tryServerConnection,
     checkIsFolderExists,
     getFolderTracks,
     getTrackInfo,
-    searchTracks,
-    searchTracksExcept
+    searchTracks
   } as const
 }
 
