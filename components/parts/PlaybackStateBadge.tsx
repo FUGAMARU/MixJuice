@@ -1,12 +1,12 @@
 import { Box, Loader, Paper } from "@mantine/core"
 import { memo } from "react"
+import { Children } from "@/types/Children"
 
 type Props = {
   cursor: "default" | "pointer"
   loading?: boolean
   onClick?: () => void
-  children: React.ReactNode
-}
+} & Children
 
 const PlaybackStateBadge = ({ cursor, loading, onClick, children }: Props) => {
   return (

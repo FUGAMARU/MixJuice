@@ -1,14 +1,14 @@
 import { Modal, Box } from "@mantine/core"
 import { memo } from "react"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import { Children } from "@/types/Children"
 
 type Props = {
   title: React.ReactNode
   isOpen: boolean
   onClose: () => void
   withoutCloseButton?: boolean
-  children: React.ReactNode
-}
+} & Children
 
 const ModalDefault = ({
   title,

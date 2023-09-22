@@ -2,14 +2,14 @@ import { Flex, Stack, Title, Center } from "@mantine/core"
 import Image from "next/image"
 import { memo } from "react"
 import ArrowTextButton from "./ArrowTextButton"
+import { Children } from "@/types/Children"
 
 type Props = {
   className?: string
   title: string
   iconSrc: string
-  children: React.ReactNode
   onBack: () => void
-}
+} & Children
 
 const ConnectorContainer = ({
   className,

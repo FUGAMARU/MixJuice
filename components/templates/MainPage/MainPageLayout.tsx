@@ -1,7 +1,6 @@
 import { Flex, Box } from "@mantine/core"
 import {
   Dispatch,
-  ReactNode,
   SetStateAction,
   memo,
   useEffect,
@@ -16,6 +15,7 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { Children } from "@/types/Children"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
 
@@ -28,8 +28,7 @@ type Props = {
     title: string
   ) => Promise<void>
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
-  children: ReactNode
-}
+} & Children
 
 const MainPageLayout = ({
   isPlaying,

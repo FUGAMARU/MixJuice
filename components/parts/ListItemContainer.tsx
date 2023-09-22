@@ -1,12 +1,12 @@
 import { Box } from "@mantine/core"
 import { memo } from "react"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { Children } from "@/types/Children"
 
 type Props = {
   flex?: boolean
   onClick?: () => void
-  children: React.ReactNode
-}
+} & Children
 
 const ListItemContainer = ({ flex, onClick, children }: Props) => {
   const { setRespVal } = useBreakPoints()

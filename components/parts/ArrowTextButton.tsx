@@ -7,12 +7,12 @@ import {
   IoIosArrowUp
 } from "react-icons/io"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import { Children } from "@/types/Children"
 
 type Props = {
   direction: "up" | "down" | "left" | "right"
   onClick?: () => void
-  children: React.ReactNode
-}
+} & Children
 
 const ArrowTextButton = ({ direction, onClick, children }: Props) => {
   const iconStyle = useMemo(() => ({ lineHeight: 0 }), [])
