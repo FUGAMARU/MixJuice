@@ -1,5 +1,6 @@
-import { Box, Checkbox, Tooltip } from "@mantine/core"
+import { Box, Checkbox } from "@mantine/core"
 import { MouseEvent, memo, useCallback } from "react"
+import TooltipDefault from "../TooltipDefault"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
@@ -35,11 +36,11 @@ const NavbarCheckbox = ({
     <Checkbox
       p="0.4rem"
       label={
-        <Tooltip.Floating label={`${label}の楽曲一覧を見る`}>
+        <TooltipDefault floating label={`${label}の楽曲一覧を見る`}>
           <Box w="100%" onClick={handleLabelClick}>
             {label}
           </Box>
-        </Tooltip.Floating>
+        </TooltipDefault>
       }
       checked={checked}
       size="md"

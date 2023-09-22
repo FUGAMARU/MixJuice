@@ -1,7 +1,9 @@
-import { Flex, Box, Tooltip } from "@mantine/core"
+import { Flex, Box } from "@mantine/core"
 import { Dispatch, SetStateAction, memo, useCallback, useState } from "react"
 import { IoMdCheckmarkCircleOutline } from "react-icons/io"
 import { LuListStart, LuListPlus } from "react-icons/lu"
+import TooltipDefault from "./TooltipDefault"
+
 import { STYLING_VALUES } from "@/constants/StylingValues"
 
 type Props = {
@@ -54,13 +56,7 @@ const QueueOperator = ({
           visibility: canMoveToFront ? "visible" : "hidden"
         }}
       >
-        <Tooltip
-          label="キューの先頭に移動"
-          transitionProps={{
-            transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-            duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-          }}
-        >
+        <TooltipDefault label="キューの先頭に移動">
           <Box className={moveButtonClassNames}>
             {isDisplayMoveButton ? (
               <LuListStart
@@ -83,7 +79,7 @@ const QueueOperator = ({
               />
             )}
           </Box>
-        </Tooltip>
+        </TooltipDefault>
       </Box>
 
       <Box
@@ -91,13 +87,7 @@ const QueueOperator = ({
           visibility: canAddToFront ? "visible" : "hidden"
         }}
       >
-        <Tooltip
-          label="キューの先頭に追加"
-          transitionProps={{
-            transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-            duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-          }}
-        >
+        <TooltipDefault label="キューの先頭に追加">
           <Box className={addButtonClassNames}>
             {isDisplayAddButton ? (
               <LuListPlus
@@ -117,7 +107,7 @@ const QueueOperator = ({
               />
             )}
           </Box>
-        </Tooltip>
+        </TooltipDefault>
       </Box>
     </Flex>
   )

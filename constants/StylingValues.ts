@@ -1,5 +1,3 @@
-import { MantineTransition } from "@mantine/core"
-
 export const STYLING_VALUES = {
   /* Navbarのpadding (単位: px) */
   NAVBAR_PADDING: 15,
@@ -14,10 +12,5 @@ export const STYLING_VALUES = {
   TEXT_COLOR_DEFAULT: "#424242",
 
   /** iOSのテキストのカラーコードをコピーしたもの */
-  TEXT_COLOR_BLUE: "#228be6",
-
-  TOOLTIP_TRANSITION_PROPS: {
-    TRANSITION: "fade" as MantineTransition,
-    DURATION: 300
-  }
+  TEXT_COLOR_BLUE: "#228be6"
 }

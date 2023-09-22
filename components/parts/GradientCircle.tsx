@@ -1,6 +1,6 @@
-import { Box, Center, Tooltip } from "@mantine/core"
+import { Box, Center } from "@mantine/core"
 import { memo } from "react"
-import { STYLING_VALUES } from "@/constants/StylingValues"
+import TooltipDefault from "./TooltipDefault"
 import { Provider } from "@/types/Provider"
 
 const COLORS: Record<Provider, { from: string; to: string }> = {
@@ -26,14 +26,7 @@ const GradientCircle = ({
   backgroundColor = "white"
 }: Props) => {
   return (
-    <Tooltip
-      label={tooltipLabel}
-      withArrow
-      transitionProps={{
-        transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-        duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-      }}
-    >
+    <TooltipDefault label={tooltipLabel} withArrow>
       <Center
         w="1.2rem"
         h="1.2rem"
@@ -50,7 +43,7 @@ const GradientCircle = ({
           sx={{ borderRadius: "50%" }}
         ></Box>
       </Center>
-    </Tooltip>
+    </TooltipDefault>
   )
 }
 

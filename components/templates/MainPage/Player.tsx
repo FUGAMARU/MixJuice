@@ -1,4 +1,4 @@
-import { Box, Flex, Tooltip } from "@mantine/core"
+import { Box, Flex } from "@mantine/core"
 import { useElementSize, useHover } from "@mantine/hooks"
 import {
   Dispatch,
@@ -11,9 +11,9 @@ import {
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
 import { HiVolumeUp } from "react-icons/hi"
 import PlaybackStateBadge from "@/components/parts/PlaybackStateBadge"
+import TooltipDefault from "@/components/parts/TooltipDefault"
 import AlbumArtwork from "@/components/templates/MainPage/AlbumArtwork"
 import TrackInfo from "@/components/templates/MainPage/TrackInfo"
-import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import styles from "@/styles/Player.module.css"
@@ -163,16 +163,11 @@ const Player = ({
           <Flex pos="absolute" right="1.5rem" bottom="1rem" gap="xs">
             {(isPreparingPlayback ||
               currentTrackInfo?.provider === "spotify") && (
-              <Tooltip
+              <TooltipDefault
                 label={
                   isPreparingPlayback ? "再生準備中…" : "ストリーミング品質"
                 }
                 withArrow
-                transitionProps={{
-                  transition:
-                    STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-                  duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-                }}
               >
                 <Box>
                   <PlaybackStateBadge
@@ -185,17 +180,10 @@ const Player = ({
                     {spotifyPlaybackQuality}
                   </PlaybackStateBadge>
                 </Box>
-              </Tooltip>
+              </TooltipDefault>
             )}
 
-            <Tooltip
-              label="音量"
-              withArrow
-              transitionProps={{
-                transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-                duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-              }}
-            >
+            <TooltipDefault label="音量" withArrow>
               <Box>
                 <PlaybackStateBadge cursor="pointer">
                   <Flex align="center" gap="0.4rem">
@@ -206,16 +194,9 @@ const Player = ({
                   </Flex>
                 </PlaybackStateBadge>
               </Box>
-            </Tooltip>
+            </TooltipDefault>
 
-            <Tooltip
-              label="残り再生時間"
-              withArrow
-              transitionProps={{
-                transition: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.TRANSITION,
-                duration: STYLING_VALUES.TOOLTIP_TRANSITION_PROPS.DURATION
-              }}
-            >
+            <TooltipDefault label="残り再生時間" withArrow>
               <Box>
                 <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
                   <Flex align="center" gap="0.2rem">
@@ -230,7 +211,7 @@ const Player = ({
                   </Flex>
                 </PlaybackStateBadge>
               </Box>
-            </Tooltip>
+            </TooltipDefault>
           </Flex>
         )}
       </Flex>
