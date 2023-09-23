@@ -17,6 +17,7 @@ import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { Children } from "@/types/Children"
 import { Provider } from "@/types/Provider"
+import { Queue } from "@/types/Queue"
 import { Track } from "@/types/Track"
 
 type Props = {
@@ -28,6 +29,7 @@ type Props = {
     title: string
   ) => Promise<void>
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
+  setQueue: Dispatch<SetStateAction<Queue[]>>
 } & Children
 
 const MainPageLayout = ({
@@ -35,6 +37,7 @@ const MainPageLayout = ({
   onPlay,
   onCheckboxLabelClick,
   setIsPreparingPlayback,
+  setQueue,
   children
 }: Props) => {
   const { breakPoint } = useBreakPoints()
@@ -64,6 +67,7 @@ const MainPageLayout = ({
     () => (
       <LayoutNavbar
         height={screenHeightWithoutHeader}
+        setQueue={setQueue}
         isPlaying={isPlaying}
         canSlideNavbar={canSlideNavbar}
         onPlay={onPlay}
@@ -77,7 +81,8 @@ const MainPageLayout = ({
       onPlay,
       setIsPreparingPlayback,
       screenHeightWithoutHeader,
-      onCheckboxLabelClick
+      onCheckboxLabelClick,
+      setQueue
     ]
   )
 

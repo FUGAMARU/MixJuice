@@ -1,5 +1,6 @@
 import { ImageInfo } from "./ImageInfo"
 import { Provider } from "./Provider"
+import { Queue } from "./Queue"
 import { SpotifyTrack } from "./SpotifyApiResponse"
 
 /* expandTrackInfoにてジェネリクス型を使用している関係でtypeじゃなくてinterfaceで型定義 */
@@ -37,4 +38,10 @@ export const removePathProperty = (trackWithPath: TrackWithPath): Track => {
   // eslint-disable-next-line unused-imports/no-unused-vars
   const { path, ...trackWithoutPath } = trackWithPath
   return trackWithoutPath
+}
+
+export const removePlayNextProperty = (queueItem: Queue): Track => {
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  const { playNext, ...trackWithoutPlayNext } = queueItem
+  return trackWithoutPlayNext
 }

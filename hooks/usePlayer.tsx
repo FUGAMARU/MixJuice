@@ -2,20 +2,19 @@ import { notifications } from "@mantine/notifications"
 import retry from "async-retry"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
-import { useRecoilCallback, useRecoilState } from "recoil"
 import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
-import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
-import { Track } from "@/types/Track"
+import { Queue } from "@/types/Queue"
+import { Track, removePlayNextProperty } from "@/types/Track"
 
 type Props = {
   initialize: boolean
 }
 
 const usePlayer = ({ initialize }: Props) => {
-  const [queue, setQueue] = useRecoilState(queueAtom)
+  const [queue, setQueue] = useState<Queue[]>([])
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
   const [volume, setVolume] = useState(0.5)
@@ -53,37 +52,28 @@ const usePlayer = ({ initialize }: Props) => {
   )
 
   /** キューの先頭にあるトラックを再生開始する */
-  const pickUpTrack = useRecoilCallback(
-    ({ snapshot, set }) =>
-      async () => {
-        const currentQueue = await snapshot.getPromise(queueAtom)
-        if (currentQueue.length === 0) return
+  const pickUpTrack = useCallback(async () => {
+    if (queue.length === 0) return
 
-        setCurrentTrackInfo(currentQueue[0])
-        await onPlay(currentQueue[0])
+    setCurrentTrackInfo(queue[0])
+    await onPlay(queue[0])
 
-        set(queueAtom, currentQueue.slice(1))
-      },
-    [setCurrentTrackInfo]
-  )
+    setQueue(prevQueue => prevQueue.slice(1))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setCurrentTrackInfo, queue])
 
-  const handleTrackFinish = useRecoilCallback(
-    ({ snapshot }) =>
-      async () => {
-        const currentQueue = await snapshot.getPromise(queueAtom)
+  const handleTrackFinish = useCallback(async () => {
+    setIsPlaying(false)
+    clearDummyAudio()
 
-        setIsPlaying(false)
-        clearDummyAudio()
+    if (queue.length > 0) {
+      onNextTrack()
+      return
+    }
 
-        if (currentQueue.length > 0) {
-          onNextTrack()
-          return
-        }
-
-        setCurrentTrackInfo(undefined)
-      },
-    []
-  )
+    setCurrentTrackInfo(undefined)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue])
 
   const {
     playbackPosition: spotifyPlaybackPosition, // 単位: ミリ秒
@@ -159,23 +149,21 @@ const usePlayer = ({ initialize }: Props) => {
     [currentTrackInfo, onPause]
   )
 
-  const onNextTrack = useRecoilCallback(
-    ({ snapshot }) =>
-      async () => {
-        const currentQueue = await snapshot.getPromise(queueAtom)
+  const onNextTrack = useCallback(
+    async () => {
+      /** 再生待ちの曲がない場合は曲送りする必要がない */
+      if (queue.length === 0) {
+        await onPause()
+        return
+      }
 
-        /** 再生待ちの曲がない場合は曲送りする必要がない */
-        if (currentQueue.length === 0) {
-          await onPause()
-          return
-        }
+      await smartPause(queue[0].provider)
 
-        await smartPause(currentQueue[0].provider)
-
-        setIsPlaying(false)
-        pickUpTrack()
-      },
-    [currentTrackInfo, pickUpTrack] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
+      setIsPlaying(false)
+      pickUpTrack()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentTrackInfo, pickUpTrack, queue, onPause, smartPause] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
   )
 
   const onResume = useCallback(async () => {
@@ -283,29 +271,19 @@ const usePlayer = ({ initialize }: Props) => {
   )
 
   const onSkipTo = useCallback(
-    async (id: string) => {
+    async (queueItem: Queue) => {
       if (queue.some(item => item === undefined)) {
         throw new Error(
           "キューに不正なアイテムが含まれています。IndexedDBのリセットをお試しください。"
         )
       }
 
-      const provider = queue
-        .filter(item => item.id === id)
-        .map(item => item.provider)
+      setQueue(prevQueue => prevQueue.filter(item => item.id !== queueItem.id))
 
-      await smartPause(provider[0]) // IDは一意の値なので、providerは必ず1つになる
-
-      const idx = queue.findIndex(item => item.id === id)
-      if (idx === -1) return
-
-      const newQueue = [...queue]
-      const [item] = newQueue.splice(idx, 1)
-      newQueue.unshift(item)
-      setQueue(newQueue)
-      pickUpTrack()
+      const trackInfo = removePlayNextProperty(queueItem)
+      await onPlayWithTrackInfo(trackInfo)
     },
-    [queue, setQueue, smartPause, pickUpTrack]
+    [queue, setQueue, onPlayWithTrackInfo]
   )
 
   const onMoveToFront = useCallback(
@@ -393,6 +371,8 @@ const usePlayer = ({ initialize }: Props) => {
   }, [currentTrackInfo, spotifyPlaybackPosition, webDAVPlaybackPosition])
 
   return {
+    queue,
+    setQueue,
     currentTrackInfo,
     playbackPercentage,
     isPlaying,

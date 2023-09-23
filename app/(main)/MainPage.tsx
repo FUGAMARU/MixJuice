@@ -3,9 +3,8 @@
 import { Box } from "@mantine/core"
 import { useRouter } from "next/navigation"
 import { memo, useCallback, useEffect, useState } from "react"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
-import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import MainPageLayout from "@/components/templates/MainPage/MainPageLayout"
 import Player from "@/components/templates/MainPage/Player"
@@ -49,6 +48,8 @@ const MainPage = () => {
   }, [setIsLoading, router])
 
   const {
+    queue,
+    setQueue,
     currentTrackInfo,
     playbackPercentage,
     isPlaying,
@@ -72,8 +73,6 @@ const MainPage = () => {
     initialize: true
   })
 
-  const queue = useRecoilValue(queueAtom)
-
   const handleTrackModalClose = useCallback(() => {
     setIsTrackModalOpen(false)
   }, [setIsTrackModalOpen])
@@ -84,6 +83,7 @@ const MainPage = () => {
         isPlaying={isPlaying}
         onPlay={onPlay}
         setIsPreparingPlayback={setIsPreparingPlayback}
+        setQueue={setQueue}
         onCheckboxLabelClick={handleNavbarCheckboxLabelClick}
       >
         <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
@@ -103,6 +103,7 @@ const MainPage = () => {
 
         <Box w="100%">
           <Queue
+            queue={queue}
             playerHeight={playerHeight}
             onSkipTo={onSkipTo}
             onMoveToFront={onMoveToFront}

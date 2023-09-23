@@ -2,8 +2,6 @@ import { Box, Button, Flex, Paper, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
 import { memo, useCallback, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
-import { useRecoilValue } from "recoil"
-import { queueAtom } from "@/atoms/queueAtom"
 import GradientCircle from "@/components/parts/GradientCircle"
 import ListItem from "@/components/parts/ListItem"
 import QueueOperator from "@/components/parts/QueueOperator"
@@ -12,10 +10,12 @@ import { STYLING_VALUES } from "@/constants/StylingValues"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
 import { greycliffCF } from "@/styles/fonts"
+import { Queue } from "@/types/Queue"
 
 type Props = {
+  queue: Queue[]
   playerHeight: number
-  onSkipTo: (trackId: string) => Promise<void>
+  onSkipTo: (queueItem: Queue) => Promise<void>
   onMoveToFront: (trackId: string) => void
   onAddToFront: (trackId: string) => void
   checkCanMoveToFront: (idx: number) => boolean
@@ -23,6 +23,7 @@ type Props = {
 }
 
 const Queue = ({
+  queue,
   playerHeight,
   onSkipTo,
   onMoveToFront,
@@ -37,12 +38,11 @@ const Queue = ({
     () => viewportHeight - STYLING_VALUES.HEADER_HEIGHT - playerHeight,
     [viewportHeight, playerHeight]
   )
-  const queue = useRecoilValue(queueAtom)
 
   const handleArtworkPlayButtonClick = useCallback(
-    async (id: string) => {
+    async (queueItem: Queue) => {
       try {
-        await onSkipTo(id)
+        await onSkipTo(queueItem)
       } catch (e) {
         showError(e)
       }
@@ -149,7 +149,7 @@ const Queue = ({
                     title={data.title}
                     caption={` / ${data.artist}`}
                     onArtworkPlayButtonClick={() =>
-                      handleArtworkPlayButtonClick(data.id)
+                      handleArtworkPlayButtonClick(data)
                     }
                   />
                 </Flex>

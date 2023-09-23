@@ -29,7 +29,6 @@ import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
-import { queueAtom } from "@/atoms/queueAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
@@ -39,11 +38,13 @@ import useTouchDevice from "@/hooks/useTouchDevice"
 import { greycliffCF } from "@/styles/fonts"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
+import { Queue } from "@/types/Queue"
 import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
 
 type Props = {
   height: string
+  setQueue: Dispatch<SetStateAction<Queue[]>>
   isPlaying: boolean
   canSlideNavbar: boolean
   onPlay: (track: Track) => Promise<void>
@@ -57,6 +58,7 @@ type Props = {
 
 const LayoutNavbar = ({
   height,
+  setQueue,
   isPlaying,
   canSlideNavbar,
   onPlay,
@@ -69,7 +71,6 @@ const LayoutNavbar = ({
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
   const [isOpened, setIsOpened] = useRecoilState(navbarAtom)
-  const setQueue = useSetRecoilState(queueAtom)
   const { showError } = useErrorModal()
   const { mixAllTracks } = useMIX()
   const setIsSearchModalOpen = useSetRecoilState(searchModalAtom)
