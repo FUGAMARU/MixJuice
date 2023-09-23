@@ -37,7 +37,7 @@ const ListItem = ({
     <Flex align="center" gap="md" sx={{ overflow: "hidden" }}>
       <Box w="3.5rem" h="3.5rem" pos="relative" ref={artworkRef}>
         {!image ? (
-          <Center h="100%" w="100%" bg="#eaeaea">
+          <Center h="100%" bg="#eaeaea">
             <MdOutlineLibraryMusic size="1.3rem" color="#909090" />
           </Center>
         ) : (

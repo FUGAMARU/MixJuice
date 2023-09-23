@@ -86,7 +86,7 @@ const MainPage = () => {
         setQueue={setQueue}
         onCheckboxLabelClick={handleNavbarCheckboxLabelClick}
       >
-        <Box w="100%" h={setRespVal("15vh", "25vh", "25vh")}>
+        <Box h={setRespVal("15vh", "25vh", "25vh")}>
           <Player
             currentTrackInfo={currentTrackInfo}
             playbackPercentage={playbackPercentage}
@@ -101,17 +101,15 @@ const MainPage = () => {
           />
         </Box>
 
-        <Box w="100%">
-          <Queue
-            queue={queue}
-            playerHeight={playerHeight}
-            onSkipTo={onSkipTo}
-            onMoveToFront={onMoveToFront}
-            onAddToFront={onAddToFront}
-            checkCanMoveToFront={checkCanMoveToFront}
-            checkCanAddToFront={checkCanAddToFront}
-          />
-        </Box>
+        <Queue
+          queue={queue}
+          playerHeight={playerHeight}
+          onSkipTo={onSkipTo}
+          onMoveToFront={onMoveToFront}
+          onAddToFront={onAddToFront}
+          checkCanMoveToFront={checkCanMoveToFront}
+          checkCanAddToFront={checkCanAddToFront}
+        />
       </MainPageLayout>
 
       <SearchModal

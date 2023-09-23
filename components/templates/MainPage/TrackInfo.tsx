@@ -42,7 +42,6 @@ const TrackInfo = ({
   return (
     <Box
       w="100%"
-      h="100%"
       sx={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
@@ -51,7 +50,6 @@ const TrackInfo = ({
     >
       <Flex
         h="100%"
-        w="100%"
         align="center"
         justify={isTitleMarquee ? "end" : ""}
         sx={{

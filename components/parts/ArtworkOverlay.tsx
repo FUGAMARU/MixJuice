@@ -73,8 +73,6 @@ const ArtworkOverlay = ({
     >
       {simplified ? (
         <Center
-          w="100%"
-          h="100%"
           sx={{ cursor: "pointer", borderRadius }}
           onClick={onArtworkPlayButtonClick}
         >

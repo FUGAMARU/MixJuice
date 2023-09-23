@@ -42,7 +42,6 @@ const AlbumArtwork = ({
 
   return (
     <Box
-      h="100%"
       w={size}
       ref={artworkRef}
       bg="white"
@@ -53,7 +52,7 @@ const AlbumArtwork = ({
       }}
     >
       {!image ? (
-        <Center h="100%" w="100%" bg="#eaeaea">
+        <Center h="100%" bg="#eaeaea">
           <MdOutlineLibraryMusic
             size={setRespVal("2rem", "2.5rem", "2.5rem")}
             color="#909090"

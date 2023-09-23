@@ -128,7 +128,7 @@ const MainPageLayout = ({
         </Rnd>
       )}
 
-      <Box w="100%" sx={{ flex: 1 }}>
+      <Box sx={{ flex: 1 }}>
         {children}
 
         <Box

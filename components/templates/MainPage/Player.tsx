@@ -139,7 +139,7 @@ const Player = ({
 
   return (
     <>
-      <Flex w="100%" h="100%" pos="relative" ref={containerRef}>
+      <Flex h="100%" pos="relative" ref={containerRef}>
         <AlbumArtwork
           size={containerHeight}
           image={currentTrackInfo?.image}

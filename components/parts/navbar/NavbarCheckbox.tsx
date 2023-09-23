@@ -37,9 +37,7 @@ const NavbarCheckbox = ({
       p="0.4rem"
       label={
         <TooltipDefault floating label={`${label}の楽曲一覧を見る`}>
-          <Box w="100%" onClick={handleLabelClick}>
-            {label}
-          </Box>
+          <Box onClick={handleLabelClick}>{label}</Box>
         </TooltipDefault>
       }
       checked={checked}

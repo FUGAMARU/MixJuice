@@ -21,7 +21,6 @@ const ConnectorContainer = ({
   return (
     <Flex
       className={className}
-      w="100%"
       h="100%"
       align="center"
       sx={{

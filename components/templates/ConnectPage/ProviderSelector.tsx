@@ -28,7 +28,6 @@ const ProviderSelector = ({
   return (
     <Center
       className={className}
-      w="100%"
       h="100%"
       sx={{
         display: isDisplay ? "flex" : "none"
