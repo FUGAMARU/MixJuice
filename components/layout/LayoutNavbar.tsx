@@ -36,6 +36,7 @@ import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useMIX from "@/hooks/useMIX"
 import useTouchDevice from "@/hooks/useTouchDevice"
+import { greycliffCF } from "@/styles/fonts"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -251,7 +252,7 @@ const LayoutNavbar = ({
           />
 
           <Button
-            ff="GreycliffCF"
+            ff={greycliffCF.style.fontFamily}
             fw={800}
             variant="gradient"
             gradient={{ from: "#2afadf", to: "#4c83ff" }}

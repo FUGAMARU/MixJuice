@@ -11,6 +11,7 @@ import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
+import { greycliffCF } from "@/styles/fonts"
 
 type Props = {
   playerHeight: number
@@ -94,7 +95,7 @@ const Queue = ({
             <Button
               size="xs"
               compact
-              ff="GreycliffCF"
+              ff={greycliffCF.style.fontFamily}
               fw={800}
               variant="gradient"
               gradient={{ from: "#2afadf", to: "#4c83ff" }}

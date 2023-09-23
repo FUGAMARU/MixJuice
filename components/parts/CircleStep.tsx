@@ -1,5 +1,6 @@
 import { Flex, Text } from "@mantine/core"
 import { memo } from "react"
+import { greycliffCF } from "@/styles/fonts"
 
 type Props = {
   step: number
@@ -23,7 +24,7 @@ const CircleStep = ({ step, color }: Props) => {
       <Text
         size="1.2rem"
         lh="2rem"
-        ff="GreycliffCF"
+        ff={greycliffCF.style.fontFamily}
         fw={800}
         color={color}
         sx={{ flex: 1 }}

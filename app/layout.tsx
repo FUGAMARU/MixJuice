@@ -2,10 +2,14 @@ import "@/styles/globals.css"
 import "animate.css"
 import { memo } from "react"
 import Curtain from "@/components/layout/Curtain"
-import CustomFonts from "@/components/layout/CustomFonts"
 import VercelShape from "@/components/layout/VercelShape"
 import MantineUI from "@/components/layout/providers/MantineUI"
 import Recoil from "@/components/layout/providers/Recoil"
+import {
+  greycliffCF,
+  notoSansJP,
+  seanbeckerExtraboldItalic
+} from "@/styles/fonts"
 import { Children } from "@/types/Children"
 
 const RootLayout = ({ children }: Children) => {
@@ -54,10 +58,11 @@ const RootLayout = ({ children }: Children) => {
         <meta name="theme-color" content="#ffffff" />
       </head>
 
-      <body>
+      <body
+        className={`${notoSansJP.variable} ${greycliffCF.variable} ${seanbeckerExtraboldItalic.variable}`}
+      >
         <Recoil>
           <MantineUI>
-            <CustomFonts />
             {/** 背景 */}
             <VercelShape />
 

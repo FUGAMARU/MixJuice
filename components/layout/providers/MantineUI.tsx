@@ -4,6 +4,7 @@ import { MantineProvider } from "@mantine/core"
 import { Notifications } from "@mantine/notifications"
 import { memo } from "react"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import { greycliffCF, notoSansJP } from "@/styles/fonts"
 import { Children } from "@/types/Children"
 
 const MantineUI = ({ children }: Children) => {
@@ -66,7 +67,7 @@ const MantineUI = ({ children }: Children) => {
           ]
         },
         colorScheme: "light",
-        fontFamily: "NotoSansJP, GreycliffCF, Kazesawa",
+        fontFamily: `${notoSansJP.style.fontFamily}, ${greycliffCF.style.fontFamily}, sans-serif`,
         respectReducedMotion: false
       }}
     >

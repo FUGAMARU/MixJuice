@@ -5,6 +5,7 @@ import { BiCheckboxChecked, BiCheckboxMinus } from "react-icons/bi"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { PROVIDER_NAME } from "@/constants/ProviderName"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import { greycliffCF } from "@/styles/fonts"
 import { Provider } from "@/types/Provider"
 
 type Props = {
@@ -24,7 +25,12 @@ const ProviderHeading = ({ provider, customText, onClick }: Props) => {
           alt="Provider's logo"
         />
         <Space w="xs" />
-        <Title order={3} sx={{ cursor: "default" }} ff="GreycliffCF">
+        <Title
+          ff={greycliffCF.style.fontFamily}
+          fw={700}
+          order={3}
+          sx={{ cursor: "default" }}
+        >
           {customText || PROVIDER_NAME[provider]}
         </Title>
       </Flex>
