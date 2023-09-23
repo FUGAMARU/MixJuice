@@ -42,6 +42,7 @@ const TrackInfo = ({
   return (
     <Box
       w="100%"
+      maw={calculatedWidth}
       sx={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
