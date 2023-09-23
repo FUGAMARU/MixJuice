@@ -70,7 +70,7 @@ const ListItem = ({
         <Text
           fw={700}
           fz={setRespVal("1.1rem", "1.2rem", "1.2rem")}
-          lh={setRespVal("1.4rem", "1.5rem", "1.5rem")}
+          lh={1.3}
           sx={{
             overflow: "hidden",
             whiteSpace: "nowrap",
@@ -82,7 +82,7 @@ const ListItem = ({
 
         <Text
           fz={setRespVal("0.75rem", "0.85rem", "0.85rem")}
-          lh={setRespVal("1.4rem", "1.5rem", "1.5rem")}
+          lh={1.45}
           sx={{
             overflow: "hidden",
             whiteSpace: "nowrap",
