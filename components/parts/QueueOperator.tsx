@@ -11,6 +11,7 @@ type Props = {
   canAddToFront: boolean
   onMoveToFront: () => void
   onAddToFront: () => void
+  hiddenMethod: "display" | "visibility"
   animated?: boolean
 }
 
@@ -19,6 +20,7 @@ const QueueOperator = ({
   canAddToFront,
   onMoveToFront,
   onAddToFront,
+  hiddenMethod,
   animated = false
 }: Props) => {
   /** キューの先頭へ移動ボタンアニメーション */
@@ -52,9 +54,15 @@ const QueueOperator = ({
   return (
     <Flex gap="md">
       <Box
-        sx={{
-          visibility: canMoveToFront ? "visible" : "hidden"
-        }}
+        sx={
+          hiddenMethod === "visibility"
+            ? {
+                visibility: canMoveToFront ? "visible" : "hidden"
+              }
+            : {
+                display: canMoveToFront ? "block" : "none"
+              }
+        }
       >
         <TooltipDefault label="キューの先頭に移動">
           <Box className={moveButtonClassNames}>
@@ -83,9 +91,15 @@ const QueueOperator = ({
       </Box>
 
       <Box
-        sx={{
-          visibility: canAddToFront ? "visible" : "hidden"
-        }}
+        sx={
+          hiddenMethod === "visibility"
+            ? {
+                visibility: canAddToFront ? "visible" : "hidden"
+              }
+            : {
+                display: canAddToFront ? "block" : "none"
+              }
+        }
       >
         <TooltipDefault label="キューの先頭に追加">
           <Box className={addButtonClassNames}>

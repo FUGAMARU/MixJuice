@@ -7,6 +7,7 @@ import ListItemContainer from "@/components/parts/ListItemContainer"
 import ModalDefault from "@/components/parts/ModalDefault"
 import QueueOperator from "@/components/parts/QueueOperator"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
+import useBreakPoints from "@/hooks/useBreakPoints"
 import { MergedWebDAVSearchResult } from "@/types/MergedWebDAVSearchResult"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -39,6 +40,8 @@ const TrackModal = ({
   onMoveNewTrackToFront,
   onAddNewTrackToFront
 }: Props) => {
+  const { breakPoint } = useBreakPoints()
+
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
       onClose()
@@ -101,6 +104,11 @@ const TrackModal = ({
                           canAddToFront={canAddToFront}
                           onMoveToFront={() => onMoveNewTrackToFront(track)}
                           onAddToFront={() => onAddNewTrackToFront(track)}
+                          hiddenMethod={
+                            breakPoint === "SmartPhone"
+                              ? "display"
+                              : "visibility"
+                          }
                           animated
                         />
                       </Flex>
@@ -164,6 +172,11 @@ const TrackModal = ({
                           canAddToFront={canAddToFront}
                           onMoveToFront={() => onMoveNewTrackToFront(track)}
                           onAddToFront={() => onAddNewTrackToFront(track)}
+                          hiddenMethod={
+                            breakPoint === "SmartPhone"
+                              ? "display"
+                              : "visibility"
+                          }
                           animated
                         />
                       </Flex>

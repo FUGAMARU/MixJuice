@@ -31,7 +31,7 @@ const Queue = ({
   checkCanMoveToFront,
   checkCanAddToFront
 }: Props) => {
-  const { setRespVal } = useBreakPoints()
+  const { setRespVal, breakPoint } = useBreakPoints()
   const { showError } = useErrorModal()
   const { height: viewportHeight } = useViewportSize()
   const scrollAreaHeight = useMemo(
@@ -159,6 +159,9 @@ const Queue = ({
                   canAddToFront={checkCanAddToFront(index, data.playNext)}
                   onMoveToFront={() => onMoveToFront(data.id)}
                   onAddToFront={() => onAddToFront(data.id)}
+                  hiddenMethod={
+                    breakPoint === "SmartPhone" ? "display" : "visibility"
+                  }
                 />
               </Flex>
             </div>

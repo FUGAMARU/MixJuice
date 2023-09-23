@@ -121,6 +121,9 @@ const SearchModal = ({
                         canAddToFront={canAddToFront}
                         onMoveToFront={() => onMoveNewTrackToFront(track)}
                         onAddToFront={() => onAddNewTrackToFront(track)}
+                        hiddenMethod={
+                          breakPoint === "SmartPhone" ? "display" : "visibility"
+                        }
                         animated
                       />
                     </Flex>
@@ -176,6 +179,9 @@ const SearchModal = ({
                         canAddToFront={canAddToFront}
                         onMoveToFront={() => onMoveNewTrackToFront(data)}
                         onAddToFront={() => onAddNewTrackToFront(data)}
+                        hiddenMethod={
+                          breakPoint === "SmartPhone" ? "display" : "visibility"
+                        }
                         animated
                       />
                     </Flex>
