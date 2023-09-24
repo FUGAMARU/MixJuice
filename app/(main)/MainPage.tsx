@@ -103,6 +103,7 @@ const MainPage = () => {
 
         <Queue
           queue={queue}
+          setQueue={setQueue}
           playerHeight={playerHeight}
           onSkipTo={onSkipTo}
           onMoveToFront={onMoveToFront}

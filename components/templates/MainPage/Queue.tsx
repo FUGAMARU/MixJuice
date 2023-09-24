@@ -1,11 +1,25 @@
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  // eslint-disable-next-line import/named
+  DropResult // 存在するのにeslintが認識してくれない
+} from "@hello-pangea/dnd"
+
 import { Box, Button, Flex, Paper, Text } from "@mantine/core"
 import { useViewportSize } from "@mantine/hooks"
-import { memo, useCallback, useMemo, useState } from "react"
+import {
+  Dispatch,
+  memo,
+  SetStateAction,
+  useCallback,
+  useMemo,
+  useState
+} from "react"
 import { FixedSizeList } from "react-window"
-import GradientCircle from "@/components/parts/GradientCircle"
-import ListItem from "@/components/parts/ListItem"
-import QueueOperator from "@/components/parts/QueueOperator"
-import { PROVIDER_NAME } from "@/constants/ProviderName"
+import { useRecoilCallback } from "recoil"
+import { queueAtom } from "@/atoms/queueAtom"
+import QueueItem from "@/components/parts/QueueItem"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
@@ -14,6 +28,7 @@ import { Queue } from "@/types/Queue"
 
 type Props = {
   queue: Queue[]
+  setQueue: Dispatch<SetStateAction<Queue[]>>
   playerHeight: number
   onSkipTo: (queueItem: Queue) => Promise<void>
   onMoveToFront: (trackId: string) => void
@@ -24,6 +39,7 @@ type Props = {
 
 const Queue = ({
   queue,
+  setQueue,
   playerHeight,
   onSkipTo,
   onMoveToFront,
@@ -65,13 +81,53 @@ const Queue = ({
     setPineconeClassNames("")
   }, [pineconeClassNames])
 
+  const onDragEnd = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async (result: DropResult) => {
+        if (!result.destination) return
+
+        const currentQueue = await snapshot.getPromise(queueAtom)
+        const copiedQueue = [...currentQueue]
+        let targetItem = copiedQueue[result.source.index]
+
+        // 移動対象のplayNextがtrue、かつ移動先がキューの先頭ではない、かつ移動先の1つ上のアイテムのplayNextがfalseの場合
+        if (
+          targetItem.playNext &&
+          result.destination!.index !== 0 &&
+          !copiedQueue[result.destination!.index - 1].playNext
+        ) {
+          targetItem = {
+            ...targetItem,
+            playNext: false
+          }
+        }
+
+        // 移動対象のplayNextがfalse、かつ移動先の1つ下のアイテムのplayNextがtrueの場合
+        if (
+          !targetItem.playNext &&
+          copiedQueue[result.destination!.index].playNext
+        ) {
+          targetItem = {
+            ...targetItem,
+            playNext: true
+          }
+        }
+
+        copiedQueue.splice(result.source.index, 1)
+        copiedQueue.splice(result.destination!.index, 0, targetItem)
+
+        set(queueAtom, copiedQueue)
+      },
+    [setQueue]
+  )
+
   return (
     <Box
       h={scrollAreaHeight}
       px={setRespVal("0.5rem", "0.5rem", "1.5rem")}
       pt={`${STYLING_VALUES.QUEUE_PADDING_TOP}px`}
     >
-      {queue.length === 0 && (
+      {queue.length === 0 ? (
         <Paper
           w="fit-content"
           mx="auto"
@@ -118,56 +174,87 @@ const Queue = ({
             \ コンニチワ /
           </Text>
         </Paper>
-      )}
-
-      <FixedSizeList
-        width="100%"
-        height={scrollAreaHeight - STYLING_VALUES.QUEUE_PADDING_TOP}
-        itemCount={queue.length}
-        itemSize={80} // キューのアイテム1つ分の高さ
-      >
-        {({ index, style }) => {
-          const data = queue[index]
-          return (
-            <div
-              style={{
-                ...style,
-                paddingLeft: "0.5rem",
-                paddingRight: "0.5rem",
-                borderTop: index !== 0 ? "solid 1px #ced4da" : "none"
-              }}
-            >
-              <Flex h="100%" align="center" justify="space-between">
-                <Flex align="center" gap="sm" sx={{ overflowX: "hidden" }}>
-                  <GradientCircle
-                    color={data.provider}
-                    tooltipLabel={`${PROVIDER_NAME[data.provider]}の楽曲`}
-                  />
-
-                  <ListItem
-                    image={data.image}
-                    title={data.title}
-                    caption={` / ${data.artist}`}
-                    onArtworkPlayButtonClick={() =>
-                      handleArtworkPlayButtonClick(data)
-                    }
-                  />
-                </Flex>
-
-                <QueueOperator
-                  canMoveToFront={checkCanMoveToFront(index)}
-                  canAddToFront={checkCanAddToFront(index, data.playNext)}
-                  onMoveToFront={() => onMoveToFront(data.id)}
-                  onAddToFront={() => onAddToFront(data.id)}
+      ) : (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable
+            droppableId="queue"
+            mode="virtual"
+            renderClone={(provided, snapshot, rubric) => {
+              const queueItem = queue[rubric.source.index]
+              return (
+                <QueueItem
+                  isClone
+                  provided={provided}
+                  queueItem={queueItem}
+                  onArtworkPlayButtonClick={handleArtworkPlayButtonClick}
+                  canMoveToFront={checkCanMoveToFront(rubric.source.index)}
+                  canAddToFront={checkCanAddToFront(
+                    rubric.source.index,
+                    queue[rubric.source.index].playNext
+                  )}
+                  onMoveToFront={onMoveToFront}
+                  onAddToFront={onAddToFront}
                   hiddenMethod={
                     breakPoint === "SmartPhone" ? "display" : "visibility"
                   }
                 />
-              </Flex>
-            </div>
-          )
-        }}
-      </FixedSizeList>
+              )
+            }}
+          >
+            {provided => (
+              <FixedSizeList
+                width="100%"
+                height={scrollAreaHeight - STYLING_VALUES.QUEUE_PADDING_TOP}
+                itemCount={queue.length}
+                itemSize={80} // キューのアイテム1つ分の高さ
+                innerRef={provided.innerRef}
+              >
+                {({ index, style }) => {
+                  const data = queue[index]
+                  return (
+                    <div
+                      style={{
+                        ...style,
+                        paddingLeft: "0.5rem",
+                        paddingRight: "0.5rem",
+                        borderTop: index !== 0 ? "solid 1px #ced4da" : "none"
+                      }}
+                    >
+                      <Draggable
+                        key={data.id}
+                        draggableId={data.id}
+                        index={index}
+                      >
+                        {provided => (
+                          <QueueItem
+                            provided={provided}
+                            queueItem={data}
+                            onArtworkPlayButtonClick={
+                              handleArtworkPlayButtonClick
+                            }
+                            canMoveToFront={checkCanMoveToFront(index)}
+                            canAddToFront={checkCanAddToFront(
+                              index,
+                              data.playNext
+                            )}
+                            onMoveToFront={onMoveToFront}
+                            onAddToFront={onAddToFront}
+                            hiddenMethod={
+                              breakPoint === "SmartPhone"
+                                ? "display"
+                                : "visibility"
+                            }
+                          />
+                        )}
+                      </Draggable>
+                    </div>
+                  )
+                }}
+              </FixedSizeList>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )}
     </Box>
   )
 }
