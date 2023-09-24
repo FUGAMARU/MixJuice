@@ -1,11 +1,11 @@
 import { Box, Burger, Flex, Space } from "@mantine/core"
 import Image from "next/image"
-import { memo, useCallback, useMemo } from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { memo, useCallback } from "react"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
-import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 type Props = {
   shouldShowBurger: boolean
@@ -14,6 +14,7 @@ type Props = {
 const LayoutHeader = ({ shouldShowBurger }: Props) => {
   const [isNavbarOpened, setIsNavbarOpened] = useRecoilState(navbarAtom)
   const setNavbarClassName = useSetRecoilState(navbarClassNameAtom)
+  const faviconIndex = useRecoilValue(faviconIndexAtom)
 
   const handleBurgerClick = useCallback(() => {
     const prefix = "animate__animated animate__faster"
@@ -27,8 +28,6 @@ const LayoutHeader = ({ shouldShowBurger }: Props) => {
       setIsNavbarOpened(true)
     }
   }, [isNavbarOpened, setNavbarClassName, setIsNavbarOpened])
-
-  const headerIndex = useMemo(() => generateRandomNumber(1, 12), []) // メモ化しないとハンバーガーメニューでNavbarを開閉する度にアイコンが変わってしまう
 
   return (
     <Box
@@ -52,12 +51,14 @@ const LayoutHeader = ({ shouldShowBurger }: Props) => {
           )}
         </Box>
 
-        <Image
-          src={`/header-logos/header-${headerIndex}.png`}
-          width={152}
-          height={40}
-          alt="Randomized MixJuice Logo"
-        />
+        {faviconIndex && (
+          <Image
+            src={`/header-logos/header-${faviconIndex}.png`}
+            width={152}
+            height={40}
+            alt="Randomized MixJuice Logo"
+          />
+        )}
 
         <Space w="1.8rem" />
       </Flex>

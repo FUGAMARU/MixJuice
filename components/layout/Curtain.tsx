@@ -4,10 +4,11 @@ import { Box } from "@mantine/core"
 import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, memo, useMemo } from "react"
-import { useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
+import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
@@ -32,6 +33,8 @@ const Curtain = ({ children }: Children) => {
   const [className, setClassName] = useState("")
   const [isDisplay, setIsDisplay] = useState(true)
 
+  const [faviconIndex, setFaviconIndex] = useRecoilState(faviconIndexAtom)
+
   useEffect(() => {
     ;(async () => {
       if (!isLoading) {
@@ -44,11 +47,10 @@ const Curtain = ({ children }: Children) => {
     })()
   }, [isLoading])
 
-  const [faviconSrc, setFaviconSrc] = useState("")
-  useFavicon(faviconSrc)
+  useFavicon(faviconIndex ? `/header-logos/logo-${faviconIndex}.png` : "")
   useEffect(() => {
-    setFaviconSrc(`/header-logos/logo-${generateRandomNumber(1, 12)}.png`)
-  }, [])
+    setFaviconIndex(generateRandomNumber(1, 12))
+  }, [setFaviconIndex])
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
