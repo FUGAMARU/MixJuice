@@ -20,7 +20,7 @@ import styles from "@/styles/Player.module.css"
 import { Track } from "@/types/Track"
 import { millisecondsToTimeString } from "@/utils/millisecondsToTimeString"
 
-let animationTimeoutId: NodeJS.Timer
+let animationTimeoutId: NodeJS.Timeout
 
 type Props = {
   currentTrackInfo: Track | undefined

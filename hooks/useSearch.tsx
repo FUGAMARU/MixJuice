@@ -7,7 +7,7 @@ import useWebDAVSettingState from "./useWebDAVSettingState"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
-let timer: NodeJS.Timer
+let timer: NodeJS.Timeout
 
 const useSearch = () => {
   const { showError } = useErrorModal()
