@@ -149,14 +149,16 @@ const usePlayer = ({ initialize }: Props) => {
   /** 曲送りをする際に、再生中の曲のProviderと次の曲のProviderの組み合わせによって、現在の再生を一時停止させるかどうかが変わってくるので、このsmartPauseで吸収する */
   const smartPause = useCallback(
     async (nextProvider: Provider) => {
-      if (currentTrackInfo === undefined) return
+      /** 楽曲を再生していなかったり、楽曲の一時停止中はポーズさせる必要無い */
+      if (currentTrackInfo === undefined || !isPlaying) return
+
       /** Spotifyの曲同士で曲送りする時に一旦ポーズさせると、次の曲の再生開始時に502 Bad Gatewayが発生する可能性がある (理由不明) */
       if (currentTrackInfo.provider === "spotify" && nextProvider === "spotify")
         return
 
       await onPause()
     },
-    [currentTrackInfo, onPause]
+    [currentTrackInfo, onPause, isPlaying]
   )
 
   const onNextTrack = useRecoilCallback(
