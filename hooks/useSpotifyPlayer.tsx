@@ -17,6 +17,8 @@ type Props = {
   onTrackFinish: () => void
 }
 
+let calledTrackFinishCallback = false
+
 const useSpotifyPlayer = ({
   initialize,
   setIsPreparingPlayback,
@@ -28,7 +30,6 @@ const useSpotifyPlayer = ({
   const { startPlayback } = useSpotifyApi({ initialize: false })
   const deviceId = useRef("")
   const [playbackQuality, setPlaybackQuality] = useState<string>() // string: Spotifyの再生音質 | undefined: Spotify以外の楽曲を再生している時
-  const prevPosition = useRef(-1)
 
   const playbackPosition = useMemo(() => {
     if (playbackState === undefined) return 0
@@ -44,6 +45,7 @@ const useSpotifyPlayer = ({
 
       try {
         await startPlayback(deviceId.current, trackId)
+        calledTrackFinishCallback = false
       } finally {
         setIsPreparingPlayback(false)
       }
@@ -112,25 +114,25 @@ const useSpotifyPlayer = ({
         deviceId.current = device_id
       })
 
+      spotifyPlayer.addListener("player_state_changed", state => {
+        if (
+          !calledTrackFinishCallback &&
+          state.track_window.previous_tracks.length > 0 &&
+          state.track_window.previous_tracks[0].id ===
+            state.track_window.current_track.id
+        ) {
+          onTrackFinish()
+          setPlaybackQuality(undefined)
+          calledTrackFinishCallback = true
+        }
+      })
+
       setInterval(async () => {
         const state = await spotifyPlayer.getCurrentState()
         if (state === null) return
 
         setPlaybackState(state)
         setPlaybackQuality(state.playback_quality)
-
-        if (
-          state.position === 0 &&
-          prevPosition.current !== -1 &&
-          state.position !== prevPosition.current
-        ) {
-          prevPosition.current = -1
-          onTrackFinish()
-          setPlaybackQuality(undefined)
-          return
-        }
-
-        prevPosition.current = state.position
       }, 100)
 
       spotifyPlayer.connect()
