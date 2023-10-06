@@ -1,21 +1,29 @@
+import { isDefined } from "./isDefined"
 import { Track } from "@/types/Track"
 
 export const expandTrackInfo = async <T extends Track>(trackInfo: T) => {
   const duration = await getAudioDurationFromUrl(trackInfo.id) // 結果はミリ秒で返ってくる
-  const imgSize = trackInfo.image
-    ? await getImageSizeFromBase64(trackInfo.image.src)
-    : undefined
+
+  const baseObj = {
+    ...trackInfo,
+    duration
+  }
+
+  if (isDefined(trackInfo.image)) {
+    const imgSize = await getImageSizeFromBase64(trackInfo.image.src)
+    return {
+      ...baseObj,
+      image: {
+        src: trackInfo.image.src,
+        height: imgSize.height,
+        width: imgSize.width
+      }
+    }
+  }
 
   return {
-    ...trackInfo,
-    duration,
-    image: trackInfo.image?.src
-      ? {
-          src: trackInfo.image.src,
-          height: imgSize!.height,
-          width: imgSize!.width
-        }
-      : undefined
+    ...baseObj,
+    image: undefined
   }
 }
 

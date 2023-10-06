@@ -25,6 +25,7 @@ import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
 import { greycliffCF } from "@/styles/fonts"
 import { Queue } from "@/types/Queue"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   queue: Queue[]
@@ -84,7 +85,7 @@ const Queue = ({
   const onDragEnd = useRecoilCallback(
     ({ snapshot, set }) =>
       async (result: DropResult) => {
-        if (!result.destination) return
+        if (!isDefined(result.destination)) return
 
         const currentQueue = await snapshot.getPromise(queueAtom)
         const copiedQueue = [...currentQueue]
@@ -93,8 +94,8 @@ const Queue = ({
         // 移動対象のplayNextがtrue、かつ移動先がキューの先頭ではない、かつ移動先の1つ上のアイテムのplayNextがfalseの場合
         if (
           targetItem.playNext &&
-          result.destination!.index !== 0 &&
-          !copiedQueue[result.destination!.index - 1].playNext
+          result.destination.index !== 0 &&
+          !copiedQueue[result.destination.index - 1].playNext
         ) {
           targetItem = {
             ...targetItem,
@@ -105,7 +106,7 @@ const Queue = ({
         // 移動対象のplayNextがfalse、かつ移動先の1つ下のアイテムのplayNextがtrueの場合
         if (
           !targetItem.playNext &&
-          copiedQueue[result.destination!.index].playNext
+          copiedQueue[result.destination.index].playNext
         ) {
           targetItem = {
             ...targetItem,
@@ -114,7 +115,7 @@ const Queue = ({
         }
 
         copiedQueue.splice(result.source.index, 1)
-        copiedQueue.splice(result.destination!.index, 0, targetItem)
+        copiedQueue.splice(result.destination.index, 0, targetItem)
 
         set(queueAtom, copiedQueue)
       },
