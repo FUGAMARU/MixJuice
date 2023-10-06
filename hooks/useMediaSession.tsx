@@ -26,7 +26,7 @@ const useMediaSession = ({
   const dummyAudioRef = useRef<HTMLAudioElement>()
 
   const setMediaMetadata = useCallback((trackInfo: Track) => {
-    navigator.mediaSession.metadata = new window.MediaMetadata({
+    navigator.mediaSession.metadata = new MediaMetadata({
       title: trackInfo.title,
       artist: trackInfo.artist,
       album: trackInfo.albumTitle,
@@ -49,7 +49,7 @@ const useMediaSession = ({
 
       const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
       dummyAudioRef.current = dummyAudio
-      await dummyAudio.play()
+      dummyAudio.play()
       navigator.mediaSession.playbackState = "playing"
     } catch (e) {
       console.log("🟥ERROR: ", e)
@@ -144,12 +144,7 @@ const useMediaSession = ({
         await onSeekTo(seekTime * 1000) // ミリ秒に変換して渡す
       })
     })()
-
-    return () => {
-      clearDummyAudio()
-    }
   }, [
-    clearDummyAudio,
     initialize,
     onNextTrack,
     onPause,
