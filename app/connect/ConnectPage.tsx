@@ -1,6 +1,7 @@
 "use client"
 
 import { Box, Center } from "@mantine/core"
+import { useSearchParams } from "next/navigation"
 import {
   Dispatch,
   SetStateAction,
@@ -17,12 +18,10 @@ import { loadingAtom } from "@/atoms/loadingAtom"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 const ConnectPage = () => {
-  const { setRespVal } = useBreakPoints()
+  const params = useSearchParams()
+  const provider = params.get("provider")
 
-  const setIsLoading = useSetRecoilState(loadingAtom)
-  useEffect(() => {
-    setIsLoading(false)
-  }, [setIsLoading])
+  const { setRespVal } = useBreakPoints()
 
   const [isDisplayProviderSelector, setIsDisplayProviderSelector] =
     useState(true)
@@ -71,6 +70,34 @@ const ConnectPage = () => {
     },
     []
   )
+
+  const setIsLoading = useSetRecoilState(loadingAtom)
+  useEffect(() => {
+    ;(async () => {
+      setIsLoading(false)
+
+      if (!provider) return
+
+      await new Promise(resolve => setTimeout(resolve, 2500))
+
+      switch (provider) {
+        case "spotify":
+          handleSlide(
+            "go",
+            setSpotifyConnectorClassName,
+            setIsDisplaySpotifyConnector
+          )
+          break
+        case "webdav":
+          handleSlide(
+            "go",
+            setWebDAVConnectorClassName,
+            setIsDisplayWebDAVConnector
+          )
+          break
+      }
+    })()
+  }, [setIsLoading, provider, handleSlide])
 
   return (
     <Center h="100%">

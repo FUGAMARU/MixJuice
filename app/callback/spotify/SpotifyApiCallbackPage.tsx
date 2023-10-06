@@ -38,7 +38,7 @@ const SpotifyApiCallbackPage = () => {
       } catch (e) {
         showError(e)
       } finally {
-        router.push("/connect")
+        router.push("/connect?provider=spotify")
       }
     })()
   }, [searchParams, router, handleGetAccessToken, showError])

@@ -83,8 +83,8 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const pkceConfig = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
 
       if (pkceConfig === null)
-        throw Error(
-          "Spotify APIのアクセストークン取得に必要な情報が存在しません"
+        throw new SpotifyAuthError(
+          "Spotify APIのアクセストークン取得に必要な情報が存在しません。Spotifyに再ログインしてください。"
         )
 
       const { clientId, redirectUri, codeVerifier } = JSON.parse(
@@ -121,7 +121,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
         localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
       } catch (e) {
         console.log("🟥ERROR: ", e)
-        throw Error("Spotify APIのアクセストークンの取得に失敗しました")
+        throw new SpotifyAuthError(
+          "Spotify APIのアクセストークンの取得に失敗しました。Spotifyに再ログインしてください。"
+        )
       }
     },
     [setAccessToken]

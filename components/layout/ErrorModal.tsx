@@ -36,7 +36,7 @@ const ErrorModal = () => {
   const handleModalClose = useCallback(() => {
     if (lastConfig.instance instanceof SpotifyAuthError) {
       /** ここに処理が来る段階で既にSpotifyの認証情報は削除済み */
-      router.replace("/connect")
+      router.replace("/connect?provider=spotify")
       setErrorModalConfigs([])
       return
     }
