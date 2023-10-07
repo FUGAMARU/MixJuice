@@ -1,9 +1,6 @@
 import {
-  Flex,
   Navbar,
-  Space,
   Stack,
-  Text,
   Input,
   Button,
   Group,
@@ -28,6 +25,7 @@ import { GrConnect } from "react-icons/gr"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
+import NavbarItemButton from "../parts/navbar/NavbarItemButton"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -359,29 +357,22 @@ const LayoutNavbar = ({
         pt="xs"
         sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
       >
-        <Stack spacing="xs">
-          <Flex align="center" sx={{ cursor: "pointer" }}>
-            <BsClockHistory />
-            <Space w="xs" />
-            <Text weight={600}>再生履歴</Text>
-          </Flex>
+        <Box>
+          <NavbarItemButton icon={<BsClockHistory />}>
+            再生履歴
+          </NavbarItemButton>
 
-          <Flex
-            align="center"
-            sx={{ cursor: "pointer" }}
+          <NavbarItemButton
+            icon={<GrConnect />}
             onClick={() => router.push("/connect")}
           >
-            <GrConnect />
-            <Space w="xs" />
-            <Text weight={600}>サービス接続設定</Text>
-          </Flex>
+            サービス接続設定
+          </NavbarItemButton>
 
-          <Flex align="center" sx={{ cursor: "pointer" }}>
-            <BsInfoCircle />
-            <Space w="xs" />
-            <Text weight={600}>MixJuiceについて</Text>
-          </Flex>
-        </Stack>
+          <NavbarItemButton icon={<BsInfoCircle />}>
+            MixJuiceについて
+          </NavbarItemButton>
+        </Box>
       </Navbar.Section>
     </Navbar>
   )
