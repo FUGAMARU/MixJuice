@@ -1,12 +1,14 @@
 "use client"
 
 import { Box } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
 import { useRouter } from "next/navigation"
 import { memo, useCallback, useEffect, useState } from "react"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { loadingAtom } from "../../atoms/loadingAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import MainPageLayout from "@/components/templates/MainPage/MainPageLayout"
+import PlaybackHistoryModal from "@/components/templates/MainPage/PlaybackHistoryModal"
 import Player from "@/components/templates/MainPage/Player"
 import Queue from "@/components/templates/MainPage/Queue"
 import SearchModal from "@/components/templates/MainPage/SearchModal"
@@ -34,6 +36,11 @@ const MainPage = () => {
     handleNavbarCheckboxLabelClick
   } = useTarckModal()
 
+  const [
+    isPlaybackHistoryModalOpen,
+    { open: onOpenPlaybackHistoryModal, close: onClosePlaybackHistoryModal }
+  ] = useDisclosure(false)
+
   useEffect(() => {
     const selectedSpotifyPlaylists = localStorage.getItem(
       LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
@@ -50,14 +57,19 @@ const MainPage = () => {
   const {
     queue,
     setQueue,
+    playbackHistory,
+    playbackHistoryIndex,
     currentTrackInfo,
     playbackPercentage,
     isPlaying,
     onNextTrack,
+    onPreviousTrack,
     onTogglePlay,
     hasNextTrack,
+    hasPreviousTrack,
     onSkipTo,
     onPlay,
+    onPlayFromPlaybackHistory,
     onMoveToFront,
     onAddToFront,
     checkCanMoveToFront,
@@ -77,6 +89,10 @@ const MainPage = () => {
     setIsTrackModalOpen(false)
   }, [setIsTrackModalOpen])
 
+  const handlePlaybackHistoryModalClose = useCallback(() => {
+    onClosePlaybackHistoryModal()
+  }, [onClosePlaybackHistoryModal])
+
   return (
     <>
       <MainPageLayout
@@ -85,6 +101,7 @@ const MainPage = () => {
         setIsPreparingPlayback={setIsPreparingPlayback}
         setQueue={setQueue}
         onCheckboxLabelClick={handleNavbarCheckboxLabelClick}
+        onPlaybackHistoryModalOpen={onOpenPlaybackHistoryModal}
       >
         <Box h={setRespVal("15vh", "25vh", "25vh")}>
           <Player
@@ -92,9 +109,11 @@ const MainPage = () => {
             playbackPercentage={playbackPercentage}
             isPlaying={isPlaying}
             onNextTrack={onNextTrack}
+            onPreviousTrack={onPreviousTrack}
             onTogglePlay={onTogglePlay}
             onSeekTo={onSeekTo}
             hasNextTrack={hasNextTrack}
+            hasPreviousTrack={hasPreviousTrack}
             spotifyPlaybackQuality={spotifyPlaybackQuality}
             isPreparingPlayback={isPreparingPlayback}
             setPlayerHeight={setPlayerHeight}
@@ -135,6 +154,18 @@ const MainPage = () => {
         onPlayWithTrackInfo={onPlayWithTrackInfo}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
         onAddNewTrackToFront={onAddNewTrackToFront}
+      />
+
+      <PlaybackHistoryModal
+        playbackHistories={playbackHistory}
+        playbackHistoryIndex={playbackHistoryIndex}
+        canMoveToFront={queue.length > 0}
+        canAddToFront={isPlaying}
+        onPlayFromPlaybackHistory={onPlayFromPlaybackHistory}
+        onMoveNewTrackToFront={onMoveNewTrackToFront}
+        onAddNewTrackToFront={onAddNewTrackToFront}
+        isOpen={isPlaybackHistoryModalOpen}
+        onClose={handlePlaybackHistoryModalClose} // useCallbackを経由せずにコールバックで直接stateを変更すると再レンダリングが走りまくってしまい、react-windowの表示がおかしくなる。
       />
     </>
   )

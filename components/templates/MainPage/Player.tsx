@@ -27,9 +27,11 @@ type Props = {
   playbackPercentage: number
   isPlaying: boolean
   onNextTrack: () => Promise<void>
+  onPreviousTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
   onSeekTo: (position: number) => Promise<void>
   hasNextTrack: boolean
+  hasPreviousTrack: boolean
   spotifyPlaybackQuality: string | undefined
   isPreparingPlayback: boolean
   setPlayerHeight: Dispatch<SetStateAction<number>>
@@ -42,9 +44,11 @@ const Player = ({
   playbackPercentage,
   isPlaying,
   onNextTrack,
+  onPreviousTrack,
   onTogglePlay,
   onSeekTo,
   hasNextTrack,
+  hasPreviousTrack,
   spotifyPlaybackQuality,
   isPreparingPlayback,
   setPlayerHeight
@@ -148,8 +152,10 @@ const Player = ({
           isPreparingPlayback={isPreparingPlayback}
           hasCurrentTrack={currentTrackInfo !== undefined}
           hasNextTrack={hasNextTrack}
+          hasPreviousTrack={hasPreviousTrack}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
+          onPreviousTrack={onPreviousTrack}
         />
 
         <TrackInfo

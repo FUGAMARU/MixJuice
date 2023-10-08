@@ -9,7 +9,8 @@ type Props = {
   isPlaying: boolean
   onPause: () => Promise<void>
   onResume: () => Promise<void>
-  onNextTrack: () => void
+  onNextTrack: () => Promise<void>
+  onPreviousTrack: () => Promise<void>
   onSeekTo: (position: number) => Promise<void>
 }
 
@@ -21,6 +22,7 @@ const useMediaSession = ({
   onPause,
   onResume,
   onNextTrack,
+  onPreviousTrack,
   onSeekTo
 }: Props) => {
   const dummyAudioRef = useRef<HTMLAudioElement>()
@@ -137,6 +139,9 @@ const useMediaSession = ({
       })
 
       navigator.mediaSession.setActionHandler("nexttrack", () => onNextTrack())
+      navigator.mediaSession.setActionHandler("previoustrack", () =>
+        onPreviousTrack()
+      )
 
       navigator.mediaSession.setActionHandler("seekto", async e => {
         const { seekTime } = e // seekTimeは秒単位
@@ -147,6 +152,7 @@ const useMediaSession = ({
   }, [
     initialize,
     onNextTrack,
+    onPreviousTrack,
     onPause,
     onResume,
     setMediaMetadata,

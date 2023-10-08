@@ -18,8 +18,10 @@ type Props = {
       isPreparingPlayback?: never
       hasCurrentTrack?: never
       hasNextTrack?: never
+      hasPreviousTrack?: never
       onTogglePlay?: never
       onNextTrack?: never
+      onPreviousTrack?: never
       onArtworkPlayButtonClick: () => void
     }
   | {
@@ -29,8 +31,10 @@ type Props = {
       isPreparingPlayback: boolean
       hasCurrentTrack: boolean
       hasNextTrack: boolean
+      hasPreviousTrack: boolean
       onTogglePlay: () => Promise<void>
       onNextTrack: () => Promise<void>
+      onPreviousTrack: () => Promise<void>
       onArtworkPlayButtonClick?: never
     }
 )
@@ -44,8 +48,10 @@ const ArtworkOverlay = ({
   isPreparingPlayback,
   hasCurrentTrack,
   hasNextTrack,
+  hasPreviousTrack,
   onTogglePlay,
   onNextTrack,
+  onPreviousTrack,
   onArtworkPlayButtonClick
 }: Props) => {
   /** プレイヤーコントロールホバー時アニメーション管理 */
@@ -90,8 +96,17 @@ const ArtworkOverlay = ({
               transition: "all .2s ease-in-out"
             }}
             cursor="pointer"
-            opacity={isPreparingPlayback || !hasCurrentTrack ? 0.5 : 1}
-            pointerEvents={isPreparingPlayback ? "none" : "auto"}
+            opacity={
+              isPreparingPlayback || !hasCurrentTrack || !hasPreviousTrack
+                ? 0.5
+                : 1
+            }
+            pointerEvents={
+              isPreparingPlayback || !hasCurrentTrack || !hasPreviousTrack
+                ? "none"
+                : "auto"
+            }
+            onClick={onPreviousTrack}
           />
           {isPlaying ? (
             <IoPauseCircleSharp
@@ -125,7 +140,7 @@ const ArtworkOverlay = ({
                 ? "none"
                 : "auto"
             }
-            onClick={async () => await onNextTrack()}
+            onClick={onNextTrack}
           />
         </Group>
       )}

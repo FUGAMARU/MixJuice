@@ -6,6 +6,8 @@ import { useRecoilCallback, useRecoilState } from "recoil"
 import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
+import { playbackHistoryAtom } from "@/atoms/playbackHistoryAtom"
+import { playbackHistoryIndexAtom } from "@/atoms/playbackHistoryIndexAtom"
 import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
@@ -17,6 +19,11 @@ type Props = {
 
 const usePlayer = ({ initialize }: Props) => {
   const [queue, setQueue] = useRecoilState(queueAtom) // useStateにすると、Spotifyの楽曲再生終了時のハンドラー内で、何故か最新のqueueが取得できなくなるのでRecoilStateを利用
+  const [playbackHistory, setPlaybackHistory] =
+    useRecoilState(playbackHistoryAtom) // useStateにすると、Spotifyの楽曲再生終了時のハンドラー内で、何故か最新のqueueが取得できなくなるのでRecoilStateを利用
+  const [playbackHistoryIndex, setPlaybackHistoryIndex] = useRecoilState(
+    playbackHistoryIndexAtom
+  ) // useStateにすると、Spotifyの楽曲再生終了時のハンドラー内で、何故か最新のqueueが取得できなくなるのでRecoilStateを利用
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
   const [volume, setVolume] = useState(0.5)
@@ -24,6 +31,10 @@ const usePlayer = ({ initialize }: Props) => {
   const [isPreparingPlayback, setIsPreparingPlayback] = useState(false)
 
   const hasNextTrack = useMemo(() => queue.length > 0, [queue.length])
+  const hasPreviousTrack = useMemo(
+    () => playbackHistory.length > 0,
+    [playbackHistory.length]
+  )
 
   const lastPlayNextIdx = useMemo(
     () =>
@@ -68,6 +79,25 @@ const usePlayer = ({ initialize }: Props) => {
   const handleTrackFinish = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
+        /** 再生履歴が存在する場合は再生履歴を遡って楽曲を再生する */
+        const currentPlaybackHistory =
+          await snapshot.getPromise(playbackHistoryAtom)
+        const currentPlaybackHistoryIndex = await snapshot.getPromise(
+          playbackHistoryIndexAtom
+        )
+
+        if (
+          currentPlaybackHistory.length > 0 &&
+          currentPlaybackHistoryIndex > 0
+        ) {
+          await onPlayWithTrackInfo(
+            currentPlaybackHistory[currentPlaybackHistoryIndex - 1],
+            true
+          )
+          setPlaybackHistoryIndex(prev => prev - 1)
+          return
+        }
+
         const currentQueue = await snapshot.getPromise(queueAtom)
         setIsPlaying(false)
         clearDummyAudio()
@@ -161,8 +191,26 @@ const usePlayer = ({ initialize }: Props) => {
   const onNextTrack = useRecoilCallback(
     ({ snapshot }) =>
       async () => {
-        const currentQueue = await snapshot.getPromise(queueAtom)
+        /** 再生履歴が存在する場合は再生履歴を遡って楽曲を再生する */
+        const currentPlaybackHistory =
+          await snapshot.getPromise(playbackHistoryAtom)
+        const currentPlaybackHistoryIndex = await snapshot.getPromise(
+          playbackHistoryIndexAtom
+        )
 
+        if (
+          currentPlaybackHistory.length > 0 &&
+          currentPlaybackHistoryIndex > 0
+        ) {
+          await onPlayWithTrackInfo(
+            currentPlaybackHistory[currentPlaybackHistoryIndex - 1],
+            true
+          )
+          setPlaybackHistoryIndex(prev => prev - 1)
+          return
+        }
+
+        const currentQueue = await snapshot.getPromise(queueAtom)
         /** 再生待ちの曲がない場合は曲送りする必要がない */
         if (currentQueue.length === 0) {
           await onPause()
@@ -175,6 +223,29 @@ const usePlayer = ({ initialize }: Props) => {
         pickUpTrack()
       },
     [currentTrackInfo, pickUpTrack, onPause, smartPause] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
+  )
+
+  const onPreviousTrack = useCallback(async () => {
+    if (playbackHistory.length === 0) return
+
+    /** 再生履歴が2曲以上存在し、かつ楽曲開始後1秒以内に実行した時のみ、再生履歴を遡って楽曲を再生する (それ以外はシークポジションを0にして曲頭に戻るだけ) */
+    if (playbackHistory.length >= 2 && playbackPosition < 1000) {
+      await onPlayWithTrackInfo(playbackHistory[playbackHistoryIndex + 1], true)
+      setPlaybackHistoryIndex(prev => prev + 1)
+      return
+    }
+
+    onSeekTo(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playbackHistory, playbackPosition, playbackHistoryIndex, onSeekTo])
+
+  const onPlayFromPlaybackHistory = useCallback(
+    async (index: number) => {
+      await onPlayWithTrackInfo(playbackHistory[index], true)
+      setPlaybackHistoryIndex(index)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [playbackHistory]
   )
 
   const onResume = useCallback(async () => {
@@ -206,6 +277,7 @@ const usePlayer = ({ initialize }: Props) => {
     onPause,
     onResume,
     onNextTrack,
+    onPreviousTrack,
     onSeekTo
   })
 
@@ -220,7 +292,7 @@ const usePlayer = ({ initialize }: Props) => {
   }, [isPlaying, onPause, onResume])
 
   const onPlay = useCallback(
-    async (track: Track) => {
+    async (track: Track, inPlaybackHistory?: boolean) => {
       setIsPreparingPlayback(true)
       setCurrentTrackInfo(track)
 
@@ -247,6 +319,11 @@ const usePlayer = ({ initialize }: Props) => {
 
         /** 再生開始が正常に完了した場合はここに処理が遷移する */
         setIsPlaying(true)
+
+        if (!inPlaybackHistory) {
+          setPlaybackHistory(prev => [track, ...prev])
+          setPlaybackHistoryIndex(0)
+        }
       } catch (e) {
         /** エラーモーダルは表示せずにトースト表示のみ */
         console.log("🟥ERROR: onPlay()実行時にエラーが発生しました")
@@ -268,15 +345,17 @@ const usePlayer = ({ initialize }: Props) => {
       onWebDAVPlay,
       onPlayDummyAudio,
       setIsPreparingPlayback,
-      onNextTrack
+      onNextTrack,
+      setPlaybackHistory,
+      setPlaybackHistoryIndex
     ]
   )
 
   const onPlayWithTrackInfo = useCallback(
-    async (track: Track) => {
+    async (track: Track, skipHistory?: boolean) => {
       setCurrentTrackInfo(track)
       await smartPause(track.provider)
-      await onPlay(track)
+      await onPlay(track, skipHistory)
     },
     [onPlay, smartPause]
   )
@@ -384,20 +463,25 @@ const usePlayer = ({ initialize }: Props) => {
   return {
     queue,
     setQueue,
+    playbackHistory,
+    playbackHistoryIndex,
     currentTrackInfo,
     playbackPercentage,
     isPlaying,
     volume,
     setVolume,
     onNextTrack,
+    onPreviousTrack,
     onSkipTo,
     onPlay,
+    onPlayFromPlaybackHistory,
     onMoveToFront,
     onAddToFront,
     checkCanMoveToFront,
     checkCanAddToFront,
     onTogglePlay,
     hasNextTrack,
+    hasPreviousTrack,
     spotifyPlaybackQuality,
     isPreparingPlayback,
     setIsPreparingPlayback,

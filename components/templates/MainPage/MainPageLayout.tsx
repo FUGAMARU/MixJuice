@@ -28,6 +28,7 @@ type Props = {
     id: string,
     title: string
   ) => Promise<void>
+  onPlaybackHistoryModalOpen: () => void
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
   setQueue: Dispatch<SetStateAction<Queue[]>>
 } & Children
@@ -36,6 +37,7 @@ const MainPageLayout = ({
   isPlaying,
   onPlay,
   onCheckboxLabelClick,
+  onPlaybackHistoryModalOpen,
   setIsPreparingPlayback,
   setQueue,
   children
@@ -72,6 +74,7 @@ const MainPageLayout = ({
         canSlideNavbar={canSlideNavbar}
         onPlay={onPlay}
         onCheckboxLabelClick={onCheckboxLabelClick}
+        onPlaybackHistoryModalOpen={onPlaybackHistoryModalOpen}
         setIsPreparingPlayback={setIsPreparingPlayback}
       />
     ),
@@ -82,7 +85,8 @@ const MainPageLayout = ({
       setIsPreparingPlayback,
       screenHeightWithoutHeader,
       onCheckboxLabelClick,
-      setQueue
+      setQueue,
+      onPlaybackHistoryModalOpen
     ]
   )
 

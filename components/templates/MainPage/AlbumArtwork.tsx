@@ -18,8 +18,10 @@ type Props = {
   isPreparingPlayback: boolean
   hasCurrentTrack: boolean
   hasNextTrack: boolean
+  hasPreviousTrack: boolean
   onTogglePlay: () => Promise<void>
   onNextTrack: () => Promise<void>
+  onPreviousTrack: () => Promise<void>
 }
 
 const AlbumArtwork = ({
@@ -30,8 +32,10 @@ const AlbumArtwork = ({
   isPreparingPlayback,
   hasCurrentTrack,
   hasNextTrack,
+  hasPreviousTrack,
   onTogglePlay,
-  onNextTrack
+  onNextTrack,
+  onPreviousTrack
 }: Props) => {
   const { setRespVal } = useBreakPoints()
   const { hovered: isArtworkHovered, ref: artworkRef } = useHover()
@@ -82,8 +86,10 @@ const AlbumArtwork = ({
         isPreparingPlayback={isPreparingPlayback}
         hasCurrentTrack={hasCurrentTrack}
         hasNextTrack={hasNextTrack}
+        hasPreviousTrack={hasPreviousTrack}
         onTogglePlay={onTogglePlay}
         onNextTrack={onNextTrack}
+        onPreviousTrack={onPreviousTrack}
       />
     </Box>
   )

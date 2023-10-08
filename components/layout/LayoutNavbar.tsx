@@ -51,6 +51,7 @@ type Props = {
     id: string,
     title: string
   ) => Promise<void>
+  onPlaybackHistoryModalOpen: () => void
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
 }
 
@@ -61,6 +62,7 @@ const LayoutNavbar = ({
   canSlideNavbar,
   onPlay,
   onCheckboxLabelClick,
+  onPlaybackHistoryModalOpen,
   setIsPreparingPlayback
 }: Props) => {
   const router = useRouter()
@@ -358,7 +360,10 @@ const LayoutNavbar = ({
         sx={theme => ({ borderTop: `solid 1px ${theme.colors.gray[2]}` })}
       >
         <Box>
-          <NavbarItemButton icon={<BsClockHistory />}>
+          <NavbarItemButton
+            icon={<BsClockHistory />}
+            onClick={onPlaybackHistoryModalOpen}
+          >
             再生履歴
           </NavbarItemButton>
 
