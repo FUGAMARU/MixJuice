@@ -8,10 +8,7 @@ import {
   useMemo,
   useState
 } from "react"
-import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
-import { HiVolumeUp } from "react-icons/hi"
-import PlaybackStateBadge from "@/components/parts/PlaybackStateBadge"
-import TooltipDefault from "@/components/parts/TooltipDefault"
+import PlayerState from "./PlayerState"
 import AlbumArtwork from "@/components/templates/MainPage/AlbumArtwork"
 import TrackInfo from "@/components/templates/MainPage/TrackInfo"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
@@ -167,59 +164,16 @@ const Player = ({
         />
 
         {breakPoint === "PC" && (
-          <Flex pos="absolute" right="1.5rem" bottom="1rem" gap="xs">
-            {(isPreparingPlayback ||
-              currentTrackInfo?.provider === "spotify") && (
-              <TooltipDefault
-                label={
-                  isPreparingPlayback ? "再生準備中…" : "ストリーミング品質"
-                }
-                withArrow
-              >
-                <Box>
-                  <PlaybackStateBadge
-                    cursor="default"
-                    loading={
-                      isPreparingPlayback ||
-                      spotifyPlaybackQuality === undefined
-                    }
-                  >
-                    {spotifyPlaybackQuality}
-                  </PlaybackStateBadge>
-                </Box>
-              </TooltipDefault>
-            )}
-
-            <TooltipDefault label="音量" withArrow>
-              <Box>
-                <PlaybackStateBadge cursor="pointer">
-                  <Flex align="center" gap="0.4rem">
-                    <Box lh={0}>
-                      <HiVolumeUp size="1.2rem" />
-                    </Box>
-                    0%
-                  </Flex>
-                </PlaybackStateBadge>
-              </Box>
-            </TooltipDefault>
-
-            <TooltipDefault label="残り再生時間" withArrow>
-              <Box>
-                <PlaybackStateBadge cursor="pointer" onClick={onTogglePlay}>
-                  <Flex align="center" gap="0.2rem">
-                    <Box lh={0}>
-                      {isPlaying ? (
-                        <BsFillPlayFill size="1.2rem" />
-                      ) : (
-                        <BsFillPauseFill size="1.2rem" />
-                      )}
-                    </Box>
-                    {remainingTime}
-                  </Flex>
-                </PlaybackStateBadge>
-              </Box>
-            </TooltipDefault>
-          </Flex>
+          <Box pos="absolute" right="-15px" bottom={0}>
+            <PlayerState
+              isPlaying={isPlaying}
+              isPreparingPlayback={isPreparingPlayback}
+              spotifyPlaybackQuality={spotifyPlaybackQuality}
+              remainingTime={remainingTime}
+              currentTrackProvider={currentTrackInfo?.provider}
+              onTogglePlay={onTogglePlay}
+            />
+          </Box>
         )}
       </Flex>
 
