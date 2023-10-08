@@ -47,6 +47,11 @@ const CheckboxListModal = ({
             checked={checkedValues.includes(item.id)}
             value={item.id}
             color={color}
+            styles={{
+              input: {
+                cursor: "pointer"
+              }
+            }}
           />
 
           <Box sx={{ flex: "1", overflow: "hidden" }}>
