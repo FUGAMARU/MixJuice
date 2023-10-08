@@ -16,7 +16,8 @@ type Props = {
   smaller: boolean // スマホなどの幅が狭い画面向けにUIを小さめに表示するか
   isPlaying: boolean
   isPreparingPlayback: boolean
-  isTrackAvailable: boolean
+  hasCurrentTrack: boolean
+  hasNextTrack: boolean
   onTogglePlay: () => Promise<void>
   onNextTrack: () => Promise<void>
 }
@@ -27,7 +28,8 @@ const AlbumArtwork = ({
   smaller,
   isPlaying,
   isPreparingPlayback,
-  isTrackAvailable,
+  hasCurrentTrack,
+  hasNextTrack,
   onTogglePlay,
   onNextTrack
 }: Props) => {
@@ -78,7 +80,8 @@ const AlbumArtwork = ({
         smaller={smaller}
         isPlaying={isPlaying}
         isPreparingPlayback={isPreparingPlayback}
-        isTrackAvailable={isTrackAvailable}
+        hasCurrentTrack={hasCurrentTrack}
+        hasNextTrack={hasNextTrack}
         onTogglePlay={onTogglePlay}
         onNextTrack={onNextTrack}
       />

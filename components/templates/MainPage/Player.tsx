@@ -29,7 +29,7 @@ type Props = {
   onNextTrack: () => Promise<void>
   onTogglePlay: () => Promise<void>
   onSeekTo: (position: number) => Promise<void>
-  hasSomeTrack: boolean
+  hasNextTrack: boolean
   spotifyPlaybackQuality: string | undefined
   isPreparingPlayback: boolean
   setPlayerHeight: Dispatch<SetStateAction<number>>
@@ -44,7 +44,7 @@ const Player = ({
   onNextTrack,
   onTogglePlay,
   onSeekTo,
-  hasSomeTrack,
+  hasNextTrack,
   spotifyPlaybackQuality,
   isPreparingPlayback,
   setPlayerHeight
@@ -78,7 +78,7 @@ const Player = ({
       return () => clearTimeout(animationTimeoutId)
     }
 
-    if (!hasSomeTrack) {
+    if (!currentTrackInfo && !hasNextTrack) {
       setFadeAnimationClassNames(`${prefix} animate__fadeOut`)
       animationTimeoutId = setTimeout(() => {
         setIsSeekbarShown(false)
@@ -86,7 +86,7 @@ const Player = ({
     }
 
     return () => clearTimeout(animationTimeoutId)
-  }, [isPlaying, setFadeAnimationClassNames, hasSomeTrack])
+  }, [isPlaying, setFadeAnimationClassNames, hasNextTrack, currentTrackInfo])
 
   const { hovered: isSeekbarHovered, ref: seekbarRef } = useHover()
 
@@ -146,7 +146,8 @@ const Player = ({
           smaller={isSmallerThanTablet}
           isPlaying={isPlaying}
           isPreparingPlayback={isPreparingPlayback}
-          isTrackAvailable={currentTrackInfo !== undefined}
+          hasCurrentTrack={currentTrackInfo !== undefined}
+          hasNextTrack={hasNextTrack}
           onTogglePlay={onTogglePlay}
           onNextTrack={onNextTrack}
         />

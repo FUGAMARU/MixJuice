@@ -23,10 +23,7 @@ const usePlayer = ({ initialize }: Props) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPreparingPlayback, setIsPreparingPlayback] = useState(false)
 
-  const hasSomeTrack = useMemo(
-    () => queue.length > 0 || currentTrackInfo !== undefined,
-    [queue.length, currentTrackInfo]
-  )
+  const hasNextTrack = useMemo(() => queue.length > 0, [queue.length])
 
   const lastPlayNextIdx = useMemo(
     () =>
@@ -400,7 +397,7 @@ const usePlayer = ({ initialize }: Props) => {
     checkCanMoveToFront,
     checkCanAddToFront,
     onTogglePlay,
-    hasSomeTrack,
+    hasNextTrack,
     spotifyPlaybackQuality,
     isPreparingPlayback,
     setIsPreparingPlayback,

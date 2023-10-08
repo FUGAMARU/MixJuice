@@ -16,7 +16,8 @@ type Props = {
       smaller?: never
       isPlaying?: never
       isPreparingPlayback?: never
-      isTrackAvailable?: never
+      hasCurrentTrack?: never
+      hasNextTrack?: never
       onTogglePlay?: never
       onNextTrack?: never
       onArtworkPlayButtonClick: () => void
@@ -26,7 +27,8 @@ type Props = {
       smaller: boolean
       isPlaying: boolean
       isPreparingPlayback: boolean
-      isTrackAvailable: boolean
+      hasCurrentTrack: boolean
+      hasNextTrack: boolean
       onTogglePlay: () => Promise<void>
       onNextTrack: () => Promise<void>
       onArtworkPlayButtonClick?: never
@@ -40,7 +42,8 @@ const ArtworkOverlay = ({
   smaller,
   isPlaying,
   isPreparingPlayback,
-  isTrackAvailable,
+  hasCurrentTrack,
+  hasNextTrack,
   onTogglePlay,
   onNextTrack,
   onArtworkPlayButtonClick
@@ -87,7 +90,7 @@ const ArtworkOverlay = ({
               transition: "all .2s ease-in-out"
             }}
             cursor="pointer"
-            opacity={isPreparingPlayback || !isTrackAvailable ? 0.5 : 1}
+            opacity={isPreparingPlayback || !hasCurrentTrack ? 0.5 : 1}
             pointerEvents={isPreparingPlayback ? "none" : "auto"}
           />
           {isPlaying ? (
@@ -101,8 +104,8 @@ const ArtworkOverlay = ({
             <IoPlayCircleSharp
               color="white"
               size={smaller ? "2rem" : "3rem"}
-              opacity={isTrackAvailable ? 1 : 0.5}
-              pointerEvents={isTrackAvailable ? "auto" : "none"}
+              opacity={hasCurrentTrack ? 1 : 0.5}
+              pointerEvents={hasCurrentTrack ? "auto" : "none"}
               cursor="pointer"
               onClick={onTogglePlay}
             />
@@ -114,8 +117,14 @@ const ArtworkOverlay = ({
               transition: "all .2s ease-in-out"
             }}
             cursor="pointer"
-            opacity={isPreparingPlayback || !isTrackAvailable ? 0.5 : 1}
-            pointerEvents={isPreparingPlayback ? "none" : "auto"}
+            opacity={
+              isPreparingPlayback || !hasCurrentTrack || !hasNextTrack ? 0.5 : 1
+            }
+            pointerEvents={
+              isPreparingPlayback || !hasCurrentTrack || !hasNextTrack
+                ? "none"
+                : "auto"
+            }
             onClick={async () => await onNextTrack()}
           />
         </Group>

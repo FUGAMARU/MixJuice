@@ -55,7 +55,7 @@ const MainPage = () => {
     isPlaying,
     onNextTrack,
     onTogglePlay,
-    hasSomeTrack,
+    hasNextTrack,
     onSkipTo,
     onPlay,
     onMoveToFront,
@@ -94,7 +94,7 @@ const MainPage = () => {
             onNextTrack={onNextTrack}
             onTogglePlay={onTogglePlay}
             onSeekTo={onSeekTo}
-            hasSomeTrack={hasSomeTrack}
+            hasNextTrack={hasNextTrack}
             spotifyPlaybackQuality={spotifyPlaybackQuality}
             isPreparingPlayback={isPreparingPlayback}
             setPlayerHeight={setPlayerHeight}
