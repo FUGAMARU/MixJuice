@@ -49,9 +49,13 @@ const MainPage = () => {
       LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
     )
 
-    if (!selectedSpotifyPlaylists && !webDAVFolderPaths) router.push("/connect")
+    if (!selectedSpotifyPlaylists && !webDAVFolderPaths) {
+      router.push("/connect")
+      return
+    }
 
     setIsLoading(false)
+    router.prefetch("/connect")
   }, [setIsLoading, router])
 
   const {
