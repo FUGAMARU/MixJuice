@@ -21,7 +21,7 @@ const NavbarItemButton = ({ icon, onClick, children }: Props) => {
     <Flex
       p="0.3rem"
       align="center"
-      bg={!isTouchDevice && hovered ? "#f5f5f5" : "transparent"}
+      bg={!isTouchDevice && hovered ? "#f5f5f5" : ""}
       sx={{
         transition,
         cursor: "pointer",

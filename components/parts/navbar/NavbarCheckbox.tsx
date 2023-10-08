@@ -1,8 +1,6 @@
-import { Box, Checkbox } from "@mantine/core"
+import { Checkbox, Flex, Text, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
-import { MouseEvent, memo, useCallback, useMemo } from "react"
-import TooltipDefault from "../TooltipDefault"
-import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
+import { memo, useMemo } from "react"
 import useTouchDevice from "@/hooks/useTouchDevice"
 
 type Props = {
@@ -22,6 +20,7 @@ const NavbarCheckbox = ({
   onClick,
   onLabelClick
 }: Props) => {
+  const theme = useMantineTheme()
   const { isTouchDevice } = useTouchDevice()
   const { hovered, ref } = useHover()
   const transition = useMemo(
@@ -29,61 +28,52 @@ const NavbarCheckbox = ({
     [isTouchDevice]
   )
 
-  const handleLabelClick = useCallback(
-    (e: MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      onLabelClick()
-    },
-    [onLabelClick]
-  )
-
   return (
-    <Box sx={{ cursor: "pointer" }} onClick={handleLabelClick} ref={ref}>
+    <Flex
+      align="center"
+      sx={{
+        cursor: "pointer"
+      }}
+      ref={ref}
+    >
       <Checkbox
         p="0.4rem"
-        label={
-          <TooltipDefault floating label={`${label}の楽曲一覧を見る`}>
-            <Box>{label}</Box>
-          </TooltipDefault>
-        }
         checked={checked}
         size="md"
         color={color}
         onChange={() => onClick(id)}
-        styles={theme => ({
+        styles={{
           root: {
-            borderRadius: "5px",
+            borderTopLeftRadius: "5px",
+            borderBottomLeftRadius: "5px",
             transition,
             backgroundColor:
               hovered && !isTouchDevice ? theme.colors[color][0] : ""
           },
-          body: {
-            cursor: "pointer",
-            wordBreak: "break-all"
-          },
-          inner: {
-            position: "relative",
-            zIndex: ZINDEX_NUMBERS.NAVBAR_CHECKBOX_INNER
-          },
-          labelWrapper: {
-            width: "100%",
-            position: "relative",
-            zIndex: ZINDEX_NUMBERS.NAVBAR_CHECKBOX_LABEL_WRAPPER
-          },
           input: {
             cursor: "pointer"
-          },
-          label: {
-            cursor: "pointer",
-            transition,
-            fontWeight: !isTouchDevice && hovered ? 700 : 500,
-            transform: !isTouchDevice && hovered ? "translateX(-4px)" : "",
-            lineHeight: 1.4
           }
-        })}
+        }}
       />
-    </Box>
+
+      <Text
+        w="100%"
+        p="0.4rem"
+        weight={!isTouchDevice && hovered ? 700 : 500}
+        lh={1.4}
+        bg={hovered && !isTouchDevice ? theme.colors[color][0] : ""}
+        sx={{
+          borderTopRightRadius: "5px",
+          borderBottomRightRadius: "5px",
+          transition,
+          transform: !isTouchDevice && hovered ? "translateX(-4px)" : "",
+          wordBreak: "break-all"
+        }}
+        onClick={() => onLabelClick()}
+      >
+        {label}
+      </Text>
+    </Flex>
   )
 }
 
