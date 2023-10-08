@@ -7,6 +7,9 @@ type Props = {
   trackInfo: Track | undefined
   playbackPosition: number
   isPlaying: boolean
+  isPreparingPlayback: boolean
+  hasNextTrack: boolean
+  hasPreviousTrack: boolean
   onPause: () => Promise<void>
   onResume: () => Promise<void>
   onNextTrack: () => Promise<void>
@@ -19,6 +22,9 @@ const useMediaSession = ({
   trackInfo,
   playbackPosition,
   isPlaying,
+  isPreparingPlayback,
+  hasNextTrack,
+  hasPreviousTrack,
   onPause,
   onResume,
   onNextTrack,
@@ -138,10 +144,21 @@ const useMediaSession = ({
         return
       })
 
-      navigator.mediaSession.setActionHandler("nexttrack", () => onNextTrack())
-      navigator.mediaSession.setActionHandler("previoustrack", () =>
-        onPreviousTrack()
-      )
+      if (!isPreparingPlayback && trackInfo && hasNextTrack) {
+        navigator.mediaSession.setActionHandler("nexttrack", () =>
+          onNextTrack()
+        )
+      } else {
+        navigator.mediaSession.setActionHandler("nexttrack", null)
+      }
+
+      if (!isPreparingPlayback && trackInfo && hasPreviousTrack) {
+        navigator.mediaSession.setActionHandler("previoustrack", () =>
+          onPreviousTrack()
+        )
+      } else {
+        navigator.mediaSession.setActionHandler("previoustrack", null)
+      }
 
       navigator.mediaSession.setActionHandler("seekto", async e => {
         const { seekTime } = e // seekTimeは秒単位
@@ -157,7 +174,10 @@ const useMediaSession = ({
     onResume,
     setMediaMetadata,
     trackInfo,
-    onSeekTo
+    onSeekTo,
+    isPreparingPlayback,
+    hasNextTrack,
+    hasPreviousTrack
   ])
 
   return {
