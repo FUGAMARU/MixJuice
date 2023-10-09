@@ -1,5 +1,5 @@
 import { notifications } from "@mantine/notifications"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useWebDAVServer from "./useWebDAVServer"
@@ -13,8 +13,7 @@ import {
 } from "@/types/Track"
 import { shuffleArray } from "@/utils/shuffleArray"
 
-let hasDisplayedNotification = false
-let gettingWebDAVTrackInfoProgress = 0
+let webDAVTrackInfoCachingProgress = 0
 
 const useMIX = () => {
   const { showError, showWarning } = useErrorModal()
@@ -63,6 +62,18 @@ const useMIX = () => {
     [getPlaylistTracks, showWarning]
   )
 
+  const baseObjForNotification = useMemo(
+    () => ({
+      id: "generating-track-caches",
+      withCloseButton: true,
+      title: "楽曲情報のキャッシュを作成中…",
+      color: "webdav",
+      loading: true,
+      autoClose: false
+    }),
+    []
+  )
+
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
       try {
@@ -101,56 +112,44 @@ const useMIX = () => {
 
       /** 以下、「Object.filename」はそのファイルのフルパスを表す */
 
-      const flattenFoldersTracks = foldersTracks.flat()
-
-      console.log(
-        `🟦DEBUG: 全${flattenFoldersTracks.length}曲の楽曲情報をWebDAVサーバー及びIndexedDBから取得します`
+      const flattenFoldersTracks = await Promise.all(
+        foldersTracks.flat().map(async trackFile => {
+          const isKnown = await isTrackInfoExists(trackFile.filename)
+          return { trackFile, isKnown }
+        })
       )
 
-      /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
-      const tracksInformations: TrackWithPath[] = []
+      /** まずは未キャッシュの楽曲があればそれを先にキャッシュしてしまう */
+      const unCachedTracks = flattenFoldersTracks
+        .filter(({ isKnown }) => !isKnown)
+        .map(({ trackFile }) => trackFile)
 
-      /** フォルダーに入っているトラックが多い状態で並列処理すると楽曲情報の取得が終了しないことがあるのでPromise.allは使わない */
-      for (const trackFile of flattenFoldersTracks) {
-        const isKnown = await isTrackInfoExists(trackFile.filename)
+      if (unCachedTracks.length > 0) {
+        notifications.show({
+          ...baseObjForNotification,
+          message: `楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(${webDAVTrackInfoCachingProgress}/${unCachedTracks.length})`
+        })
 
-        let trackInfo: TrackWithPath
-
-        if (isKnown) {
-          trackInfo = (await getIndexedDBTrackInfo(
-            trackFile.filename
-          )) as TrackWithPath
-          gettingWebDAVTrackInfoProgress++
-          console.log(
-            `🟦DEBUG: IndexedDBから楽曲情報を取得しました (${gettingWebDAVTrackInfoProgress}/${flattenFoldersTracks.length})`
-          )
-        } else {
-          if (!hasDisplayedNotification) {
-            notifications.show({
-              withCloseButton: true,
-              title: "楽曲情報のキャッシュを作成中…",
-              message:
-                "楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(WebDAVサーバーが同一ネットワーク上にある場合、キャッシングに1曲あたりおよそ1.5秒を要します。)",
-              color: "webdav",
-              loading: true,
-              autoClose: false
-            })
-            hasDisplayedNotification = true
-          }
-
-          trackInfo = await getWebDAVServerTrackInfo(trackFile)
-          gettingWebDAVTrackInfoProgress++
-          console.log(
-            `🟦DEBUG: WebDAVサーバーから新たに楽曲情報を取得しました (${gettingWebDAVTrackInfoProgress}/${flattenFoldersTracks.length})`
-          )
+        for (const unCachedTrackFile of unCachedTracks) {
+          const trackInfo = await getWebDAVServerTrackInfo(unCachedTrackFile)
           await saveTrackInfo(trackInfo)
+          webDAVTrackInfoCachingProgress++
+          notifications.update({
+            ...baseObjForNotification,
+            message: `楽曲情報のキャッシュが存在しないため楽曲情報のキャッシュを作成します。再生開始までしばらく時間がかかる場合があります。(${webDAVTrackInfoCachingProgress}/${unCachedTracks.length})`
+          })
         }
 
-        tracksInformations.push(trackInfo)
+        notifications.clean()
+        webDAVTrackInfoCachingProgress = 0
       }
 
-      hasDisplayedNotification = false
-      gettingWebDAVTrackInfoProgress = 0
+      /** ↓英単語のInformationにsをつけるのは誤りだが便宜上付ける */
+      const tracksInformations = (await Promise.all(
+        flattenFoldersTracks.map(({ trackFile }) =>
+          getIndexedDBTrackInfo(trackFile.filename)
+        )
+      )) as TrackWithPath[] // 未キャッシュ楽曲は先にキャッシュしているので、配列にundefinedが含まれることはない
 
       return tracksInformations.map(trackWithPath =>
         removePathProperty(trackWithPath)
@@ -165,7 +164,8 @@ const useMIX = () => {
       showWarning,
       checkIsFolderExists,
       checkServerConnectionRoutine,
-      showError
+      showError,
+      baseObjForNotification
     ]
   )
 
@@ -195,8 +195,6 @@ const useMIX = () => {
         baseTracks = [...baseTracks, ...spotifyPlaylistTracks]
       if (webdavFolderTracks)
         baseTracks = [...baseTracks, ...webdavFolderTracks]
-
-      notifications.clean()
 
       return shuffleArray(baseTracks)
     },
