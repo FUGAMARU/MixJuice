@@ -1,0 +1,27 @@
+name: AutoDeploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  main:
+    name: Send Deploy Commands via SSH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Deploy Commands via SSH (step)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            export VOLTA_HOME="$HOME/.volta"
+            export PATH="$VOLTA_HOME/bin:$PATH"
+            cd ~/node/MixJuice
+            pm2 stop mixjuice
+            git fetch
+            git reset --hard origin/main
+            yarn install
+            yarn build
+            pm2 restart mixjuice
