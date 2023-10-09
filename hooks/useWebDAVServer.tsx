@@ -205,6 +205,7 @@ const useWebDAVServer = () => {
 
   return {
     tryServerConnection,
+    checkServerConnectionRoutine,
     checkIsFolderExists,
     getFolderTracks,
     getTrackInfo,

@@ -17,9 +17,10 @@ let hasDisplayedNotification = false
 let gettingWebDAVTrackInfoProgress = 0
 
 const useMIX = () => {
-  const { showWarning } = useErrorModal()
+  const { showError, showWarning } = useErrorModal()
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
   const {
+    checkServerConnectionRoutine,
     getFolderTracks,
     getTrackInfo: getWebDAVServerTrackInfo,
     checkIsFolderExists
@@ -64,6 +65,18 @@ const useMIX = () => {
 
   const getWebDAVFolderTracks = useCallback(
     async (folderPaths: NavbarItem[]) => {
+      try {
+        await checkServerConnectionRoutine()
+      } catch (e) {
+        showWarning("WebDAVサーバーのMIXはスキップされます")
+        showError(e)
+        return []
+      }
+
+      /** これより下はWebDAVサーバーに接続できる前提で処理が進むので、そもそもWebDAVサーバーに接続できるのかを上記のコードでチェックする
+       * getFolderTracksなどの中でもcheckServerConnectionRoutineは実行されるが、MIX処理に関してはNavbarで選択されているWebDAVサーバーのフォルダーが実在しなくとも、それを例外として扱いたくないのでこのような実装にしている
+       */
+
       /** フォルダーが現存するか確認する */
       const availableFolderPaths: NavbarItem[] = []
       for (const folderPath of folderPaths) {
@@ -150,7 +163,9 @@ const useMIX = () => {
       saveTrackInfo,
       getWebDAVServerTrackInfo,
       showWarning,
-      checkIsFolderExists
+      checkIsFolderExists,
+      checkServerConnectionRoutine,
+      showError
     ]
   )
 
