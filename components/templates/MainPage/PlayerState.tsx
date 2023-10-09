@@ -1,4 +1,4 @@
-import { Box, Center, Divider, Flex, Loader, Text } from "@mantine/core"
+import { Badge, Box, Center, Divider, Flex, Loader, Text } from "@mantine/core"
 import { memo, useMemo } from "react"
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
 import { HiVolumeUp } from "react-icons/hi"
@@ -34,7 +34,7 @@ const PlayerState = ({
   return (
     <Center
       py="0.3rem"
-      pl="1.3rem"
+      pl="1rem"
       pr="2rem"
       bg="rgba(0, 0, 0, 0.6)"
       sx={{ transform: "skew(-30deg, 0deg)", borderRadius: "8px 0 0 0" }}
@@ -56,7 +56,19 @@ const PlayerState = ({
                   <Loader color="white" size="1.1rem" />
                 </Box>
               ) : (
-                <Text {...textProps}>{spotifyPlaybackQuality}</Text>
+                <Badge
+                  variant="outline"
+                  color="spotify"
+                  styles={{
+                    root: {
+                      color: "white",
+                      borderColor: "white",
+                      cursor: "default"
+                    }
+                  }}
+                >
+                  {spotifyPlaybackQuality}
+                </Badge>
               )}
             </TooltipDefault>
 

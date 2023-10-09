@@ -164,7 +164,7 @@ const Player = ({
         />
 
         {breakPoint === "PC" && (
-          <Box pos="absolute" right="-15px" bottom={0}>
+          <Box pos="absolute" right="-0.8rem" bottom={0}>
             <PlayerState
               isPlaying={isPlaying}
               isPreparingPlayback={isPreparingPlayback}
