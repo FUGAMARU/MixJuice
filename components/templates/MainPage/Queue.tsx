@@ -13,7 +13,9 @@ import {
   memo,
   SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState
 } from "react"
 import { FixedSizeList } from "react-window"
@@ -54,17 +56,6 @@ const Queue = ({
   const scrollAreaHeight = useMemo(
     () => viewportHeight - STYLING_VALUES.HEADER_HEIGHT - playerHeight,
     [viewportHeight, playerHeight]
-  )
-
-  const handleArtworkPlayButtonClick = useCallback(
-    async (queueItem: Queue) => {
-      try {
-        await onSkipTo(queueItem)
-      } catch (e) {
-        showError(e)
-      }
-    },
-    [onSkipTo, showError]
   )
 
   const [pineconeClassNames, setPineconeClassNames] = useState("")
@@ -120,6 +111,101 @@ const Queue = ({
         set(queueAtom, copiedQueue)
       },
     [setQueue]
+  )
+
+  /** handleArtworkPlayButtonClick -> onSkip -> onPlay -> smartPauseという関数実行フローのsmartPause内でisPlayingを見ているため、楽曲を一時停止したり再開したりすると、このコンポーネントのPropsであるonSkipが変更され、それに連動してJSXも再レンダリングされる結果、キューの描写が一瞬ちらつくのでuseRefを使用することによってそれを防止している */
+  const onSkipToRef = useRef(onSkipTo)
+  useEffect(() => {
+    onSkipToRef.current = onSkipTo
+  }, [onSkipTo])
+
+  const handleArtworkPlayButtonClick = useCallback(
+    async (queueItem: Queue) => {
+      try {
+        await onSkipToRef.current(queueItem)
+      } catch (e) {
+        showError(e)
+      }
+    },
+    [showError]
+  )
+
+  const DroppableComponent = useMemo(
+    () => (
+      <Droppable
+        droppableId="queue"
+        mode="virtual"
+        renderClone={(provided, snapshot, rubric) => {
+          const queueItem = queue[rubric.source.index]
+          return (
+            <QueueItem
+              isClone
+              provided={provided}
+              queueItem={queueItem}
+              canMoveToFront={checkCanMoveToFront(rubric.source.index)}
+              canAddToFront={checkCanAddToFront(
+                rubric.source.index,
+                queue[rubric.source.index].playNext
+              )}
+              hiddenMethod={
+                breakPoint === "SmartPhone" ? "display" : "visibility"
+              }
+            />
+          )
+        }}
+      >
+        {provided => (
+          <FixedSizeList
+            width="100%"
+            height={scrollAreaHeight - STYLING_VALUES.QUEUE_PADDING_TOP}
+            itemCount={queue.length}
+            itemSize={80} // キューのアイテム1つ分の高さ
+            innerRef={provided.innerRef}
+          >
+            {({ index, style }) => {
+              const data = queue[index]
+              return (
+                <div
+                  style={{
+                    ...style,
+                    paddingLeft: "0.5rem",
+                    paddingRight: "0.5rem",
+                    borderTop: index !== 0 ? "solid 1px #ced4da" : "none"
+                  }}
+                >
+                  <Draggable draggableId={data.id} index={index}>
+                    {provided => (
+                      <QueueItem
+                        provided={provided}
+                        queueItem={data}
+                        onArtworkPlayButtonClick={handleArtworkPlayButtonClick}
+                        canMoveToFront={checkCanMoveToFront(index)}
+                        canAddToFront={checkCanAddToFront(index, data.playNext)}
+                        onMoveToFront={onMoveToFront}
+                        onAddToFront={onAddToFront}
+                        hiddenMethod={
+                          breakPoint === "SmartPhone" ? "display" : "visibility"
+                        }
+                      />
+                    )}
+                  </Draggable>
+                </div>
+              )
+            }}
+          </FixedSizeList>
+        )}
+      </Droppable>
+    ),
+    [
+      queue,
+      scrollAreaHeight,
+      breakPoint,
+      checkCanMoveToFront,
+      checkCanAddToFront,
+      onMoveToFront,
+      onAddToFront,
+      handleArtworkPlayButtonClick
+    ]
   )
 
   return (
@@ -178,83 +264,7 @@ const Queue = ({
       )}
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable
-          droppableId="queue"
-          mode="virtual"
-          renderClone={(provided, snapshot, rubric) => {
-            const queueItem = queue[rubric.source.index]
-            return (
-              <QueueItem
-                isClone
-                provided={provided}
-                queueItem={queueItem}
-                onArtworkPlayButtonClick={handleArtworkPlayButtonClick}
-                canMoveToFront={checkCanMoveToFront(rubric.source.index)}
-                canAddToFront={checkCanAddToFront(
-                  rubric.source.index,
-                  queue[rubric.source.index].playNext
-                )}
-                onMoveToFront={onMoveToFront}
-                onAddToFront={onAddToFront}
-                hiddenMethod={
-                  breakPoint === "SmartPhone" ? "display" : "visibility"
-                }
-              />
-            )
-          }}
-        >
-          {provided => (
-            <FixedSizeList
-              width="100%"
-              height={scrollAreaHeight - STYLING_VALUES.QUEUE_PADDING_TOP}
-              itemCount={queue.length}
-              itemSize={80} // キューのアイテム1つ分の高さ
-              innerRef={provided.innerRef}
-            >
-              {({ index, style }) => {
-                const data = queue[index]
-                return (
-                  <div
-                    style={{
-                      ...style,
-                      paddingLeft: "0.5rem",
-                      paddingRight: "0.5rem",
-                      borderTop: index !== 0 ? "solid 1px #ced4da" : "none"
-                    }}
-                  >
-                    <Draggable
-                      //key={data.id}
-                      draggableId={data.id}
-                      index={index}
-                    >
-                      {provided => (
-                        <QueueItem
-                          provided={provided}
-                          queueItem={data}
-                          onArtworkPlayButtonClick={
-                            handleArtworkPlayButtonClick
-                          }
-                          canMoveToFront={checkCanMoveToFront(index)}
-                          canAddToFront={checkCanAddToFront(
-                            index,
-                            data.playNext
-                          )}
-                          onMoveToFront={onMoveToFront}
-                          onAddToFront={onAddToFront}
-                          hiddenMethod={
-                            breakPoint === "SmartPhone"
-                              ? "display"
-                              : "visibility"
-                          }
-                        />
-                      )}
-                    </Draggable>
-                  </div>
-                )
-              }}
-            </FixedSizeList>
-          )}
-        </Droppable>
+        {DroppableComponent}
       </DragDropContext>
     </Box>
   )

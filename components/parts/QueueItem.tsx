@@ -13,11 +13,11 @@ type Props = {
   isClone?: boolean
   provided: DraggableProvided
   queueItem: Queue
-  onArtworkPlayButtonClick: (queueItem: Queue) => void
+  onArtworkPlayButtonClick?: ((queueItem: Queue) => void) | undefined // hello-pangea/dndのrenderCloneで描写するQueueItemではこの関数は不要なのでundefined許容
   canMoveToFront: boolean
   canAddToFront: boolean
-  onMoveToFront: (trackId: string) => void
-  onAddToFront: (trackId: string) => void
+  onMoveToFront?: ((trackId: string) => void) | undefined // hello-pangea/dndのrenderCloneで描写するQueueItemではこの関数は不要なのでundefined許容
+  onAddToFront?: ((trackId: string) => void) | undefined // hello-pangea/dndのrenderCloneで描写するQueueItemではこの関数は不要なのでundefined許容
   hiddenMethod: "display" | "visibility"
 }
 
@@ -59,15 +59,17 @@ const QueueItem = ({
           image={queueItem.image}
           title={queueItem.title}
           caption={` / ${queueItem.artist}`}
-          onArtworkPlayButtonClick={() => onArtworkPlayButtonClick(queueItem)}
+          onArtworkPlayButtonClick={() =>
+            onArtworkPlayButtonClick && onArtworkPlayButtonClick(queueItem)
+          }
         />
       </Flex>
 
       <QueueOperator
         canMoveToFront={canMoveToFront}
         canAddToFront={canAddToFront}
-        onMoveToFront={() => onMoveToFront(queueItem.id)}
-        onAddToFront={() => onAddToFront(queueItem.id)}
+        onMoveToFront={() => onMoveToFront && onMoveToFront(queueItem.id)}
+        onAddToFront={() => onAddToFront && onAddToFront(queueItem.id)}
         hiddenMethod={hiddenMethod}
       />
     </Flex>
