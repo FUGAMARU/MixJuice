@@ -22,7 +22,7 @@ type Props = {
   canMoveToFront: boolean
   canAddToFront: boolean
   onClose: () => void
-  onPlayWithTrackInfo: (track: Track) => Promise<void>
+  onPlay: (track: Track) => Promise<void>
   onMoveNewTrackToFront: (track: Track) => void
   onAddNewTrackToFront: (track: Track) => void
 }
@@ -36,7 +36,7 @@ const TrackModal = ({
   canMoveToFront,
   canAddToFront,
   onClose,
-  onPlayWithTrackInfo,
+  onPlay,
   onMoveNewTrackToFront,
   onAddNewTrackToFront
 }: Props) => {
@@ -45,9 +45,9 @@ const TrackModal = ({
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
       onClose()
-      await onPlayWithTrackInfo(track)
+      await onPlay(track)
     },
-    [onClose, onPlayWithTrackInfo]
+    [onClose, onPlay]
   )
 
   /** 冗長だが見返しやすいのでこの書き方をしている */

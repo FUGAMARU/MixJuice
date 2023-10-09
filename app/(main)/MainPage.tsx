@@ -81,7 +81,6 @@ const MainPage = () => {
     spotifyPlaybackQuality,
     isPreparingPlayback,
     setIsPreparingPlayback,
-    onPlayWithTrackInfo,
     onMoveNewTrackToFront,
     onAddNewTrackToFront,
     onSeekTo
@@ -141,7 +140,7 @@ const MainPage = () => {
         canMoveToFront={queue.length > 0}
         canAddToFront={isPlaying}
         onClose={() => setIsSearchModalOpen(false)}
-        onPlayWithTrackInfo={onPlayWithTrackInfo}
+        onPlay={onPlay}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
         onAddNewTrackToFront={onAddNewTrackToFront}
       />
@@ -155,7 +154,7 @@ const MainPage = () => {
         canMoveToFront={queue.length > 0}
         canAddToFront={isPlaying}
         onClose={handleTrackModalClose} // useCallbackを経由せずにコールバックで直接stateを変更すると再レンダリングが走りまくってしまい、react-windowの表示がおかしくなる。
-        onPlayWithTrackInfo={onPlayWithTrackInfo}
+        onPlay={onPlay}
         onMoveNewTrackToFront={onMoveNewTrackToFront}
         onAddNewTrackToFront={onAddNewTrackToFront}
       />

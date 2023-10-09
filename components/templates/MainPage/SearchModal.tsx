@@ -17,7 +17,7 @@ type Props = {
   canMoveToFront: boolean
   canAddToFront: boolean
   onClose: () => void
-  onPlayWithTrackInfo: (track: Track) => Promise<void>
+  onPlay: (track: Track) => Promise<void>
   onMoveNewTrackToFront: (track: Track) => void
   onAddNewTrackToFront: (track: Track) => void
 }
@@ -27,7 +27,7 @@ const SearchModal = ({
   canMoveToFront,
   canAddToFront,
   onClose,
-  onPlayWithTrackInfo,
+  onPlay,
   onMoveNewTrackToFront,
   onAddNewTrackToFront
 }: Props) => {
@@ -58,10 +58,10 @@ const SearchModal = ({
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
       onClose()
-      await onPlayWithTrackInfo(track)
+      await onPlay(track)
       resetAll()
     },
-    [onClose, onPlayWithTrackInfo, resetAll]
+    [onClose, onPlay, resetAll]
   )
 
   return (
