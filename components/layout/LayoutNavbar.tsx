@@ -26,6 +26,7 @@ import { useRecoilState, useSetRecoilState } from "recoil"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarItemButton from "../parts/navbar/NavbarItemButton"
+import { loadingAtom } from "@/atoms/loadingAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -66,6 +67,7 @@ const LayoutNavbar = ({
   setIsPreparingPlayback
 }: Props) => {
   const router = useRouter()
+  const setIsLoading = useSetRecoilState(loadingAtom)
   const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
@@ -369,7 +371,14 @@ const LayoutNavbar = ({
 
           <NavbarItemButton
             icon={<GrConnect />}
-            onClick={() => router.push("/connect")}
+            onClick={async () => {
+              setIsLoading({
+                stateChangedOn: "MainPage",
+                state: true
+              })
+              await new Promise(resolve => setTimeout(resolve, 300))
+              router.push("/connect")
+            }}
           >
             サービス接続設定
           </NavbarItemButton>

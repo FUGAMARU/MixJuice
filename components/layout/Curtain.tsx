@@ -37,12 +37,18 @@ const Curtain = ({ children }: Children) => {
 
   useEffect(() => {
     ;(async () => {
-      if (!isLoading) {
+      if (!isLoading.state) {
         await new Promise(resolve => setTimeout(resolve, 1500))
         setClassName("animate__animated animate__fadeOut")
 
         await new Promise(resolve => setTimeout(resolve, 1000))
         setIsDisplay(false)
+        return
+      }
+
+      if (isLoading.state && isLoading.stateChangedOn !== "initial") {
+        setIsDisplay(true)
+        setClassName("animate__animated animate__fadeIn")
       }
     })()
   }, [isLoading])

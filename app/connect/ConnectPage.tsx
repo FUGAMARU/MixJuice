@@ -74,7 +74,10 @@ const ConnectPage = () => {
   const setIsLoading = useSetRecoilState(loadingAtom)
   useEffect(() => {
     ;(async () => {
-      setIsLoading(false)
+      setIsLoading({
+        stateChangedOn: "ConnectPage",
+        state: false
+      })
 
       if (!provider) return
 

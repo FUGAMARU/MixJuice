@@ -1,6 +1,8 @@
 import { Flex, Box, Title, Text, Center } from "@mantine/core"
 import { useRouter } from "next/navigation"
 import { memo } from "react"
+import { useSetRecoilState } from "recoil"
+import { loadingAtom } from "@/atoms/loadingAtom"
 import ArrowTextButton from "@/components/parts/ArrowTextButton"
 import ProviderSelectorItem from "@/components/parts/ProviderSelectorItem"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -21,6 +23,7 @@ const ProviderSelector = ({
   onShowWebDAVConnector
 }: Props) => {
   const router = useRouter()
+  const setIsLoading = useSetRecoilState(loadingAtom)
   const { setRespVal } = useBreakPoints()
   const { settingState: spotifySettingState } = useSpotifySettingState()
   const { settingState: webDAVSettingState } = useWebDAVSettingState()
@@ -57,7 +60,17 @@ const ProviderSelector = ({
 
         {(spotifySettingState === "done" || webDAVSettingState === "done") && (
           <Center mt="3rem">
-            <ArrowTextButton direction="right" onClick={() => router.push("/")}>
+            <ArrowTextButton
+              direction="right"
+              onClick={async () => {
+                setIsLoading({
+                  stateChangedOn: "ConnectPage",
+                  state: true
+                })
+                await new Promise(resolve => setTimeout(resolve, 300))
+                router.push("/")
+              }}
+            >
               メインページに移動する
             </ArrowTextButton>
           </Center>

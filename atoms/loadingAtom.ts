@@ -1,6 +1,12 @@
 import { atom } from "recoil"
 
-export const loadingAtom = atom<boolean>({
+export const loadingAtom = atom<{
+  stateChangedOn: "initial" | "MainPage" | "ConnectPage" | "SpotifyCallbackPage"
+  state: boolean
+}>({
   key: "loadingAtom",
-  default: true
+  default: {
+    stateChangedOn: "initial",
+    state: false
+  }
 })

@@ -54,7 +54,10 @@ const MainPage = () => {
       return
     }
 
-    setIsLoading(false)
+    setIsLoading({
+      stateChangedOn: "MainPage",
+      state: false
+    })
     router.prefetch("/connect")
   }, [setIsLoading, router])
 

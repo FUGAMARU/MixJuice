@@ -11,7 +11,7 @@ import { Children } from "@/types/Children"
 
 type Props = {
   direction: "up" | "down" | "left" | "right"
-  onClick?: () => void
+  onClick?: () => Promise<void> | void
 } & Children
 
 const ArrowTextButton = ({ direction, onClick, children }: Props) => {

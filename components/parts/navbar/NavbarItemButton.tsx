@@ -6,7 +6,7 @@ import { Children } from "@/types/Children"
 
 type Props = {
   icon: React.ReactNode
-  onClick?: () => void | undefined
+  onClick?: () => Promise<void> | void | undefined
 } & Children
 
 const NavbarItemButton = ({ icon, onClick, children }: Props) => {
