@@ -12,6 +12,7 @@ import { queueAtom } from "@/atoms/queueAtom"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
 import { Track, removePlayNextProperty } from "@/types/Track"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   initialize: boolean
@@ -73,7 +74,7 @@ const usePlayer = ({ initialize }: Props) => {
 
         set(queueAtom, currentQueue.slice(1))
       },
-    [setCurrentTrackInfo]
+    [currentTrackInfo, setCurrentTrackInfo] // 「currentTrackInfo」はpickUpTrack内で使っていなくても、depsに含めないとonPlay内で最新のcurrentTrackInfoが取得できない
   )
 
   const onPlayFromPlaybackHistory = useRecoilCallback(
@@ -84,7 +85,7 @@ const usePlayer = ({ initialize }: Props) => {
         await onPlay(currentPlaybackHistory[index], true)
         set(playbackHistoryIndexAtom, index)
       },
-    []
+    [currentTrackInfo] // 「currentTrackInfo」はonPlayFromPlaybackHistory内で使っていなくても、depsに含めないとonPlay内で最新のcurrentTrackInfoが取得できない
   )
 
   const checkAndPlayFromPlaybackHistory = useRecoilCallback(
@@ -108,7 +109,7 @@ const usePlayer = ({ initialize }: Props) => {
 
         return false
       },
-    []
+    [currentTrackInfo] // 「currentTrackInfo」はcheckAndPlayFromPlaybackHistory内で使っていなくても、depsに含めないとonPlay内で最新のcurrentTrackInfoが取得できない
   )
 
   const handleTrackFinish = useCallback(async () => {
@@ -186,17 +187,13 @@ const usePlayer = ({ initialize }: Props) => {
 
   /** 曲送りをする際に、再生中の曲のProviderと次の曲のProviderの組み合わせによって、現在の再生を一時停止させるかどうかが変わってくるので、このsmartPauseで吸収する */
   const smartPause = useCallback(
-    async (nextProvider: Provider) => {
-      /** 楽曲を再生していなかったり、楽曲の一時停止中はポーズさせる必要無い */
-      if (currentTrackInfo === undefined || !isPlaying) return
-
+    async (currentProvider: Provider, nextProvider: Provider) => {
       /** Spotifyの曲同士で曲送りする時に一旦ポーズさせると、次の曲の再生開始時に502 Bad Gatewayが発生する可能性がある (理由不明) */
-      if (currentTrackInfo.provider === "spotify" && nextProvider === "spotify")
-        return
+      if (currentProvider === "spotify" && nextProvider === "spotify") return
 
       await onPause()
     },
-    [currentTrackInfo, onPause, isPlaying]
+    [onPause]
   )
 
   const onNextTrack = useRecoilCallback(
@@ -217,7 +214,7 @@ const usePlayer = ({ initialize }: Props) => {
         setIsPlaying(false)
         pickUpTrack()
       },
-    [currentTrackInfo, pickUpTrack, onPause, checkAndPlayFromPlaybackHistory] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとsmartPause内で最新のcurrentTrackInfoが取得できない
+    [currentTrackInfo, pickUpTrack, onPause, checkAndPlayFromPlaybackHistory] // 「currentTrackInfo」はonNextTrack内で使っていなくても、depsに含めないとonPlay内で最新のcurrentTrackInfoが取得できない
   )
 
   const onPreviousTrack = useCallback(async () => {
@@ -284,7 +281,10 @@ const usePlayer = ({ initialize }: Props) => {
     async (track: Track, inPlaybackHistory?: boolean) => {
       setIsPreparingPlayback(true)
       setCurrentTrackInfo(track)
-      await smartPause(track.provider)
+
+      if (isDefined(currentTrackInfo)) {
+        await smartPause(currentTrackInfo.provider, track.provider)
+      }
 
       try {
         await retry(
@@ -338,7 +338,8 @@ const usePlayer = ({ initialize }: Props) => {
       onNextTrack,
       setPlaybackHistory,
       setPlaybackHistoryIndex,
-      smartPause
+      smartPause,
+      currentTrackInfo
     ]
   )
 
