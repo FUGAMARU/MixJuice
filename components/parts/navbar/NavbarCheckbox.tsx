@@ -32,7 +32,12 @@ const NavbarCheckbox = ({
     <Flex
       align="center"
       sx={{
-        cursor: "pointer"
+        cursor: "pointer",
+        borderRadius: "5px",
+        transition,
+        "&:hover": !isTouchDevice && {
+          backgroundColor: theme.colors[color][0]
+        }
       }}
       ref={ref}
     >
@@ -43,13 +48,6 @@ const NavbarCheckbox = ({
         color={color}
         onChange={() => onClick(id)}
         styles={{
-          root: {
-            borderTopLeftRadius: "5px",
-            borderBottomLeftRadius: "5px",
-            transition,
-            backgroundColor:
-              hovered && !isTouchDevice ? theme.colors[color][0] : ""
-          },
           input: {
             cursor: "pointer"
           }
@@ -63,13 +61,11 @@ const NavbarCheckbox = ({
         lh={1.4}
         bg={hovered && !isTouchDevice ? theme.colors[color][0] : ""}
         sx={{
-          borderTopRightRadius: "5px",
-          borderBottomRightRadius: "5px",
           transition,
           transform: !isTouchDevice && hovered ? "translateX(-4px)" : "",
           wordBreak: "break-all"
         }}
-        onClick={() => onLabelClick()}
+        onClick={onLabelClick}
       >
         {label}
       </Text>
