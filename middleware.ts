@@ -50,10 +50,11 @@ const generateCspHeader = (nonce: string): string => {
     "http:",
     // 開発環境ではevalを許可
     process.env.NODE_ENV === "development" && "'unsafe-eval'",
-    `'nonce-${nonce}'`
+    `'nonce-${nonce}'`,
     // Twitterの埋め込みやGoogle Tag Managerを使っている場合は適宜設定
     //"https://www.googletagmanager.com",
     //"https://platform.twitter.com"
+    "'strict-dynamic'"
   ]
     .filter(Boolean)
     .join(" ")
