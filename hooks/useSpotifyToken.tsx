@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { SESSION_STORAGE_KEYS } from "@/constants/SessionStorageKeys"
 import { Pkce } from "@/types/Pkce"
 
 type Props = {
@@ -60,8 +61,8 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const scope =
         "user-read-private user-read-email playlist-read-private playlist-read-collaborative streaming"
 
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.PKCE_CONFIG,
+      sessionStorage.setItem(
+        SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG,
         JSON.stringify({ codeVerifier, clientId, redirectUri } as Pkce)
       )
 
@@ -80,7 +81,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
 
   const getAccessToken = useCallback(
     async (code: string) => {
-      const pkceConfig = localStorage.getItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
+      const pkceConfig = sessionStorage.getItem(
+        SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG
+      )
 
       if (pkceConfig === null)
         throw new SpotifyAuthError(
@@ -118,7 +121,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
           res.data.refresh_token
         )
 
-        localStorage.removeItem(LOCAL_STORAGE_KEYS.PKCE_CONFIG)
+        sessionStorage.removeItem(SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG)
       } catch (e) {
         console.log("🟥ERROR: ", e)
         throw new SpotifyAuthError(
