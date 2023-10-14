@@ -1,0 +1,15 @@
+.slideIn {
+  animation: slideInAnimation 2s ease-in-out;
+  animation-fill-mode: forwards;
+  height: 0;
+}
+
+@keyframes slideInAnimation {
+  0% {
+    heiht: 0;
+  }
+
+  100% {
+    height: 100%;
+  }
+}

@@ -28,6 +28,7 @@ const Curtain = ({ children }: Children) => {
     []
   )
   const isConnectPage = useMemo(() => pathname === "/connect", [pathname])
+  const isSigninPage = useMemo(() => pathname === "/signin", [pathname])
 
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")
@@ -94,7 +95,7 @@ const Curtain = ({ children }: Children) => {
 
       <LayoutHeader shouldShowBurger={!isConnectPage && breakPoint !== "PC"} />
 
-      {isConnectPage ? (
+      {isConnectPage || isSigninPage ? (
         <Box h={screenHeightWithoutHeader}>{children}</Box>
       ) : (
         children
