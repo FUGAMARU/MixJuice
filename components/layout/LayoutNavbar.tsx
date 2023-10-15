@@ -23,6 +23,7 @@ import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { GrConnect } from "react-icons/gr"
 import { useRecoilState, useSetRecoilState } from "recoil"
+import GradientButton from "../parts/GradientButton"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarItemButton from "../parts/navbar/NavbarItemButton"
@@ -33,8 +34,6 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useMIX from "@/hooks/useMIX"
-import useTouchDevice from "@/hooks/useTouchDevice"
-import { greycliffCF } from "@/styles/fonts"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
@@ -68,7 +67,6 @@ const LayoutNavbar = ({
 }: Props) => {
   const router = useRouter()
   const setIsLoading = useSetRecoilState(loadingAtom)
-  const { isTouchDevice } = useTouchDevice()
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
@@ -254,29 +252,18 @@ const LayoutNavbar = ({
             onClick={() => setIsSearchModalOpen(true)}
           />
 
-          <Button
-            ff={greycliffCF.style.fontFamily}
+          <GradientButton
+            size="sm"
+            ff="greycliffCF"
+            fz="1.1rem"
             fw={800}
-            variant="gradient"
-            gradient={{ from: "#2afadf", to: "#4c83ff" }}
-            sx={{
-              transition: "all .2s ease-in-out",
-              "&:hover": {
-                transform: isTouchDevice ? "" : "scale(1.02)"
-              }
-            }}
-            styles={{
-              label: {
-                fontSize: "1.1rem",
-                letterSpacing: "0.05rem"
-              }
-            }}
-            loading={isMixing}
+            letterSpacing="0.1rem"
             disabled={checkedItems.length === 0}
+            loading={isMixing}
             onClick={handleMixButtonClick}
           >
             {isMixing ? "MIXING…!" : "MIX!"}
-          </Button>
+          </GradientButton>
 
           <Group grow position="center">
             <Button

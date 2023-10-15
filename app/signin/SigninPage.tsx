@@ -5,7 +5,6 @@ import {
   Box,
   Input,
   Divider,
-  Button,
   Flex,
   Text,
   PasswordInput,
@@ -21,19 +20,17 @@ import { TfiEmail } from "react-icons/tfi"
 import { useRecoilValue } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
+import GradientButton from "@/components/parts/GradientButton"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
-import useTouchDevice from "@/hooks/useTouchDevice"
 import styles from "@/styles/SigninPage.module.css"
-import { greycliffCF } from "@/styles/fonts"
 import { isDefined } from "@/utils/isDefined"
 
 const SigninPage = () => {
   const { showError } = useErrorModal()
   const { setRespVal } = useBreakPoints()
-  const { isTouchDevice } = useTouchDevice()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
 
   const { checkUserExists, signUp, user } = useAuth()
@@ -288,26 +285,17 @@ const SigninPage = () => {
           </Box>
 
           <Center>
-            <Button
+            <GradientButton
               size="xs"
-              ff={greycliffCF.style.fontFamily}
+              ff="greycliffCF"
               fz="1rem"
               fw={800}
-              variant="gradient"
-              gradient={{ from: "#2afadf", to: "#4c83ff" }}
-              sx={{
-                transition: "all .2s ease-in-out",
-                "&:hover": {
-                  transform: isTouchDevice ? "" : "scale(1.02)"
-                }
-              }}
-              loading={isGoButtonLoading}
-              loaderProps={{ type: "dots" }}
               //disabled={checkedItems.length === 0}
+              loading={isGoButtonLoading}
               onClick={handleGoButtonClick}
             >
               {authState === "NOT_REGISTERED" ? "REGISTER!" : "GO!"}
-            </Button>
+            </GradientButton>
           </Center>
         </Stack>
 
@@ -328,41 +316,26 @@ const SigninPage = () => {
           </Text>
 
           <Group sx={{ justifyContent: "center" }}>
-            <Button
+            <GradientButton
               size="xs"
+              ff="notoSansJP"
               fz="0.9rem"
               fw={600}
-              variant="gradient"
-              gradient={{ from: "#2afadf", to: "#4c83ff" }}
-              sx={{
-                transition: "all .2s ease-in-out",
-                "&:hover": {
-                  transform: isTouchDevice ? "" : "scale(1.02)"
-                }
-              }}
               loading={isResendVerificationMailButtonLoading}
-              loaderProps={{ type: "dots" }}
               onClick={handleResendVerificationMailButtonClick}
             >
               再送信する
-            </Button>
+            </GradientButton>
 
-            <Button
+            <GradientButton
               size="xs"
+              ff="notoSansJP"
               fz="0.9rem"
               fw={600}
-              variant="gradient"
-              gradient={{ from: "#2afadf", to: "#4c83ff" }}
-              sx={{
-                transition: "all .2s ease-in-out",
-                "&:hover": {
-                  transform: isTouchDevice ? "" : "scale(1.02)"
-                }
-              }}
               onClick={() => window.location.reload()}
             >
               クリックした
-            </Button>
+            </GradientButton>
           </Group>
         </Box>
       </Flex>
