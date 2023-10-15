@@ -4,12 +4,14 @@ import {
 } from "firebase/auth"
 import { getDoc, doc } from "firebase/firestore"
 import { useCallback } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import useStorage from "./useStorage"
 import { FIRESTORE_USERDATA_COLLECTION_NAME } from "@/constants/Firestore"
-import { auth, db } from "@/utils/firebase"
+import { db, auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 
 const useAuth = () => {
+  const [user] = useAuthState(auth)
   const { createNewHashedPassword, createNewUserDocument } = useStorage()
 
   const checkUserExists = useCallback(async (email: string) => {
@@ -46,7 +48,7 @@ const useAuth = () => {
     [createNewHashedPassword, createNewUserDocument]
   )
 
-  return { checkUserExists, signUp } as const
+  return { checkUserExists, signUp, user } as const
 }
 
 export default useAuth

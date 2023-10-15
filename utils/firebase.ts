@@ -1,4 +1,4 @@
-import { getApps, initializeApp } from "firebase/app"
+import { getApp, getApps, initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
@@ -17,7 +17,11 @@ const areAllEnvVarsSet = Object.values(firebaseConfig).every(
 if (!areAllEnvVarsSet)
   throw new Error("Firebase用の環境変数が正しく設定されていません")
 
-if (!getApps()?.length) initializeApp(firebaseConfig)
+if (getApps().length) {
+  getApp()
+} else {
+  initializeApp(firebaseConfig)
+}
 
-export const db = getFirestore()
 export const auth = getAuth()
+export const db = getFirestore()

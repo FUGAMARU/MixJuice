@@ -12,31 +12,40 @@ import {
   Stack,
   Group
 } from "@mantine/core"
+import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
-import { memo, useCallback, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
+import { TfiEmail } from "react-icons/tfi"
 import { useRecoilValue } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useErrorModal from "@/hooks/useErrorModal"
 import useTouchDevice from "@/hooks/useTouchDevice"
 import styles from "@/styles/SigninPage.module.css"
 import { greycliffCF } from "@/styles/fonts"
+import { isDefined } from "@/utils/isDefined"
 
 const SigninPage = () => {
+  const { showError } = useErrorModal()
   const { setRespVal } = useBreakPoints()
   const { isTouchDevice } = useTouchDevice()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
 
-  const { checkUserExists, signUp } = useAuth()
+  const { checkUserExists, signUp, user } = useAuth()
 
   const [authState, setAuthState] = useState<
     "NOT_SIGNIN" | "NOT_REGISTERED" | "EMAIL_NOT_VERIFIED" | "DONE"
   >("NOT_SIGNIN")
 
   const [isGoButtonLoading, setIsGoButtonLoading] = useState(false)
+  const [
+    isResendVerificationMailButtonLoading,
+    setIsResendVerificationMailButtonLoading
+  ] = useState(false)
 
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
@@ -56,8 +65,14 @@ const SigninPage = () => {
             return
           }
 
+          if (isDefined(user) && !user.emailVerified) {
+            setAuthState("EMAIL_NOT_VERIFIED")
+            return
+          }
+
           try {
             // TODO: サインイン処理
+            console.log("サインイン処理")
             setAuthState("DONE")
           } catch {}
           break
@@ -67,19 +82,37 @@ const SigninPage = () => {
               emailRef.current?.value ?? "",
               passwordRef.current?.value ?? ""
             )
-            // TODO: Email認証してください的な表示
             setAuthState("EMAIL_NOT_VERIFIED")
-          } catch {}
-        case "EMAIL_NOT_VERIFIED":
-          // TODO: メールアドレス認証メールを再送信用ボタンのマークアップとそれを出現させる処理
-          // TODO: この状態では、認証メールの再送信ボタンと、認証が済んだかのチェック用ボタンの2つが表示される
-          // TODO: 認証が済んだかボタンを押下して、無事に認証が済んでいたら、DONEに遷移する
+          } catch (e) {
+            showError(e)
+          }
           break
       }
     } finally {
       setIsGoButtonLoading(false)
     }
-  }, [authState, checkUserExists, signUp])
+  }, [authState, checkUserExists, signUp, user, showError])
+
+  const handleResendVerificationMailButtonClick = useCallback(async () => {
+    if (!isDefined(user)) return
+
+    setIsResendVerificationMailButtonLoading(true)
+    await sendEmailVerification(user)
+    setIsResendVerificationMailButtonLoading(false)
+  }, [user])
+
+  const [isDisplaySigninForm, setIsDisplaySigninForm] = useState(true)
+  const [isDisplayVerificationEmailText, setIsDisplayVerificationEmailText] =
+    useState(false)
+  useEffect(() => {
+    ;(async () => {
+      if (authState !== "EMAIL_NOT_VERIFIED") return
+
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setIsDisplaySigninForm(false)
+      setIsDisplayVerificationEmailText(true)
+    })()
+  }, [authState])
 
   return (
     <Center h="100%">
@@ -113,14 +146,22 @@ const SigninPage = () => {
                 alt="Randomized MixJuice Logo"
               />
             </Box>
-            <Text fz={setRespVal("0.7rem", "0.8rem", "0.8rem")}>
+            <Text fz={setRespVal("0.7rem", "0.75rem", "0.75rem")}>
               サービスを利用するにはサインインが必要です
             </Text>
           </Stack>
 
           <Divider mt="sm" mb="xl" variant="dotted" />
 
-          <Stack spacing="md">
+          <Stack
+            className={
+              authState === "EMAIL_NOT_VERIFIED"
+                ? "animate__animated animate__fadeOut"
+                : ""
+            }
+            spacing="md"
+            sx={{ display: isDisplaySigninForm ? "flex" : "none" }}
+          >
             <Flex>
               <Center
                 px="0.5rem"
@@ -199,15 +240,26 @@ const SigninPage = () => {
             </Flex>
 
             <Box
-              className={authState === "NOT_REGISTERED" ? styles.slideIn : ""}
-              sx={{
-                display: authState === "NOT_REGISTERED" ? "block" : "none"
-              }}
+              className={
+                authState === "NOT_REGISTERED"
+                  ? styles.slideIn
+                  : authState === "EMAIL_NOT_VERIFIED"
+                  ? styles.slideOut
+                  : styles.retypePassword
+              }
             >
               <Flex
                 w="100%"
-                className="animate__animated animate__fadeIn"
-                sx={{ animationDelay: ".5s" }}
+                className={
+                  authState === "NOT_REGISTERED"
+                    ? "animate__animated animate__fadeIn"
+                    : authState === "EMAIL_NOT_VERIFIED"
+                    ? "animate__animated animate__fadeOut"
+                    : ""
+                }
+                sx={{
+                  animationDelay: authState === "NOT_REGISTERED" ? ".5s" : "0"
+                }}
               >
                 <Center
                   px="0.5rem"
@@ -270,6 +322,61 @@ const SigninPage = () => {
               </Button>
             </Center>
           </Stack>
+
+          <Box
+            className={
+              isDisplayVerificationEmailText
+                ? "animate__animated animate__fadeIn"
+                : ""
+            }
+            sx={{
+              display: isDisplayVerificationEmailText ? "box" : "none",
+              animationDelay: ".5s"
+            }}
+          >
+            <TfiEmail size="2rem" color={STYLING_VALUES.TEXT_COLOR_DEFAULT} />
+            <Text mt="0.3rem" mb="sm" fz="0.8rem" fw={700}>
+              入力したメールアドレスに送信されたリンクをクリックしてメールアドレスを確認してください
+            </Text>
+
+            <Group sx={{ justifyContent: "center" }}>
+              <Button
+                size="xs"
+                fz="0.9rem"
+                fw={600}
+                variant="gradient"
+                gradient={{ from: "#2afadf", to: "#4c83ff" }}
+                sx={{
+                  transition: "all .2s ease-in-out",
+                  "&:hover": {
+                    transform: isTouchDevice ? "" : "scale(1.02)"
+                  }
+                }}
+                loading={isResendVerificationMailButtonLoading}
+                loaderProps={{ type: "dots" }}
+                onClick={handleResendVerificationMailButtonClick}
+              >
+                再送信する
+              </Button>
+
+              <Button
+                size="xs"
+                fz="0.9rem"
+                fw={600}
+                variant="gradient"
+                gradient={{ from: "#2afadf", to: "#4c83ff" }}
+                sx={{
+                  transition: "all .2s ease-in-out",
+                  "&:hover": {
+                    transform: isTouchDevice ? "" : "scale(1.02)"
+                  }
+                }}
+                onClick={() => window.location.reload()}
+              >
+                クリックした
+              </Button>
+            </Group>
+          </Box>
         </Flex>
       </Box>
     </Center>

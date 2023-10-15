@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/named
-import { DraggableProvided } from "@hello-pangea/dnd" // 存在するのにeslintが認識してくれない
+import { DraggableProvided } from "@hello-pangea/dnd"
 import { Box, Flex } from "@mantine/core"
 import { memo } from "react"
 import { MdDragIndicator } from "react-icons/md"

@@ -28,5 +28,13 @@
       }
     ]
   },
-  "plugins": ["unused-imports", "import"]
+  "plugins": ["unused-imports", "import"],
+  "settings": {
+    "import/resolver": {
+      "typescript": {},
+      "node": {
+        "extensions": [".js", ".jsx", ".json", ".ts", ".tsx"]
+      }
+    }
+  }
 }

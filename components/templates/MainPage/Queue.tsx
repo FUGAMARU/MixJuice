@@ -2,8 +2,7 @@ import {
   DragDropContext,
   Draggable,
   Droppable,
-  // eslint-disable-next-line import/named
-  DropResult // 存在するのにeslintが認識してくれない
+  DropResult
 } from "@hello-pangea/dnd"
 
 import { Box, Button, Flex, Paper, Text } from "@mantine/core"

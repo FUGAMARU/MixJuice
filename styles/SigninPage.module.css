@@ -1,15 +1,37 @@
+.retypePassword {
+  display: none;
+}
+
 .slideIn {
   animation: slideInAnimation 2s ease-in-out;
   animation-fill-mode: forwards;
   height: 0;
 }
 
+.slideOut {
+  animation: slideOutAnimation 1s ease-in-out;
+  animation-fill-mode: forwards;
+  height: 100%;
+}
+
 @keyframes slideInAnimation {
-  0% {
+  from {
     heiht: 0;
+    display: "block";
   }
 
-  100% {
+  to {
     height: 100%;
+  }
+}
+
+@keyframes slideOutAnimation {
+  from {
+    height: 100%;
+  }
+
+  to {
+    height: 0;
+    display: none;
   }
 }
