@@ -1,6 +1,5 @@
 "use client"
 
-import { Box, Center } from "@mantine/core"
 import { useSearchParams } from "next/navigation"
 import {
   Dispatch,
@@ -15,6 +14,7 @@ import ProviderSelector from "../../components/templates/ConnectPage/ProviderSel
 import SpotifyConnector from "../../components/templates/ConnectPage/SpotifyConnector"
 import WebDAVConnector from "../../components/templates/ConnectPage/WebDAVConnector"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import CardViewDefault from "@/components/parts/CardViewDefault"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 const ConnectPage = () => {
@@ -103,66 +103,55 @@ const ConnectPage = () => {
   }, [setIsLoading, provider, handleSlide])
 
   return (
-    <Center h="100%">
-      <Box
-        h={setRespVal("33rem", "30rem", "30rem")}
-        w={setRespVal("85%", "30rem", "30rem")}
-        px="xl"
-        py="md"
-        bg="white"
-        ta="center"
-        sx={{
-          border: "solid 1px rgba(0, 0, 0, 0.1)",
-          borderRadius: "5px",
-          overflow: "hidden"
-        }}
-      >
-        <ProviderSelector
-          className={providerSelectorClassName}
-          isDisplay={isDisplayProviderSelector}
-          onShowSpotifyConnector={() =>
+    <CardViewDefault
+      h={setRespVal("33rem", "30rem", "30rem")}
+      w={setRespVal("85%", "30rem", "30rem")}
+    >
+      <ProviderSelector
+        className={providerSelectorClassName}
+        isDisplay={isDisplayProviderSelector}
+        onShowSpotifyConnector={() =>
+          handleSlide(
+            "go",
+            setSpotifyConnectorClassName,
+            setIsDisplaySpotifyConnector
+          )
+        }
+        onShowWebDAVConnector={() =>
+          handleSlide(
+            "go",
+            setWebDAVConnectorClassName,
+            setIsDisplayWebDAVConnector
+          )
+        }
+      />
+
+      {isDisplaySpotifyConnector && (
+        <SpotifyConnector
+          className={spotifyConnectorClassName}
+          onBack={() =>
             handleSlide(
-              "go",
+              "back",
               setSpotifyConnectorClassName,
               setIsDisplaySpotifyConnector
             )
           }
-          onShowWebDAVConnector={() =>
+        />
+      )}
+
+      {isDisplayWebDAVConnector && (
+        <WebDAVConnector
+          className={webDAVConnectorClassName}
+          onBack={() =>
             handleSlide(
-              "go",
+              "back",
               setWebDAVConnectorClassName,
               setIsDisplayWebDAVConnector
             )
           }
         />
-
-        {isDisplaySpotifyConnector && (
-          <SpotifyConnector
-            className={spotifyConnectorClassName}
-            onBack={() =>
-              handleSlide(
-                "back",
-                setSpotifyConnectorClassName,
-                setIsDisplaySpotifyConnector
-              )
-            }
-          />
-        )}
-
-        {isDisplayWebDAVConnector && (
-          <WebDAVConnector
-            className={webDAVConnectorClassName}
-            onBack={() =>
-              handleSlide(
-                "back",
-                setWebDAVConnectorClassName,
-                setIsDisplayWebDAVConnector
-              )
-            }
-          />
-        )}
-      </Box>
-    </Center>
+      )}
+    </CardViewDefault>
   )
 }
 
