@@ -13,7 +13,7 @@ import {
 } from "@mantine/core"
 import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
-import { memo, useCallback, useEffect, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
 import { TfiEmail } from "react-icons/tfi"
@@ -45,9 +45,32 @@ const SigninPage = () => {
     setIsResendVerificationMailButtonLoading
   ] = useState(false)
 
-  const emailRef = useRef<HTMLInputElement>(null)
-  const passwordRef = useRef<HTMLInputElement>(null)
-  const retypePasswordRef = useRef<HTMLInputElement>(null)
+  const [emailInput, setEmailInput] = useState("")
+  const [passwordInput, setPasswordInput] = useState("")
+  const [retypePasswordInput, setRetypePasswordInput] = useState("")
+
+  const isValidEmail = useMemo(
+    () => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput),
+    [emailInput]
+  )
+  const hasValidPassword = useMemo(
+    () => passwordInput.length >= 6, // 6文字以上なのはFirebaseの仕様
+    [passwordInput]
+  )
+  const hasValidRetypePassword = useMemo(
+    () => retypePasswordInput === passwordInput,
+    [retypePasswordInput, passwordInput]
+  )
+  const canClickGoButton = useMemo(() => {
+    switch (authState) {
+      case "NOT_SIGNIN":
+        return isValidEmail && hasValidPassword
+      case "NOT_REGISTERED":
+        return isValidEmail && hasValidPassword && hasValidRetypePassword
+      default:
+        return false
+    }
+  }, [authState, isValidEmail, hasValidPassword, hasValidRetypePassword])
 
   const handleGoButtonClick = useCallback(async () => {
     setIsGoButtonLoading(true)
@@ -55,9 +78,7 @@ const SigninPage = () => {
     try {
       switch (authState) {
         case "NOT_SIGNIN":
-          const isUserExists = await checkUserExists(
-            emailRef.current?.value ?? ""
-          )
+          const isUserExists = await checkUserExists(emailInput)
           if (!isUserExists) {
             setAuthState("NOT_REGISTERED")
             return
@@ -76,10 +97,7 @@ const SigninPage = () => {
           break
         case "NOT_REGISTERED":
           try {
-            await signUp(
-              emailRef.current?.value ?? "",
-              passwordRef.current?.value ?? ""
-            )
+            await signUp(emailInput, passwordInput)
             setAuthState("EMAIL_NOT_VERIFIED")
           } catch (e) {
             showError(e)
@@ -89,7 +107,15 @@ const SigninPage = () => {
     } finally {
       setIsGoButtonLoading(false)
     }
-  }, [authState, checkUserExists, signUp, user, showError])
+  }, [
+    authState,
+    checkUserExists,
+    signUp,
+    user,
+    showError,
+    emailInput,
+    passwordInput
+  ])
 
   const handleResendVerificationMailButtonClick = useCallback(async () => {
     if (!isDefined(user)) return
@@ -182,7 +208,7 @@ const SigninPage = () => {
                   height: "auto" // 指定しないとテキストが若干下にずれる
                 }
               }}
-              ref={emailRef}
+              onChange={e => setEmailInput(e.currentTarget.value)}
             />
           </Flex>
 
@@ -220,7 +246,7 @@ const SigninPage = () => {
                   height: "auto" // 指定しないとテキストが若干下にずれる
                 }
               }}
-              ref={passwordRef}
+              onChange={e => setPasswordInput(e.currentTarget.value)}
             />
           </Flex>
 
@@ -279,7 +305,7 @@ const SigninPage = () => {
                     height: "auto" // 指定しないとテキストが若干下にずれる
                   }
                 }}
-                ref={retypePasswordRef}
+                onChange={e => setRetypePasswordInput(e.currentTarget.value)}
               />
             </Flex>
           </Box>
@@ -290,7 +316,7 @@ const SigninPage = () => {
               ff="greycliffCF"
               fz="1rem"
               fw={800}
-              //disabled={checkedItems.length === 0}
+              disabled={!canClickGoButton}
               loading={isGoButtonLoading}
               onClick={handleGoButtonClick}
             >
