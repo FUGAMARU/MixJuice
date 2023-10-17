@@ -11,6 +11,7 @@ import {
   Stack,
   Group
 } from "@mantine/core"
+import { usePrevious } from "@mantine/hooks"
 import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -38,6 +39,7 @@ const SigninPage = () => {
   const [authState, setAuthState] = useState<
     "NOT_SIGNIN" | "NOT_REGISTERED" | "EMAIL_NOT_VERIFIED" | "DONE"
   >("NOT_SIGNIN")
+  const previousAuthState = usePrevious(authState)
 
   const [isGoButtonLoading, setIsGoButtonLoading] = useState(false)
   const [
@@ -254,7 +256,8 @@ const SigninPage = () => {
             className={
               authState === "NOT_REGISTERED"
                 ? styles.slideIn
-                : authState === "EMAIL_NOT_VERIFIED"
+                : previousAuthState === "NOT_REGISTERED" &&
+                  authState === "EMAIL_NOT_VERIFIED"
                 ? styles.slideOut
                 : styles.retypePassword
             }
