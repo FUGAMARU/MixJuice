@@ -1,16 +1,6 @@
 "use client"
 
-import {
-  Center,
-  Box,
-  Input,
-  Divider,
-  Flex,
-  Text,
-  PasswordInput,
-  Stack,
-  Group
-} from "@mantine/core"
+import { Center, Box, Divider, Flex, Text, Stack, Group } from "@mantine/core"
 import { usePrevious } from "@mantine/hooks"
 import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
@@ -22,6 +12,7 @@ import { useRecoilValue } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
 import GradientButton from "@/components/parts/GradientButton"
+import LabeledInput from "@/components/parts/LabeledInput"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -185,82 +176,23 @@ const SigninPage = () => {
           spacing="md"
           sx={{ display: isDisplaySigninForm ? "flex" : "none" }}
         >
-          <Flex>
-            <Center
-              px="0.5rem"
-              bg={STYLING_VALUES.TEXT_COLOR_DEFAULT}
-              sx={{
-                borderTopLeftRadius: "5px",
-                borderBottomLeftRadius: "5px",
-                border: "solid 1px gray",
-                color: "white"
-              }}
-            >
-              <Group spacing="0.2rem">
-                <HiOutlineMail />
-                <Text fz="0.8rem" fw={700} color="white">
-                  メール
-                </Text>
-              </Group>
-            </Center>
-            <Input
-              w="100%"
-              size="xs"
-              type="email"
-              placeholder="mixjuice-user@example.com"
-              sx={{ flex: 1 }}
-              styles={{
-                input: {
-                  borderTopLeftRadius: "0px",
-                  borderBottomLeftRadius: "0px",
-                  borderTopRightRadius: "5px",
-                  borderBottomRightRadius: "5px",
-                  borderWidth: "1px",
-                  borderLeftWidth: "0px",
-                  height: "auto" // 指定しないとテキストが若干下にずれる
-                }
-              }}
-              onChange={e => setEmailInput(e.currentTarget.value)}
-            />
-          </Flex>
+          <LabeledInput
+            type="email"
+            icon={<HiOutlineMail />}
+            label="メール"
+            placeholder="mixjuice-user@example.com"
+            value={emailInput}
+            onChange={e => setEmailInput(e.currentTarget.value)}
+          />
 
-          <Flex>
-            <Center
-              px="0.5rem"
-              bg={STYLING_VALUES.TEXT_COLOR_DEFAULT}
-              sx={{
-                borderTopLeftRadius: "5px",
-                borderBottomLeftRadius: "5px",
-                border: "solid 1px gray",
-                color: "white"
-              }}
-            >
-              <Group spacing="0.2rem">
-                <PiPasswordBold />
-                <Text fz="0.8rem" fw={700} color="white">
-                  パスワード
-                </Text>
-              </Group>
-            </Center>
-            <PasswordInput
-              w="100%"
-              size="xs"
-              placeholder="6文字以上のパスワード"
-              sx={{ flex: 1 }}
-              styles={{
-                input: {
-                  borderTopLeftRadius: "0px",
-                  borderBottomLeftRadius: "0px",
-                  borderTopRightRadius: "5px",
-                  borderBottomRightRadius: "5px",
-                  borderWidth: "1px",
-                  borderLeftWidth: "0px",
-                  height: "auto" // 指定しないとテキストが若干下にずれる
-                }
-              }}
-              onChange={e => setPasswordInput(e.currentTarget.value)}
-            />
-          </Flex>
+          <LabeledInput
+            type="password"
+            icon={<PiPasswordBold />}
+            label="パスワード"
+            placeholder="6文字以上のパスワード"
+            value={passwordInput}
+            onChange={e => setPasswordInput(e.currentTarget.value)}
+          />
 
           <Box
             className={
@@ -272,7 +204,7 @@ const SigninPage = () => {
                 : styles.retypePassword
             }
           >
-            <Flex
+            <Box
               w="100%"
               className={
                 authState === "NOT_REGISTERED"
@@ -285,42 +217,15 @@ const SigninPage = () => {
                 animationDelay: authState === "NOT_REGISTERED" ? ".5s" : "0"
               }}
             >
-              <Center
-                px="0.5rem"
-                bg={STYLING_VALUES.TEXT_COLOR_DEFAULT}
-                sx={{
-                  borderTopLeftRadius: "5px",
-                  borderBottomLeftRadius: "5px",
-                  border: "solid 1px gray",
-                  color: "white"
-                }}
-              >
-                <Group spacing="0.2rem">
-                  <PiPasswordBold />
-                  <Text fz="0.8rem" fw={700} color="white">
-                    パスワード(再入力)
-                  </Text>
-                </Group>
-              </Center>
-              <PasswordInput
-                w="100%"
-                size="xs"
+              <LabeledInput
+                type="password"
+                icon={<PiPasswordBold />}
+                label="パスワード(再入力)"
                 placeholder="6文字以上のパスワード"
-                sx={{ flex: 1 }}
-                styles={{
-                  input: {
-                    borderTopLeftRadius: "0px",
-                    borderBottomLeftRadius: "0px",
-                    borderTopRightRadius: "5px",
-                    borderBottomRightRadius: "5px",
-                    borderWidth: "1px",
-                    borderLeftWidth: "0px",
-                    height: "auto" // 指定しないとテキストが若干下にずれる
-                  }
-                }}
+                value={retypePasswordInput}
                 onChange={e => setRetypePasswordInput(e.currentTarget.value)}
               />
-            </Flex>
+            </Box>
           </Box>
 
           <Center>
