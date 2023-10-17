@@ -2,7 +2,6 @@
 
 import { Center, Box, Divider, Flex, Text, Stack, Group } from "@mantine/core"
 import { usePrevious } from "@mantine/hooks"
-import { FirebaseError } from "firebase/app"
 import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -81,7 +80,10 @@ const SigninPage = () => {
           try {
             const userCredential = await signIn(emailInput, passwordInput)
 
-            if (!userCredential.user.emailVerified) {
+            if (
+              isDefined(userCredential) &&
+              !userCredential.user.emailVerified
+            ) {
               setAuthState("EMAIL_NOT_VERIFIED")
               return
             }
@@ -89,22 +91,7 @@ const SigninPage = () => {
             setAuthState("DONE")
             //TODO: リダイレクト処理 (Provider設定の進み具合によって遷移先を出し分ける)
           } catch (e) {
-            if (e instanceof FirebaseError) {
-              // TODO: auth/user-not-found を使えばユーザーの存在確認できそうなのでFirestoreのドキュメントIDをメアドにする必要ない説
-              switch (
-                e.code // TODO: エラーコード対応拡充？？ (https://firebase.google.com/docs/reference/js/v8/firebase.FirebaseError#code)
-              ) {
-                case "auth/invalid-login-credentials":
-                  showError(
-                    new Error(
-                      "サインインに失敗しました。パスワードが間違っている可能性があります。"
-                    )
-                  )
-                  break
-                default:
-                  showError(new Error("何らかの原因でサインインに失敗しました"))
-              }
-            }
+            showError(e)
           }
           break
         case "NOT_REGISTERED":
