@@ -34,7 +34,7 @@ const SigninPage = () => {
   const { setRespVal } = useBreakPoints()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
 
-  const { checkUserExists, signUp, user } = useAuth()
+  const { checkUserExists, signUp, signIn, user, signOut } = useAuth()
 
   const [authState, setAuthState] = useState<
     "NOT_SIGNIN" | "NOT_REGISTERED" | "EMAIL_NOT_VERIFIED" | "DONE"
@@ -86,15 +86,16 @@ const SigninPage = () => {
             return
           }
 
-          if (isDefined(user) && !user.emailVerified) {
-            setAuthState("EMAIL_NOT_VERIFIED")
-            return
-          }
-
           try {
-            // TODO: サインイン処理
-            console.log("サインイン処理")
+            const userCredential = await signIn(emailInput, passwordInput)
+
+            if (!userCredential.user.emailVerified) {
+              setAuthState("EMAIL_NOT_VERIFIED")
+              return
+            }
+
             setAuthState("DONE")
+            //TODO: リダイレクト処理 (Provider設定の進み具合によって遷移先を出し分ける)
           } catch {}
           break
         case "NOT_REGISTERED":
@@ -113,19 +114,28 @@ const SigninPage = () => {
     authState,
     checkUserExists,
     signUp,
-    user,
     showError,
     emailInput,
-    passwordInput
+    passwordInput,
+    signIn
   ])
 
   const handleResendVerificationMailButtonClick = useCallback(async () => {
     if (!isDefined(user)) return
 
-    setIsResendVerificationMailButtonLoading(true)
-    await sendEmailVerification(user)
-    setIsResendVerificationMailButtonLoading(false)
-  }, [user])
+    try {
+      setIsResendVerificationMailButtonLoading(true)
+      await sendEmailVerification(user)
+      setIsResendVerificationMailButtonLoading(false)
+    } catch (e) {
+      showError(e)
+    }
+  }, [user, showError])
+
+  const handleClickedButtonClick = useCallback(async () => {
+    await signOut()
+    window.location.reload()
+  }, [signOut])
 
   const [isDisplaySigninForm, setIsDisplaySigninForm] = useState(true)
   const [isDisplayVerificationEmailText, setIsDisplayVerificationEmailText] =
@@ -361,7 +371,7 @@ const SigninPage = () => {
               ff="notoSansJP"
               fz="0.9rem"
               fw={600}
-              onClick={() => window.location.reload()}
+              onClick={handleClickedButtonClick}
             >
               クリックした
             </GradientButton>

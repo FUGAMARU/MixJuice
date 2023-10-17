@@ -1,6 +1,8 @@
 import {
   createUserWithEmailAndPassword,
-  sendEmailVerification
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signOut as signOutFromFirebase
 } from "firebase/auth"
 import { getDoc, doc } from "firebase/firestore"
 import { useCallback } from "react"
@@ -48,7 +50,15 @@ const useAuth = () => {
     [createNewHashedPassword, createNewUserDocument]
   )
 
-  return { checkUserExists, signUp, user } as const
+  const signIn = useCallback(async (email: string, password: string) => {
+    return await signInWithEmailAndPassword(auth, email, password)
+  }, [])
+
+  const signOut = useCallback(async () => {
+    await signOutFromFirebase(auth)
+  }, [])
+
+  return { checkUserExists, signUp, signIn, user, signOut } as const
 }
 
 export default useAuth
