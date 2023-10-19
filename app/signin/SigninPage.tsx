@@ -5,6 +5,7 @@ import { usePrevious } from "@mantine/hooks"
 import { sendEmailVerification } from "firebase/auth"
 import Image from "next/image"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
 import { TfiEmail } from "react-icons/tfi"
@@ -18,14 +19,16 @@ import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
 import styles from "@/styles/SigninPage.module.css"
+import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 
 const SigninPage = () => {
   const { showError } = useErrorModal()
   const { setRespVal } = useBreakPoints()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
+  const [user] = useAuthState(auth)
 
-  const { checkUserExists, signUp, signIn, user, signOut } = useAuth()
+  const { checkUserExists, signUp, signIn, signOut } = useAuth()
 
   const [authState, setAuthState] = useState<
     "NOT_SIGNIN" | "NOT_REGISTERED" | "EMAIL_NOT_VERIFIED" | "DONE"

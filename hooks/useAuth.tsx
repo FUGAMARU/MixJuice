@@ -7,14 +7,11 @@ import {
 } from "firebase/auth"
 import { getDoc, doc } from "firebase/firestore"
 import { useCallback } from "react"
-import { useAuthState } from "react-firebase-hooks/auth"
 import useStorage from "./useStorage"
 import { FIRESTORE_USERDATA_COLLECTION_NAME } from "@/constants/Firestore"
 import { db, auth } from "@/utils/firebase"
-import { isDefined } from "@/utils/isDefined"
 
 const useAuth = () => {
-  const [user] = useAuthState(auth)
   const { createNewHashedPassword, createNewUserDocument } = useStorage()
 
   const checkUserExists = useCallback(async (email: string) => {
@@ -25,13 +22,6 @@ const useAuth = () => {
 
   const signUp = useCallback(
     async (email: string, password: string) => {
-      const decryptionVerifyString =
-        process.env.NEXT_PUBLIC_DECRYPTION_VERIFY_STRING
-      if (!isDefined(decryptionVerifyString))
-        throw new Error(
-          "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません"
-        )
-
       /** Firebase Authに登録する */
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -43,7 +33,7 @@ const useAuth = () => {
       await sendEmailVerification(userCredential.user)
 
       /** 復号化検証用のテキストを初期データーとしてユーザーのコレクションを新規作成する */
-      await createNewUserDocument(email, decryptionVerifyString)
+      await createNewUserDocument(email)
     },
     [createNewUserDocument]
   )
@@ -83,7 +73,7 @@ const useAuth = () => {
     await signOutFromFirebase(auth)
   }, [])
 
-  return { checkUserExists, signUp, signIn, user, signOut } as const
+  return { checkUserExists, signUp, signIn, signOut } as const
 }
 
 export default useAuth

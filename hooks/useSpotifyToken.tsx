@@ -1,11 +1,14 @@
 import axios from "axios"
 import { useState, useEffect, useCallback } from "react"
 import { useRecoilState } from "recoil"
+import useStorage from "./useStorage"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { SESSION_STORAGE_KEYS } from "@/constants/SessionStorageKeys"
 import { Pkce } from "@/types/Pkce"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   initialize: boolean
@@ -15,6 +18,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
   /** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
 
   const [accessToken, setAccessToken] = useRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
+  const { getUserData, updateUserData, deleteUserData } = useStorage()
 
   /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
   const [redirectUri, setRedirectUri] = useState("")
@@ -116,8 +120,8 @@ const useSpotifyToken = ({ initialize }: Props) => {
           expiresAt: Math.floor(Date.now() / 1000) + Number(res.data.expires_in)
         })
 
-        localStorage.setItem(
-          LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN,
+        await updateUserData(
+          FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN,
           res.data.refresh_token
         )
 
@@ -129,24 +133,24 @@ const useSpotifyToken = ({ initialize }: Props) => {
         )
       }
     },
-    [setAccessToken]
+    [setAccessToken, updateUserData]
   )
 
-  const deleteAuthConfig = useCallback(() => {
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN)
+  const deleteAuthConfig = useCallback(async () => {
+    await deleteUserData(FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN)
     setAccessToken(undefined)
-  }, [setAccessToken])
+  }, [setAccessToken, deleteUserData])
 
   const refreshAccessToken = useCallback(async () => {
     console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
     const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
-    const refreshToken = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN
+    const refreshToken = await getUserData(
+      FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
     )
 
-    if (clientId === null || refreshToken === null) {
-      deleteAuthConfig()
+    if (!isDefined(clientId) || !isDefined(refreshToken)) {
+      await deleteAuthConfig()
       throw new SpotifyAuthError(
         "Spotify APIのアクセストークンの更新に必要な情報が存在しませんでした。Spotifyに再ログインしてください。"
       )
@@ -181,20 +185,20 @@ const useSpotifyToken = ({ initialize }: Props) => {
         expiresAt
       })
 
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.SPOTIFY_REFRESH_TOKEN,
+      await updateUserData(
+        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN,
         res.data.refresh_token
       )
 
       return token
     } catch (e) {
       console.log("🟥ERROR: ", e)
-      deleteAuthConfig()
+      await deleteAuthConfig()
       throw new SpotifyAuthError(
         "Spotify APIのアクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
-  }, [setAccessToken, deleteAuthConfig])
+  }, [setAccessToken, deleteAuthConfig, getUserData, updateUserData])
 
   /* useMemoにすると、Date.nowがaccessTokenの取得が完了した時点で固定されるのでuseCallbackにする必要がある */
   const hasValidAccessTokenState = useCallback(() => {

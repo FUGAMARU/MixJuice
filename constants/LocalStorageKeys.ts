@@ -3,7 +3,6 @@ export const LOCAL_STORAGE_KEYS = {
   NAVBAR_CHECKED_ITEMS: "navbarCheckedItems", // Navbarでチェックされているアイテムの一覧
   NAVBAR_DRAGGED_WIDTH: "navbarDraggedWidth", // Navbarの幅をドラッグで変更した際の幅
   SPOTIFY_CLIENT_ID: "spotifyClientId", // Spotify APIを利用する際のクライアントID
-  SPOTIFY_REFRESH_TOKEN: "spotifyRefreshToken", // Spotify APIを利用する際のリフレッシュトークン
   SPOTIFY_SELECTED_PLAYLISTS: "spotifySelectedPlaylists", // MixJuiceで使用するSpotifyプレイリストのID一覧
   WEBDAV_ADDRESS: "webdavAddress", // WebDAVサーバーのアドレス
   WEBDAV_USER: "webdavUser", // WebDAVサーバーのユーザー名
