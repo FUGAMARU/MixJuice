@@ -2,9 +2,10 @@ import { Box, Flex, Input, Title, useMantineTheme, Button } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import FolderListModal from "@/components/templates/ConnectPage/FolderListModal"
@@ -13,7 +14,6 @@ import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
-import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import styles from "@/styles/WebDAVConnector.module.css"
 
 type Props = {
@@ -25,7 +25,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const theme = useMantineTheme()
   const { breakPoint } = useBreakPoints()
   const { showError } = useErrorModal()
-  const { settingState } = useWebDAVSettingState()
+  const settingState = useRecoilValue(webDAVSettingStateAtom)
   const { tryServerConnection } = useWebDAVServer()
   const [isConnecting, setIsConnecting] = useState(false)
   const [

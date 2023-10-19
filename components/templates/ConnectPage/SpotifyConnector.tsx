@@ -13,8 +13,9 @@ import { useRouter } from "next/navigation"
 import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { BsInfoCircle } from "react-icons/bs"
-import { useRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
@@ -23,7 +24,6 @@ import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
-import useSpotifySettingState from "@/hooks/useSpotifySettingState"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { ListItemDetail } from "@/types/ListItemDetail"
@@ -44,7 +44,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
   const [isFetchingPlaylists, setIsFetchingPlaylists] = useState(false)
   const { redirectUri, getCode } = useSpotifyToken({ initialize: false })
   const { getPlaylists } = useSpotifyApi({ initialize: false })
-  const { settingState } = useSpotifySettingState()
+  const settingState = useRecoilValue(spotifySettingStateAtom)
   const { showError } = useErrorModal()
 
   const [clientId, setClientId] = useState("")

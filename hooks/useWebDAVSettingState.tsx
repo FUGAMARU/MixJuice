@@ -1,11 +1,15 @@
-import { useEffect, useMemo } from "react"
-import { useRecoilState } from "recoil"
+import { useEffect } from "react"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { ProviderSettingState } from "@/types/ProviderSettingState"
 
-const useWebDAVSettingState = () => {
+type Args = {
+  isLoadingUser: boolean
+}
+
+const useSetWebDAVSettingState = ({ isLoadingUser }: Args) => {
   /**
    * done: WebDAVサーバーへのログイン・フォルダーの指定が完了している
    * setting: WebDAVサーバーへのログインは完了しているが、フォルダーの指定が完了していない
@@ -16,11 +20,20 @@ const useWebDAVSettingState = () => {
   )
   const [folderPath, setFolderPath] = useRecoilState(selectedWebDAVFoldersAtom)
 
-  const settingState = useMemo<ProviderSettingState>(() => {
-    if (isAuthenticated === false) return "none"
-    if (folderPath === undefined) return "setting"
-    return "done"
-  }, [isAuthenticated, folderPath])
+  const setSettingState = useSetRecoilState(webDAVSettingStateAtom)
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      setSettingState("none")
+      return
+    }
+
+    if (folderPath === undefined) {
+      setSettingState("setting")
+      return
+    }
+
+    setSettingState("done")
+  }, [isAuthenticated, folderPath, setSettingState])
 
   /** ページロード時のlocalStorageからRecoilStateへの反映 */
   useEffect(() => {
@@ -41,8 +54,6 @@ const useWebDAVSettingState = () => {
       isAuthenticated ? "true" : "false"
     )
   }, [isAuthenticated])
-
-  return { settingState } as const
 }
 
-export default useWebDAVSettingState
+export default useSetWebDAVSettingState

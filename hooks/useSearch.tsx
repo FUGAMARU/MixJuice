@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react"
+import { useRecoilValue } from "recoil"
 import useErrorModal from "./useErrorModal"
 import useMergedWebDAVServerData from "./useMergedWebDAVServerData"
 import useSpotifyApi from "./useSpotifyApi"
-import useSpotifySettingState from "./useSpotifySettingState"
-import useWebDAVSettingState from "./useWebDAVSettingState"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Track, formatFromSpotifyTrack } from "@/types/Track"
 
@@ -22,8 +23,8 @@ const useSearch = () => {
   const { searchTracks: searchSpotifyTracks } = useSpotifyApi({
     initialize: false
   })
-  const { settingState: webDAVSettingState } = useWebDAVSettingState()
-  const { settingState: spotifySettingState } = useSpotifySettingState()
+  const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
+  const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
   const [spotifySearchNextOffset, setSpotifySearchNextOffset] = useState<
     number | undefined
   >(0)

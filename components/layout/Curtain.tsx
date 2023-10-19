@@ -4,22 +4,21 @@ import { Box } from "@mantine/core"
 import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, memo, useMemo } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
+import { useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useSpotifyApi from "@/hooks/useSpotifyApi"
-import useSpotifyToken from "@/hooks/useSpotifyToken"
+import useInitializer from "@/hooks/useInitializer"
 import { Children } from "@/types/Children"
-import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const Curtain = ({ children }: Children) => {
+  useInitializer()
+
   const pathname = usePathname()
   const { breakPoint } = useBreakPoints()
 
@@ -34,7 +33,7 @@ const Curtain = ({ children }: Children) => {
   const [className, setClassName] = useState("")
   const [isDisplay, setIsDisplay] = useState(true)
 
-  const [faviconIndex, setFaviconIndex] = useRecoilState(faviconIndexAtom)
+  const faviconIndex = useRecoilValue(faviconIndexAtom)
 
   useEffect(() => {
     ;(async () => {
@@ -55,25 +54,6 @@ const Curtain = ({ children }: Children) => {
   }, [isLoading])
 
   useFavicon(faviconIndex ? `/header-logos/logo-${faviconIndex}.png` : "")
-  useEffect(() => {
-    setFaviconIndex(generateRandomNumber(1, 12))
-  }, [setFaviconIndex])
-
-  useSpotifyApi({ initialize: true })
-  useSpotifyToken({ initialize: true })
-
-  useEffect(() => {
-    const localStorageDataFormatVersion = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.LOCAL_STORAGE_DATA_FORMAT_VERSION
-    )
-
-    if (!localStorageDataFormatVersion) {
-      localStorage.setItem(
-        LOCAL_STORAGE_KEYS.LOCAL_STORAGE_DATA_FORMAT_VERSION,
-        "1"
-      )
-    }
-  }, [])
 
   return (
     <>

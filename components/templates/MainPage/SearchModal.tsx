@@ -1,15 +1,16 @@
 import { Box, Center, Flex, Input, Loader, Stack, Text } from "@mantine/core"
 import { memo, useCallback, useEffect, useRef } from "react"
+import { useRecoilValue } from "recoil"
 import ArrowTextButton from "../../parts/ArrowTextButton"
 import ListItem from "../../parts/ListItem"
 import ListItemContainer from "../../parts/ListItemContainer"
 import ModalDefault from "../../parts/ModalDefault"
 import ProviderHeading from "../../parts/ProviderHeading"
 import QueueOperator from "../../parts/QueueOperator"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSearch from "@/hooks/useSearch"
-import useSpotifySettingState from "@/hooks/useSpotifySettingState"
-import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import { Track } from "@/types/Track"
 
 type Props = {
@@ -41,8 +42,8 @@ const SearchModal = ({
     mergedWebDAVSearchResult,
     resetAll
   } = useSearch()
-  const { settingState: spotifySettingState } = useSpotifySettingState()
-  const { settingState: webDAVSettingState } = useWebDAVSettingState()
+  const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
+  const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
 
   const inputRef = useRef<HTMLInputElement>(null)
 

@@ -1,13 +1,13 @@
 import { Flex, Box, Title, Text, Center } from "@mantine/core"
 import { useRouter } from "next/navigation"
 import { memo } from "react"
-import { useSetRecoilState } from "recoil"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import ArrowTextButton from "@/components/parts/ArrowTextButton"
 import ProviderSelectorItem from "@/components/parts/ProviderSelectorItem"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useSpotifySettingState from "@/hooks/useSpotifySettingState"
-import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 
 type Props = {
   className?: string
@@ -25,8 +25,8 @@ const ProviderSelector = ({
   const router = useRouter()
   const setIsLoading = useSetRecoilState(loadingAtom)
   const { setRespVal } = useBreakPoints()
-  const { settingState: spotifySettingState } = useSpotifySettingState()
-  const { settingState: webDAVSettingState } = useWebDAVSettingState()
+  const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
+  const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
 
   return (
     <Center
