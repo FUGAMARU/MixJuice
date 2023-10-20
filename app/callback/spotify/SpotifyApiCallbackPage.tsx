@@ -1,9 +1,12 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { memo, useCallback, useEffect, useRef } from "react"
+import { memo, useEffect, useRef } from "react"
+import { useRecoilValue } from "recoil"
+import { userDataAtom } from "@/atoms/userDataAtom"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
+import { isDefined } from "@/utils/isDefined"
 
 const SpotifyApiCallbackPage = () => {
   const router = useRouter()
@@ -11,21 +14,12 @@ const SpotifyApiCallbackPage = () => {
   const { getAccessToken } = useSpotifyToken({ initialize: false })
   const hasApiCalledRef = useRef(false)
   const { showError } = useErrorModal()
-
-  const handleGetAccessToken = useCallback(
-    async (code: string) => {
-      try {
-        await getAccessToken(code)
-      } catch (e) {
-        throw e
-      }
-    },
-    [getAccessToken]
-  )
+  const userData = useRecoilValue(userDataAtom)
 
   useEffect(() => {
     ;(async () => {
-      if (hasApiCalledRef.current) return
+      if (hasApiCalledRef.current || !isDefined(userData)) return
+
       hasApiCalledRef.current = true
 
       try {
@@ -34,14 +28,14 @@ const SpotifyApiCallbackPage = () => {
         const code = searchParams.get("code")
         if (code === null) throw new Error("パラメーターが指定されていません")
 
-        await handleGetAccessToken(code)
+        await getAccessToken(code)
       } catch (e) {
         showError(e)
       } finally {
         router.push("/connect?provider=spotify")
       }
     })()
-  }, [searchParams, router, handleGetAccessToken, showError])
+  }, [searchParams, router, getAccessToken, showError, userData])
 
   return null
 }

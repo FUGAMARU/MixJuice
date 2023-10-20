@@ -1,9 +1,11 @@
 import CryptoJS from "crypto-js"
 import { setDoc, doc, getDoc, deleteField, updateDoc } from "firebase/firestore"
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 
 import { useAuthState } from "react-firebase-hooks/auth"
+import { useRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
+import { userDataAtom } from "@/atoms/userDataAtom"
 import {
   FIRESTORE_USERDATA_COLLECTION_NAME,
   FIRESTORE_DOCUMENT_KEYS
@@ -13,9 +15,12 @@ import { UserData, UserDataKey } from "@/types/UserData"
 import { auth, db } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 
-const useStorage = () => {
+type Args = { initialize: boolean }
+
+const useStorage = ({ initialize }: Args) => {
   const { showError } = useErrorModal()
-  const [user] = useAuthState(auth)
+  const [userData, setUserData] = useRecoilState(userDataAtom)
+  const [user, isLoadingUser] = useAuthState(auth)
 
   const decryptionVerifyString = useMemo(
     () => process.env.NEXT_PUBLIC_DECRYPTION_VERIFY_STRING,
@@ -68,51 +73,15 @@ const useStorage = () => {
     [encryptText, decryptionVerifyString]
   )
 
-  /** getUserDataやupdateUserなどの関数は、その関数の使用箇所で関数自体をtry/catchでラップするのが正しいのだろうが、コードが汚くなる気がするのでここで処理してしまうことにする */
-
+  /** ユーザーデーターを扱う時はupdateUserDataと同じような書き方で統一したいのであえてクラスのGetterっぽくしている */
   const getUserData = useCallback(
-    async (key: UserDataKey) => {
-      try {
-        const email = user?.email
-        if (!isDefined(email))
-          throw new Error(
-            "ログイン中ユーザーのメールアドレスを取得できませんでした"
-          )
-
-        if (!isDefined(decryptionVerifyString))
-          throw new Error(
-            "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
-          )
-
-        const userDataDocument = await getDoc(
-          doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
-        )
-
-        if (!userDataDocument.exists())
-          throw new Error("ユーザーデーターが存在しません")
-
-        if (!userDataDocument.data()?.[key]) return undefined // keyで指定されたフィールドが存在しない場合はundefinedを返す
-
-        const encryptedUserData = userDataDocument.data() as UserData // TODO: withConverter使って型に強くしたい
-        const decryptedVerifyString = decryptText(
-          encryptedUserData[FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]
-        )
-
-        if (decryptionVerifyString !== decryptedVerifyString)
-          throw new Error(
-            "データーの復号化検証に失敗しました。再ログインしてください。"
-          ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
-
-        return decryptText(encryptedUserData[key] as string)
-      } catch (e) {
-        showError(e)
-      }
-    },
-    [showError, decryptText, user, decryptionVerifyString]
+    (key: UserDataKey) => userData?.[key],
+    [userData]
   )
 
   const updateUserData = useCallback(
     async (key: UserDataKey, value: string) => {
+      /** updateUserDataの使用箇所でupdateUserData自体をtry/catchしてしまうのが正しい実装なのだろうが、如何せん使用箇所が多くいちいちtry/cathcを書いているとコードが汚くなる気がするので例外処理はここで捌いてしまう */
       try {
         const email = user?.email
         if (!isDefined(email))
@@ -133,11 +102,23 @@ const useStorage = () => {
           doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email),
           data
         )
+
+        if (!isDefined(userData))
+          throw new Error("ユーザーデーターがundefinedです")
+        const updatedUserData = { ...userData, [key]: value }
+        setUserData(updatedUserData)
       } catch (e) {
         showError(e)
       }
     },
-    [encryptText, showError, user, decryptionVerifyString]
+    [
+      encryptText,
+      showError,
+      user,
+      decryptionVerifyString,
+      userData,
+      setUserData
+    ]
   )
 
   const deleteUserData = useCallback(
@@ -152,12 +133,75 @@ const useStorage = () => {
         await updateDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {
           [key]: deleteField()
         })
+
+        if (!isDefined(userData))
+          throw new Error("ユーザーデーターがundefinedです")
+        const updatedUserData = { ...userData }
+        delete updatedUserData[key]
+        setUserData(updatedUserData)
       } catch (e) {
         showError(e)
       }
     },
-    [showError, user]
+    [showError, user, userData, setUserData]
   )
+
+  /** MixJuiceを起動した時にFirestoreのデーターをローカルのRecoilStateに取り込む */
+  useEffect(() => {
+    if (!initialize || !isDefined(user) || isLoadingUser) return
+    ;(async () => {
+      try {
+        const email = user?.email
+        if (!isDefined(email))
+          throw new Error(
+            "ログイン中ユーザーのメールアドレスを取得できませんでした"
+          )
+
+        if (!isDefined(decryptionVerifyString))
+          throw new Error(
+            "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
+          )
+
+        const userDataDocument = await getDoc(
+          doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
+        )
+
+        if (!userDataDocument.exists())
+          throw new Error("ユーザーデーターが存在しません")
+
+        const encryptedUserData = userDataDocument.data() as UserData // TODO: withConverter使って型に強くしたい
+        const decryptedUserData = Object.fromEntries(
+          Object.entries(encryptedUserData).map(([key, value]) => [
+            key,
+            decryptText(value as string)
+          ])
+        ) as unknown as UserData
+
+        const decryptedVerifyString =
+          decryptedUserData[FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]
+
+        if (decryptionVerifyString !== decryptedVerifyString)
+          throw new Error(
+            "データーの復号化検証に失敗しました。再ログインしてください。"
+          ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
+
+        setUserData(decryptedUserData)
+        console.log(
+          "🟩DEBUG: Firestore上のユーザーデータをRecoilStateに取り込みました"
+        )
+      } catch (e) {
+        showError(e)
+      }
+    })()
+  }, [
+    initialize,
+    user,
+    isLoadingUser,
+    setUserData,
+    showError,
+    decryptText,
+    decryptionVerifyString
+  ])
 
   return {
     createNewHashedPassword,

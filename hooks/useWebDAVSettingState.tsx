@@ -1,15 +1,15 @@
 import { useEffect } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { auth } from "@/utils/firebase"
 
-type Args = {
-  isLoadingUser: boolean
-}
+const useSetWebDAVSettingState = () => {
+  const [, isLoadingUser] = useAuthState(auth)
 
-const useSetWebDAVSettingState = ({ isLoadingUser }: Args) => {
   /**
    * done: WebDAVサーバーへのログイン・フォルダーの指定が完了している
    * setting: WebDAVサーバーへのログインは完了しているが、フォルダーの指定が完了していない

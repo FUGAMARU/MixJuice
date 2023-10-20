@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import useStorage from "./useStorage"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
@@ -6,15 +7,13 @@ import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
+import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 
-type Args = {
-  isLoadingUser: boolean
-}
-
-const useSetSpotifySettingState = ({ isLoadingUser }: Args) => {
+const useSetSpotifySettingState = () => {
   const selectedPlaylists = useRecoilValue(selectedSpotifyPlaylistsAtom)
-  const { getUserData } = useStorage()
+  const { getUserData } = useStorage({ initialize: false })
+  const [, isLoadingUser] = useAuthState(auth)
 
   /**
    * done: Spotifyのログイン・プレイリストの選択が完了している
@@ -26,7 +25,7 @@ const useSetSpotifySettingState = ({ isLoadingUser }: Args) => {
     ;(async () => {
       if (isLoadingUser) return
 
-      const refreshToken = await getUserData(
+      const refreshToken = getUserData(
         FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
       )
 

@@ -1,25 +1,23 @@
 import { useEffect } from "react"
-import { useAuthState } from "react-firebase-hooks/auth"
 import { useSetRecoilState } from "recoil"
 import useSetSpotifySettingState from "./useSetSpotifySettingState"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifyToken from "./useSpotifyToken"
+import useStorage from "./useStorage"
 import useSetWebDAVSettingState from "./useWebDAVSettingState"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { auth } from "@/utils/firebase"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
 
 const useInitializer = () => {
   /** MixJuiceを開いた時に実行したい、かつ表示に直接関係ない処理はこのフック内で行う TODO: ログインチェックなど */
 
-  const [user, loading] = useAuthState(auth)
-
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
+  useStorage({ initialize: true })
 
-  useSetSpotifySettingState({ isLoadingUser: loading })
-  useSetWebDAVSettingState({ isLoadingUser: loading })
+  useSetSpotifySettingState()
+  useSetWebDAVSettingState()
 
   const setFaviconIndex = useSetRecoilState(faviconIndexAtom)
   useEffect(() => {
@@ -39,8 +37,6 @@ const useInitializer = () => {
       )
     }
   }, [])
-
-  return { user, isLoadingUser: loading } as const
 }
 
 export default useInitializer

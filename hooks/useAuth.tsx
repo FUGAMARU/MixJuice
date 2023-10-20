@@ -12,7 +12,9 @@ import { FIRESTORE_USERDATA_COLLECTION_NAME } from "@/constants/Firestore"
 import { db, auth } from "@/utils/firebase"
 
 const useAuth = () => {
-  const { createNewHashedPassword, createNewUserDocument } = useStorage()
+  const { createNewHashedPassword, createNewUserDocument } = useStorage({
+    initialize: false
+  })
 
   const checkUserExists = useCallback(async (email: string) => {
     // fetchSignInMethodsForEmailを使っても空配列しか返ってこないのでFirestoreから該当UUIDのコレクションがあるかどうかで判定する
