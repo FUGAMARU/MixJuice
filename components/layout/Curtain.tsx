@@ -4,23 +4,29 @@ import { Box } from "@mantine/core"
 import { useFavicon } from "@mantine/hooks"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, memo, useMemo } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilValue } from "recoil"
 import ErrorModal from "./ErrorModal"
 import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { userDataAtom } from "@/atoms/userDataAtom"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useInitializer from "@/hooks/useInitializer"
 import { Children } from "@/types/Children"
+import { auth } from "@/utils/firebase"
+import { isDefined } from "@/utils/isDefined"
 
 const Curtain = ({ children }: Children) => {
   useInitializer()
 
   const pathname = usePathname()
   const { breakPoint } = useBreakPoints()
+  const [user, isLoadingUser] = useAuthState(auth)
+  const userData = useRecoilValue(userDataAtom)
 
   const screenHeightWithoutHeader = useMemo(
     () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,
@@ -31,27 +37,40 @@ const Curtain = ({ children }: Children) => {
 
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")
-  const [isDisplay, setIsDisplay] = useState(true)
+  const [isDisplayLoadingScreen, setIsDisplayLoadingScreen] = useState(true)
 
   const faviconIndex = useRecoilValue(faviconIndexAtom)
 
   useEffect(() => {
     ;(async () => {
+      /**
+       * サインインページ以外において
+       * ①ユーザーの認証情報が読み込み中である
+       * ②ユーザー登録が完了していない
+       * ③ユーザーデーターをFirestoreから引っ張ってくる作業が完了していない
+       * のいずれかに該当する場合はローディング画面を表示したままにする
+       */
+      if (
+        !isSigninPage &&
+        (isLoadingUser || !isDefined(user) || !isDefined(userData))
+      )
+        return
+
       if (!isLoading.state) {
         await new Promise(resolve => setTimeout(resolve, 1500))
         setClassName("animate__animated animate__fadeOut")
 
         await new Promise(resolve => setTimeout(resolve, 1000))
-        setIsDisplay(false)
+        setIsDisplayLoadingScreen(false)
         return
       }
 
       if (isLoading.state && isLoading.stateChangedOn !== "initial") {
-        setIsDisplay(true)
+        setIsDisplayLoadingScreen(true)
         setClassName("animate__animated animate__fadeIn")
       }
     })()
-  }, [isLoading])
+  }, [isLoading, user, userData, isLoadingUser, isSigninPage])
 
   useFavicon(faviconIndex ? `/header-logos/logo-${faviconIndex}.png` : "")
 
@@ -59,7 +78,7 @@ const Curtain = ({ children }: Children) => {
     <>
       <Box
         className={className}
-        display={isDisplay ? "block" : "none"}
+        display={isDisplayLoadingScreen ? "block" : "none"}
         w="100%"
         h="100%"
         pos="absolute"
