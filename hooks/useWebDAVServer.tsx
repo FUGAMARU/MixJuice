@@ -1,26 +1,32 @@
 import { parseBuffer } from "music-metadata-browser"
 import { useCallback } from "react"
 import { AuthType, createClient } from "webdav"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import useStorage from "./useStorage"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { TrackWithPath, removePathProperty } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
 import { expandTrackInfo } from "@/utils/expandTrackInfo"
 import { getMimeType } from "@/utils/getMimeType"
+import { isDefined } from "@/utils/isDefined"
 
 const useWebDAVServer = () => {
-  const getClient = useCallback(() => {
-    const address = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS)
-    const username = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_USER)
-    const password = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD)
+  const { getUserData } = useStorage({ initialize: false })
 
-    if (!address || !username || !password) return undefined
+  const getClient = useCallback(async () => {
+    const webdavServerCredentials = await getUserData(
+      FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS
+    )
 
-    return createClient(address, {
+    if (!isDefined(webdavServerCredentials)) return undefined
+
+    const { address, user, password } = JSON.parse(webdavServerCredentials)
+
+    return createClient(address as string, {
       authType: AuthType.Password,
-      username,
-      password
+      username: user as string,
+      password: password as string
     })
-  }, [])
+  }, [getUserData])
 
   const tryServerConnection = useCallback(
     async (address: string, username: string, password: string) => {

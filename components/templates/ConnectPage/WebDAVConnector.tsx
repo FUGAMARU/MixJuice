@@ -4,17 +4,21 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
+import { userDataAtom } from "@/atoms/userDataAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import FolderListModal from "@/components/templates/ConnectPage/FolderListModal"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
+import useStorage from "@/hooks/useStorage"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
 import styles from "@/styles/WebDAVConnector.module.css"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   className?: string
@@ -27,6 +31,8 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { showError } = useErrorModal()
   const settingState = useRecoilValue(webDAVSettingStateAtom)
   const { tryServerConnection } = useWebDAVServer()
+  const { getUserData, updateUserData } = useStorage({ initialize: false })
+  const userData = useRecoilValue(userDataAtom)
   const [isConnecting, setIsConnecting] = useState(false)
   const [
     isFolderPathInputModalOpen,
@@ -43,17 +49,20 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
 
   /** 遷移してきた時にフィールドを復元する */
   useEffect(() => {
-    const address = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS)
-    if (address !== null) setAddress(address)
-  }, [])
-  useEffect(() => {
-    const user = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_USER)
-    if (user !== null) setUser(user)
-  }, [])
-  useEffect(() => {
-    const password = localStorage.getItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD)
-    if (password !== null) setPassword(password)
-  }, [])
+    if (!isDefined(userData)) return
+    ;(async () => {
+      const webdavServerCredentials = await getUserData(
+        FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS
+      )
+
+      if (!isDefined(webdavServerCredentials)) return
+
+      const parsed = JSON.parse(webdavServerCredentials)
+      setAddress(parsed.address)
+      setUser(parsed.user)
+      setPassword(parsed.password)
+    })()
+  }, [userData, getUserData])
 
   /** 認証情報を入力する度に指定したフォルダーのパス情報などの設定を削除する (認証情報が変更され別のサーバーを使うようになった場合、モーダルを開いた時に以前の認証情報で接続していたサーバーのパスが表示されるのはおかしいため) */
   const resetFolderPath = useCallback(() => {
@@ -76,9 +85,10 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       await tryServerConnection(address, user, password)
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
       setIsAuthenticated(true)
-      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_ADDRESS, address)
-      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_USER, user)
-      localStorage.setItem(LOCAL_STORAGE_KEYS.WEBDAV_PASSWORD, password)
+      await updateUserData(
+        FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS,
+        JSON.stringify({ address, user, password })
+      )
       onFolderPathInputModalOpen()
     } catch (e) {
       setIsAuthenticated(false)
@@ -93,7 +103,8 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     tryServerConnection,
     onFolderPathInputModalOpen,
     showError,
-    setIsAuthenticated
+    setIsAuthenticated,
+    updateUserData
   ])
 
   return (

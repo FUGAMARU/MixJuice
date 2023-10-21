@@ -3,6 +3,7 @@ import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 export interface UserData {
   [FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]: string
   [FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]?: string | undefined
+  [FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]?: string | undefined
   // TODO: フィールド追加する
 }
 

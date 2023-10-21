@@ -3,9 +3,6 @@ export const LOCAL_STORAGE_KEYS = {
   SPOTIFY_SELECTED_PLAYLISTS: "spotifySelectedPlaylists", // MixJuiceで使用するSpotifyプレイリストのID一覧
   NAVBAR_CHECKED_ITEMS: "navbarCheckedItems", // Navbarでチェックされているアイテムの一覧
   NAVBAR_DRAGGED_WIDTH: "navbarDraggedWidth", // Navbarの幅をドラッグで変更した際の幅
-  WEBDAV_ADDRESS: "webdavAddress", // WebDAVサーバーのアドレス
-  WEBDAV_USER: "webdavUser", // WebDAVサーバーのユーザー名
-  WEBDAV_PASSWORD: "webdavPassword", // WebDAVサーバーのパスワード,
   WEBDAV_IS_AUTHENTICATED: "webdavIsAuthenticated", // WebDAVサーバーに認証済みかどうか
   WEBDAV_FOLDER_PATHS: "webdavFolderPaths", // MixJuiceで利用する用に指定されたWebDAVサーバー上のフォルダーのパス一覧,
   DATA_DECRYPTION_KEY: "dataDecryptionKey" // データーの復号化に使用するキー
