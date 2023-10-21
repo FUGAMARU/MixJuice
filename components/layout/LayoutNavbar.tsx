@@ -22,7 +22,7 @@ import {
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { GrConnect } from "react-icons/gr"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import GradientButton from "../parts/GradientButton"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
@@ -30,19 +30,15 @@ import NavbarItemButton from "../parts/navbar/NavbarItemButton"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
-import { userDataAtom } from "@/atoms/userDataAtom"
-import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useMIX from "@/hooks/useMIX"
-import useStorage from "@/hooks/useStorage"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
 import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
-import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   height: string
@@ -71,8 +67,6 @@ const LayoutNavbar = ({
 }: Props) => {
   const router = useRouter()
   const setIsLoading = useSetRecoilState(loadingAtom)
-  const { getUserData } = useStorage({ initialize: false })
-  const userData = useRecoilValue(userDataAtom)
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
@@ -116,54 +110,50 @@ const LayoutNavbar = ({
 
   /** 選択済みプレイリスト(フォルダー)読み込み */
   useEffect(() => {
-    ;(async () => {
-      if (!isDefined(userData)) return
+    const localStorageSelectedSpotifyPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
+    const localStorageWebDAVSelectedFolders = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
+    )
 
-      const localStorageSelectedSpotifyPlaylists = await getUserData(
-        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS
-      )
-      const localStorageWebDAVSelectedFolders = localStorage.getItem(
-        LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
-      )
+    const spotifyPlaylists = convertToNavbarFormat(
+      "spotify",
+      localStorageSelectedSpotifyPlaylists
+    )
+    const webdavFolder = convertToNavbarFormat(
+      "webdav",
+      localStorageWebDAVSelectedFolders
+    )
 
-      const spotifyPlaylists = convertToNavbarFormat(
-        "spotify",
-        localStorageSelectedSpotifyPlaylists
-      )
-      const webdavFolder = convertToNavbarFormat(
-        "webdav",
-        localStorageWebDAVSelectedFolders
-      )
+    let basePlaylists: NavbarItem[] = []
 
-      let basePlaylists: NavbarItem[] = []
+    if (spotifyPlaylists)
+      basePlaylists = [...basePlaylists, ...spotifyPlaylists]
+    if (webdavFolder) basePlaylists = [...basePlaylists, ...webdavFolder]
 
-      if (spotifyPlaylists)
-        basePlaylists = [...basePlaylists, ...spotifyPlaylists]
-      if (webdavFolder) basePlaylists = [...basePlaylists, ...webdavFolder]
+    if (basePlaylists.length === 0) return // 読み込むプレイリストが存在しないので以降の処理をする必要はない
 
-      if (basePlaylists.length === 0) return // 読み込むプレイリストが存在しないので以降の処理をする必要はない
+    const localStorageCheckedItems = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
+    )
 
-      const localStorageCheckedItems = localStorage.getItem(
-        LOCAL_STORAGE_KEYS.NAVBAR_CHECKED_ITEMS
-      )
+    if (localStorageCheckedItems !== null) {
+      /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けておく */
+      const parsedCheckedItems = JSON.parse(
+        localStorageCheckedItems
+      ) as NavbarItem[]
 
-      if (localStorageCheckedItems !== null) {
-        /** 以前にチェックを付けたプレイリスト(フォルダー)は予めチェックを付けておく */
-        const parsedCheckedItems = JSON.parse(
-          localStorageCheckedItems
-        ) as NavbarItem[]
+      basePlaylists = basePlaylists.map(item => ({
+        ...item,
+        ...parsedCheckedItems.find(checkedItem => checkedItem.id === item.id)
+      }))
+    }
 
-        basePlaylists = basePlaylists.map(item => ({
-          ...item,
-          ...parsedCheckedItems.find(checkedItem => checkedItem.id === item.id)
-        }))
-      }
-
-      setPlaylists(basePlaylists)
-    })()
+    setPlaylists(basePlaylists)
 
     return () => setPlaylists([])
-  }, [getUserData, userData])
+  }, [])
 
   /** チェックを入れた項目をLocalStorageに保存する */
   useEffect(() => {

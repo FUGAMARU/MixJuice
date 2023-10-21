@@ -5,7 +5,7 @@ import { Provider } from "@/types/Provider"
 
 export const convertToNavbarFormat = (
   provider: Provider,
-  localStorageData: string | undefined | null // TODO: LocalStorageからFirestoreへの移行が完了したらnullを許容しないようにする
+  localStorageData: string | null
 ): NavbarItem[] | undefined => {
   if (!isDefined(localStorageData)) return undefined
 

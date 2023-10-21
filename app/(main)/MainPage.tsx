@@ -13,18 +13,15 @@ import Player from "@/components/templates/MainPage/Player"
 import Queue from "@/components/templates/MainPage/Queue"
 import SearchModal from "@/components/templates/MainPage/SearchModal"
 import TrackModal from "@/components/templates/MainPage/TrackModal"
-import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
-import useStorage from "@/hooks/useStorage"
 import useTarckModal from "@/hooks/useTrackModal"
 import { isDefined } from "@/utils/isDefined"
 
 const MainPage = () => {
   const router = useRouter()
   const { setRespVal } = useBreakPoints()
-  const { getUserData } = useStorage({ initialize: false })
   const setIsLoading = useSetRecoilState(loadingAtom)
   const [isSearchModalOpen, setIsSearchModalOpen] =
     useRecoilState(searchModalAtom)
@@ -46,29 +43,24 @@ const MainPage = () => {
   ] = useDisclosure(false)
 
   useEffect(() => {
-    ;(async () => {
-      const selectedSpotifyPlaylists = await getUserData(
-        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS
-      )
-      const webDAVFolderPaths = localStorage.getItem(
-        LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
-      )
+    const selectedSpotifyPlaylists = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+    )
+    const webDAVFolderPaths = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
+    )
 
-      if (
-        !isDefined(selectedSpotifyPlaylists) &&
-        !isDefined(webDAVFolderPaths)
-      ) {
-        router.push("/connect")
-        return
-      }
+    if (!isDefined(selectedSpotifyPlaylists) && !isDefined(webDAVFolderPaths)) {
+      router.push("/connect")
+      return
+    }
 
-      setIsLoading({
-        stateChangedOn: "MainPage",
-        state: false
-      })
-      router.prefetch("/connect")
-    })()
-  }, [setIsLoading, router, getUserData])
+    setIsLoading({
+      stateChangedOn: "MainPage",
+      state: false
+    })
+    router.prefetch("/connect")
+  }, [setIsLoading, router])
 
   const {
     queue,
