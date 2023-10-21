@@ -27,7 +27,7 @@ const useSetWebDAVSettingState = () => {
       return
     }
 
-    if (folderPath === undefined) {
+    if (folderPath.length === 0) {
       setSettingState("setting")
       return
     }
