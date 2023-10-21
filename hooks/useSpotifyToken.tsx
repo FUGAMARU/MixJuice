@@ -17,7 +17,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
   /** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
 
   const [accessToken, setAccessToken] = useRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
-  const { getUserData, updateUserData, deleteUserData } = useStorage({
+  const { userData, updateUserData, deleteUserData } = useStorage({
     initialize: false
   })
   const clientId = useMemo(() => process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID, [])
@@ -146,9 +146,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
   const refreshAccessToken = useCallback(async () => {
     console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
-    const refreshToken = await getUserData(
-      FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
-    )
+    const refreshToken = userData
+      ? userData[FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]
+      : undefined
 
     if (!isDefined(clientId) || !isDefined(refreshToken)) {
       await deleteAuthConfig()
@@ -199,7 +199,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
         "Spotify APIのアクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
-  }, [setAccessToken, deleteAuthConfig, updateUserData, getUserData, clientId])
+  }, [setAccessToken, deleteAuthConfig, updateUserData, userData, clientId])
 
   /* useMemoにすると、Date.nowがaccessTokenの取得が完了した時点で固定されるのでuseCallbackにする必要がある */
   const hasValidAccessTokenState = useCallback(() => {

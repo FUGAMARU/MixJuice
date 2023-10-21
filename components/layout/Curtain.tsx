@@ -11,11 +11,11 @@ import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
-import { userDataAtom } from "@/atoms/userDataAtom"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useInitializer from "@/hooks/useInitializer"
+import useStorage from "@/hooks/useStorage"
 import { Children } from "@/types/Children"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
@@ -26,7 +26,7 @@ const Curtain = ({ children }: Children) => {
   const pathname = usePathname()
   const { breakPoint } = useBreakPoints()
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
-  const userData = useRecoilValue(userDataAtom)
+  const { userData } = useStorage({ initialize: false })
 
   const screenHeightWithoutHeader = useMemo(
     () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,

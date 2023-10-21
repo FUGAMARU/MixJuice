@@ -10,12 +10,13 @@ import { getMimeType } from "@/utils/getMimeType"
 import { isDefined } from "@/utils/isDefined"
 
 const useWebDAVServer = () => {
-  const { getUserData } = useStorage({ initialize: false })
+  const { userData } = useStorage({ initialize: false })
 
-  const getClient = useCallback(async () => {
-    const webdavServerCredentials = await getUserData(
-      FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS
-    )
+  const getClient = useCallback(() => {
+    if (!isDefined(userData)) return undefined
+
+    const webdavServerCredentials =
+      userData[FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]
 
     if (!isDefined(webdavServerCredentials)) return undefined
 
@@ -26,7 +27,7 @@ const useWebDAVServer = () => {
       username: user as string,
       password: password as string
     })
-  }, [getUserData])
+  }, [userData])
 
   const tryServerConnection = useCallback(
     async (address: string, username: string, password: string) => {

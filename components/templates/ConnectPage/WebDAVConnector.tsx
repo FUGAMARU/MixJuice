@@ -4,7 +4,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
-import { userDataAtom } from "@/atoms/userDataAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
@@ -31,8 +30,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   const { showError } = useErrorModal()
   const settingState = useRecoilValue(webDAVSettingStateAtom)
   const { tryServerConnection } = useWebDAVServer()
-  const { getUserData, updateUserData } = useStorage({ initialize: false })
-  const userData = useRecoilValue(userDataAtom)
+  const { userData, updateUserData } = useStorage({ initialize: false })
   const [isConnecting, setIsConnecting] = useState(false)
   const [
     isFolderPathInputModalOpen,
@@ -50,19 +48,16 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
   /** 遷移してきた時にフィールドを復元する */
   useEffect(() => {
     if (!isDefined(userData)) return
-    ;(async () => {
-      const webdavServerCredentials = await getUserData(
-        FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS
-      )
+    const webdavServerCredentials =
+      userData[FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]
 
-      if (!isDefined(webdavServerCredentials)) return
+    if (!isDefined(webdavServerCredentials)) return
 
-      const parsed = JSON.parse(webdavServerCredentials)
-      setAddress(parsed.address)
-      setUser(parsed.user)
-      setPassword(parsed.password)
-    })()
-  }, [userData, getUserData])
+    const parsed = JSON.parse(webdavServerCredentials)
+    setAddress(parsed.address)
+    setUser(parsed.user)
+    setPassword(parsed.password)
+  }, [userData])
 
   /** 認証情報を入力する度に指定したフォルダーのパス情報などの設定を削除する (認証情報が変更され別のサーバーを使うようになった場合、モーダルを開いた時に以前の認証情報で接続していたサーバーのパスが表示されるのはおかしいため) */
   const resetFolderPath = useCallback(() => {

@@ -2,10 +2,9 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { memo, useEffect, useRef } from "react"
-import { useRecoilValue } from "recoil"
-import { userDataAtom } from "@/atoms/userDataAtom"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
+import useStorage from "@/hooks/useStorage"
 import { isDefined } from "@/utils/isDefined"
 
 const SpotifyApiCallbackPage = () => {
@@ -14,7 +13,7 @@ const SpotifyApiCallbackPage = () => {
   const { getAccessToken } = useSpotifyToken({ initialize: false })
   const hasApiCalledRef = useRef(false)
   const { showError } = useErrorModal()
-  const userData = useRecoilValue(userDataAtom)
+  const { userData } = useStorage({ initialize: false })
 
   useEffect(() => {
     ;(async () => {

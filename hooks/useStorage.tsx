@@ -73,17 +73,6 @@ const useStorage = ({ initialize }: Args) => {
     [encryptText, decryptionVerifyString]
   )
 
-  /** getUserDataとupdateUserDataはuseRecoilCallbackにしないと関数の再生成の無限ループになってしまうので注意 */
-
-  const getUserData = useRecoilCallback(
-    ({ snapshot }) =>
-      async (key: UserDataKey) => {
-        const currentUserData = await snapshot.getPromise(userDataAtom)
-        return currentUserData?.[key]
-      },
-    []
-  )
-
   const updateUserData = useRecoilCallback(
     ({ snapshot, set }) =>
       async (key: UserDataKey, value: string) => {
@@ -210,7 +199,7 @@ const useStorage = ({ initialize }: Args) => {
   return {
     createNewHashedPassword,
     createNewUserDocument,
-    getUserData,
+    userData,
     updateUserData,
     deleteUserData
   } as const

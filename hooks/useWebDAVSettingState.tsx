@@ -45,6 +45,7 @@ const useSetWebDAVSettingState = () => {
     const folderPath = localStorage.getItem(
       LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
     )
+
     if (folderPath !== null) setFolderPath(JSON.parse(folderPath))
   }, [setIsAuthenticated, setFolderPath])
 
