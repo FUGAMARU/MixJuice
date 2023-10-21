@@ -146,9 +146,8 @@ const useSpotifyToken = ({ initialize }: Props) => {
   const refreshAccessToken = useCallback(async () => {
     console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
-    const refreshToken = userData
-      ? userData[FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]
-      : undefined
+    const refreshToken =
+      userData?.[FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]
 
     if (!isDefined(clientId) || !isDefined(refreshToken)) {
       await deleteAuthConfig()

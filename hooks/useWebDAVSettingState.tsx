@@ -1,14 +1,15 @@
 import { useEffect } from "react"
-import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilState, useSetRecoilState } from "recoil"
+import useStorage from "./useStorage"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
 import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { auth } from "@/utils/firebase"
+import { isDefined } from "@/utils/isDefined"
 
 const useSetWebDAVSettingState = () => {
-  const [, isLoadingUserInfo] = useAuthState(auth)
+  const { userData } = useStorage({ initialize: false })
 
   /**
    * done: WebDAVサーバーへのログイン・フォルダーの指定が完了している
@@ -22,7 +23,7 @@ const useSetWebDAVSettingState = () => {
 
   const setSettingState = useSetRecoilState(webDAVSettingStateAtom)
   useEffect(() => {
-    if (isAuthenticated === false) {
+    if (!isAuthenticated) {
       setSettingState("none")
       return
     }
@@ -37,24 +38,16 @@ const useSetWebDAVSettingState = () => {
 
   /** ページロード時のlocalStorageからRecoilStateへの反映 */
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_IS_AUTHENTICATED
-    )
-    if (isAuthenticated === "true") setIsAuthenticated(true)
+    const serverCredentials =
+      userData?.[FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]
+    if (isDefined(serverCredentials)) setIsAuthenticated(true)
 
     const folderPath = localStorage.getItem(
       LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
     )
 
     if (folderPath !== null) setFolderPath(JSON.parse(folderPath))
-  }, [setIsAuthenticated, setFolderPath])
-
-  useEffect(() => {
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_IS_AUTHENTICATED,
-      isAuthenticated ? "true" : "false"
-    )
-  }, [isAuthenticated])
+  }, [setIsAuthenticated, setFolderPath, userData])
 }
 
 export default useSetWebDAVSettingState
