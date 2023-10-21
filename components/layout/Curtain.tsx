@@ -25,7 +25,7 @@ const Curtain = ({ children }: Children) => {
 
   const pathname = usePathname()
   const { breakPoint } = useBreakPoints()
-  const [user, isLoadingUser] = useAuthState(auth)
+  const [userInfo, isLoadingUserInfo] = useAuthState(auth)
   const userData = useRecoilValue(userDataAtom)
 
   const screenHeightWithoutHeader = useMemo(
@@ -52,7 +52,7 @@ const Curtain = ({ children }: Children) => {
        */
       if (
         !isSigninPage &&
-        (isLoadingUser || !isDefined(user) || !isDefined(userData))
+        (isLoadingUserInfo || !isDefined(userInfo) || !isDefined(userData))
       )
         return
 
@@ -70,7 +70,7 @@ const Curtain = ({ children }: Children) => {
         setClassName("animate__animated animate__fadeIn")
       }
     })()
-  }, [isLoading, user, userData, isLoadingUser, isSigninPage])
+  }, [isLoading, userInfo, userData, isLoadingUserInfo, isSigninPage])
 
   useFavicon(faviconIndex ? `/header-logos/logo-${faviconIndex}.png` : "")
 

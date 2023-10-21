@@ -19,7 +19,7 @@ const useInitializer = () => {
 
   const router = useRouter()
   const setIsLoading = useSetRecoilState(loadingAtom)
-  const [user, isLoadingUser] = useAuthState(auth)
+  const [userInfo, isLoadingUserInfo] = useAuthState(auth)
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
@@ -45,8 +45,10 @@ const useInitializer = () => {
       LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY
     )
     if (
-      !isLoadingUser &&
-      (!isDefined(user) || !user.emailVerified || !isDefined(decryptionKey))
+      !isLoadingUserInfo &&
+      (!isDefined(userInfo) ||
+        !userInfo.emailVerified ||
+        !isDefined(decryptionKey))
     ) {
       router.push("/signin")
       return
@@ -56,7 +58,7 @@ const useInitializer = () => {
       stateChangedOn: "SigninPage",
       state: false
     })
-  }, [setIsLoading, isLoadingUser, user, router])
+  }, [setIsLoading, isLoadingUserInfo, userInfo, router])
 
   /** 不要説 */
   useEffect(() => {

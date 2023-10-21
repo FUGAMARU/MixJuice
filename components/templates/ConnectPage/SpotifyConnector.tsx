@@ -1,18 +1,8 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Input,
-  Title,
-  useMantineTheme,
-  Text
-} from "@mantine/core"
+import { Button, Flex, Title, useMantineTheme } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChangeEvent, memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
-import { BsInfoCircle } from "react-icons/bs"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
@@ -20,9 +10,7 @@ import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
-import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
@@ -46,29 +34,15 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     { open: onPlaylistSelectorOpen, close: onPlaylistSelectorClose }
   ] = useDisclosure(false)
   const [isFetchingPlaylists, setIsFetchingPlaylists] = useState(false)
-  const { redirectUri, getCode } = useSpotifyToken({ initialize: false })
+  const { getCode } = useSpotifyToken({ initialize: false })
   const { getPlaylists } = useSpotifyApi({ initialize: false })
   const settingState = useRecoilValue(spotifySettingStateAtom)
   const { showError } = useErrorModal()
 
-  const [clientId, setClientId] = useState("")
-  useEffect(() => {
-    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
-    if (clientId !== null) setClientId(clientId)
-  }, [])
-
-  const handleClientIdInputChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const filteredValue = e.target.value.replace(/[^a-zA-Z0-9]/g, "") // 半角英数字以外を削除
-      setClientId(filteredValue)
-    },
-    []
-  )
-
   const handleSigninButtonClick = useCallback(async () => {
-    const args = await getCode(clientId, redirectUri)
+    const args = await getCode()
     router.push(`https://accounts.spotify.com/authorize?${args}`)
-  }, [clientId, redirectUri, router, getCode])
+  }, [router, getCode])
 
   const [playlists, setPlaylists] = useState<ListItemDetail[]>([])
   const handleClickSelectPlaylistButton = useCallback(async () => {
@@ -145,57 +119,6 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       <Flex align="center" gap="xs">
         <CircleStep step={1} color={theme.colors.spotify[5]} />
         <Title order={4} ta="left" sx={{ flex: 1 }}>
-          Client IDを入力する
-        </Title>
-      </Flex>
-
-      <Box ml="1rem" py="0.2rem" sx={{ borderLeft: "solid 1px #d1d1d1" }}>
-        <Input
-          className={styles.clientId}
-          pl="2rem"
-          placeholder="例: 8a94eb5c826471928j1jfna81920k0b7"
-          sx={{ boxSizing: "border-box" }}
-          value={clientId}
-          onChange={handleClientIdInputChange}
-        />
-
-        <Box mt="0.3rem" pl="2rem" fz="xs" color="#575757">
-          <Flex align="center" gap="0.2rem">
-            <BsInfoCircle size="1rem" color="#575757" />
-
-            <Text>
-              ClientIDの取得方法は
-              <Link
-                href="https://developer.spotify.com/documentation/web-api/concepts/apps"
-                style={{ color: STYLING_VALUES.TEXT_COLOR_BLUE }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                こちら
-              </Link>
-            </Text>
-          </Flex>
-
-          <Flex pl="1.2rem" ta="left" align="center" gap="xs">
-            <Text>Redirect URIs:</Text>
-            <Input
-              value={`${window.location.origin}/callback/spotify`}
-              size="1rem"
-              variant="filled"
-              style={{ flex: 1 }}
-              styles={{
-                input: {
-                  fontSize: "0.75rem"
-                }
-              }}
-            />
-          </Flex>
-        </Box>
-      </Box>
-
-      <Flex align="center" gap="xs">
-        <CircleStep step={2} color={theme.colors.spotify[5]} />
-        <Title order={4} ta="left" sx={{ flex: 1 }}>
           OAuth認証を行う
         </Title>
       </Flex>
@@ -213,7 +136,6 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
           className={styles.transition}
           color="spotify"
           variant="outline"
-          disabled={clientId === ""}
           onClick={handleSigninButtonClick}
         >
           Spotifyでサインイン
@@ -232,7 +154,7 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
       </Flex>
 
       <Flex align="center" gap="xs">
-        <CircleStep step={3} color={theme.colors.spotify[5]} />
+        <CircleStep step={2} color={theme.colors.spotify[5]} />
         <Title order={4} ta="left" sx={{ flex: 1 }}>
           MixJuiceで使用するプレイリストを選択する
         </Title>

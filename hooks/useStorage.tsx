@@ -20,7 +20,7 @@ type Args = { initialize: boolean }
 const useStorage = ({ initialize }: Args) => {
   const { showError } = useErrorModal()
   const [userData, setUserData] = useRecoilState(userDataAtom)
-  const [user, isLoadingUser] = useAuthState(auth)
+  const [userInfo, isLoadingUserInfo] = useAuthState(auth)
 
   const decryptionVerifyString = useMemo(
     () => process.env.NEXT_PUBLIC_DECRYPTION_VERIFY_STRING,
@@ -89,7 +89,7 @@ const useStorage = ({ initialize }: Args) => {
       async (key: UserDataKey, value: string) => {
         /** updateUserDataの使用箇所でupdateUserData自体をtry/catchしてしまうのが正しい実装なのだろうが、如何せん使用箇所が多くいちいちtry/cathcを書いているとコードが汚くなる気がするので例外処理はここで捌いてしまう */
         try {
-          const email = user?.email
+          const email = userInfo?.email
           if (!isDefined(email))
             throw new Error(
               "ログイン中ユーザーのメールアドレスを取得できませんでした"
@@ -108,6 +108,7 @@ const useStorage = ({ initialize }: Args) => {
             doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email),
             data
           )
+          console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
 
           const currentUserData = await snapshot.getPromise(userDataAtom)
 
@@ -119,13 +120,13 @@ const useStorage = ({ initialize }: Args) => {
           showError(e)
         }
       },
-    [encryptText, showError, user, decryptionVerifyString]
+    [encryptText, showError, userInfo, decryptionVerifyString]
   )
 
   const deleteUserData = useCallback(
     async (key: UserDataKey) => {
       try {
-        const email = user?.email
+        const email = userInfo?.email
         if (!isDefined(email))
           throw new Error(
             "ログイン中ユーザーのメールアドレスを取得できませんでした"
@@ -134,6 +135,7 @@ const useStorage = ({ initialize }: Args) => {
         await updateDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {
           [key]: deleteField()
         })
+        console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
 
         if (!isDefined(userData))
           throw new Error("ユーザーデーターがundefinedです")
@@ -144,15 +146,15 @@ const useStorage = ({ initialize }: Args) => {
         showError(e)
       }
     },
-    [showError, user, userData, setUserData]
+    [showError, userInfo, userData, setUserData]
   )
 
   /** MixJuiceを起動した時にFirestoreのデーターをローカルのRecoilStateに取り込む */
   useEffect(() => {
-    if (!initialize || !isDefined(user) || isLoadingUser) return
+    if (!initialize || !isDefined(userInfo) || isLoadingUserInfo) return
     ;(async () => {
       try {
-        const email = user?.email
+        const email = userInfo?.email
         if (!isDefined(email))
           throw new Error(
             "ログイン中ユーザーのメールアドレスを取得できませんでした"
@@ -166,6 +168,7 @@ const useStorage = ({ initialize }: Args) => {
         const userDataDocument = await getDoc(
           doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
         )
+        console.log("🟧DEBUG: Firestoreからの読み込みが発生しました")
 
         if (!userDataDocument.exists())
           throw new Error("ユーザーデーターが存在しません")
@@ -196,8 +199,8 @@ const useStorage = ({ initialize }: Args) => {
     })()
   }, [
     initialize,
-    user,
-    isLoadingUser,
+    userInfo,
+    isLoadingUserInfo,
     setUserData,
     showError,
     decryptText,

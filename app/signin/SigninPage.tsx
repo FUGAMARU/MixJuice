@@ -26,7 +26,7 @@ const SigninPage = () => {
   const { showError } = useErrorModal()
   const { setRespVal } = useBreakPoints()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
-  const [user] = useAuthState(auth)
+  const [userInfo] = useAuthState(auth)
 
   const { checkUserExists, signUp, signIn, signOut } = useAuth()
 
@@ -120,16 +120,16 @@ const SigninPage = () => {
   ])
 
   const handleResendVerificationMailButtonClick = useCallback(async () => {
-    if (!isDefined(user)) return
+    if (!isDefined(userInfo)) return
 
     try {
       setIsResendVerificationMailButtonLoading(true)
-      await sendEmailVerification(user)
+      await sendEmailVerification(userInfo)
       setIsResendVerificationMailButtonLoading(false)
     } catch (e) {
       showError(e)
     }
-  }, [user, showError])
+  }, [userInfo, showError])
 
   const handleClickedButtonClick = useCallback(async () => {
     await signOut()

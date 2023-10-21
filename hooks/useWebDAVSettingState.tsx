@@ -8,7 +8,7 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { auth } from "@/utils/firebase"
 
 const useSetWebDAVSettingState = () => {
-  const [, isLoadingUser] = useAuthState(auth)
+  const [, isLoadingUserInfo] = useAuthState(auth)
 
   /**
    * done: WebDAVサーバーへのログイン・フォルダーの指定が完了している

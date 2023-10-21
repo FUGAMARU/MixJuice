@@ -1,11 +1,10 @@
 import axios from "axios"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRecoilState } from "recoil"
 import useStorage from "./useStorage"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { SESSION_STORAGE_KEYS } from "@/constants/SessionStorageKeys"
 import { Pkce } from "@/types/Pkce"
 import { isDefined } from "@/utils/isDefined"
@@ -21,6 +20,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
   const { getUserData, updateUserData, deleteUserData } = useStorage({
     initialize: false
   })
+  const clientId = useMemo(() => process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID, [])
 
   /** 現在のアドレスからコールバック用のリダイレクトURIを求める */
   const [redirectUri, setRedirectUri] = useState("")
@@ -58,32 +58,34 @@ const useSpotifyToken = ({ initialize }: Props) => {
     )
   }, [])
 
-  const getCode = useCallback(
-    async (clientId: string, redirectUri: string) => {
-      const codeVerifier = generateRandomString(128)
-      const codeChallenge = await generateCodeChallenge(codeVerifier)
-
-      const state = generateRandomString(16)
-      const scope =
-        "user-read-private user-read-email playlist-read-private playlist-read-collaborative streaming"
-
-      sessionStorage.setItem(
-        SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG,
-        JSON.stringify({ codeVerifier, clientId, redirectUri } as Pkce)
+  const getCode = useCallback(async () => {
+    if (!isDefined(clientId))
+      throw new Error(
+        "Spotify APIの認証に必要な環境変数 NEXT_PUBLIC_SPOTIFY_CLIENT_ID が設定されていません。サーバー管理者にお問い合わせください。"
       )
 
-      return new URLSearchParams({
-        response_type: "code",
-        client_id: clientId,
-        scope,
-        redirect_uri: redirectUri,
-        state,
-        code_challenge_method: "S256",
-        code_challenge: codeChallenge
-      })
-    },
-    [generateCodeChallenge, generateRandomString]
-  )
+    const codeVerifier = generateRandomString(128)
+    const codeChallenge = await generateCodeChallenge(codeVerifier)
+
+    const state = generateRandomString(16)
+    const scope =
+      "user-read-private user-read-email playlist-read-private playlist-read-collaborative streaming"
+
+    sessionStorage.setItem(
+      SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG,
+      JSON.stringify({ codeVerifier, clientId, redirectUri } as Pkce)
+    )
+
+    return new URLSearchParams({
+      response_type: "code",
+      client_id: clientId,
+      scope,
+      redirect_uri: redirectUri,
+      state,
+      code_challenge_method: "S256",
+      code_challenge: codeChallenge
+    })
+  }, [generateCodeChallenge, generateRandomString, clientId, redirectUri])
 
   const getAccessToken = useCallback(
     async (code: string) => {
@@ -99,8 +101,6 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const { clientId, redirectUri, codeVerifier } = JSON.parse(
         pkceConfig
       ) as Pkce
-
-      localStorage.setItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID, clientId)
 
       const body = new URLSearchParams({
         grant_type: "authorization_code",
@@ -146,7 +146,6 @@ const useSpotifyToken = ({ initialize }: Props) => {
   const refreshAccessToken = useCallback(async () => {
     console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
-    const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
     const refreshToken = await getUserData(
       FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
     )
@@ -154,7 +153,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
     if (!isDefined(clientId) || !isDefined(refreshToken)) {
       await deleteAuthConfig()
       throw new SpotifyAuthError(
-        "Spotify APIのアクセストークンの更新に必要な情報が存在しませんでした。Spotifyに再ログインしてください。"
+        "Spotify APIのアクセストークンの更新に必要な情報が存在しません。Spotifyに再ログインしてください。"
       )
     }
 
@@ -200,7 +199,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
         "Spotify APIのアクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
-  }, [setAccessToken, deleteAuthConfig, updateUserData, getUserData])
+  }, [setAccessToken, deleteAuthConfig, updateUserData, getUserData, clientId])
 
   /* useMemoにすると、Date.nowがaccessTokenの取得が完了した時点で固定されるのでuseCallbackにする必要がある */
   const hasValidAccessTokenState = useCallback(() => {

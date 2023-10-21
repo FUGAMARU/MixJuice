@@ -22,7 +22,7 @@ import {
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { GrConnect } from "react-icons/gr"
-import { useRecoilState, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
 import GradientButton from "../parts/GradientButton"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
@@ -30,6 +30,7 @@ import NavbarItemButton from "../parts/navbar/NavbarItemButton"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
+import { userDataAtom } from "@/atoms/userDataAtom"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { STYLING_VALUES } from "@/constants/StylingValues"
@@ -41,6 +42,7 @@ import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
 import { Track } from "@/types/Track"
 import { convertToNavbarFormat } from "@/utils/convertToNavbarFormat"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   height: string
@@ -70,6 +72,7 @@ const LayoutNavbar = ({
   const router = useRouter()
   const setIsLoading = useSetRecoilState(loadingAtom)
   const { getUserData } = useStorage({ initialize: false })
+  const userData = useRecoilValue(userDataAtom)
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
@@ -114,6 +117,8 @@ const LayoutNavbar = ({
   /** 選択済みプレイリスト(フォルダー)読み込み */
   useEffect(() => {
     ;(async () => {
+      if (!isDefined(userData)) return
+
       const localStorageSelectedSpotifyPlaylists = await getUserData(
         FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS
       )
@@ -158,7 +163,7 @@ const LayoutNavbar = ({
     })()
 
     return () => setPlaylists([])
-  }, [getUserData])
+  }, [getUserData, userData])
 
   /** チェックを入れた項目をLocalStorageに保存する */
   useEffect(() => {
