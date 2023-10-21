@@ -2,5 +2,6 @@ export const FIRESTORE_USERDATA_COLLECTION_NAME = "userData" // ユーザーデ�
 
 export const FIRESTORE_DOCUMENT_KEYS = {
   DECRYPTION_VERIFY_STRING: "decryptionVerifyString", // データーの復号化の検証に使用するハッシュ化された文字列
-  SPOTIFY_REFRESH_TOKEN: "spotifyRefreshToken" // Spotify APIを利用する際のリフレッシュトークン
+  SPOTIFY_REFRESH_TOKEN: "spotifyRefreshToken", // Spotify APIを利用する際のリフレッシュトークン
+  SPOTIFY_SELECTED_PLAYLISTS: "spotifySelectedPlaylists" // MixJuiceで使用するSpotifyプレイリストのID一覧
 } as const

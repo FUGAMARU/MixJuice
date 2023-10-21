@@ -3,7 +3,7 @@ import { setDoc, doc, getDoc, deleteField, updateDoc } from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useRecoilState } from "recoil"
+import { useRecoilCallback, useRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
 import { userDataAtom } from "@/atoms/userDataAtom"
 import {
@@ -73,52 +73,53 @@ const useStorage = ({ initialize }: Args) => {
     [encryptText, decryptionVerifyString]
   )
 
-  /** ユーザーデーターを扱う時はupdateUserDataと同じような書き方で統一したいのであえてクラスのGetterっぽくしている */
-  const getUserData = useCallback(
-    (key: UserDataKey) => userData?.[key],
-    [userData]
+  /** getUserDataとupdateUserDataはuseRecoilCallbackにしないと関数の再生成の無限ループになってしまうので注意 */
+
+  const getUserData = useRecoilCallback(
+    ({ snapshot }) =>
+      async (key: UserDataKey) => {
+        const currentUserData = await snapshot.getPromise(userDataAtom)
+        return currentUserData?.[key]
+      },
+    []
   )
 
-  const updateUserData = useCallback(
-    async (key: UserDataKey, value: string) => {
-      /** updateUserDataの使用箇所でupdateUserData自体をtry/catchしてしまうのが正しい実装なのだろうが、如何せん使用箇所が多くいちいちtry/cathcを書いているとコードが汚くなる気がするので例外処理はここで捌いてしまう */
-      try {
-        const email = user?.email
-        if (!isDefined(email))
-          throw new Error(
-            "ログイン中ユーザーのメールアドレスを取得できませんでした"
+  const updateUserData = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async (key: UserDataKey, value: string) => {
+        /** updateUserDataの使用箇所でupdateUserData自体をtry/catchしてしまうのが正しい実装なのだろうが、如何せん使用箇所が多くいちいちtry/cathcを書いているとコードが汚くなる気がするので例外処理はここで捌いてしまう */
+        try {
+          const email = user?.email
+          if (!isDefined(email))
+            throw new Error(
+              "ログイン中ユーザーのメールアドレスを取得できませんでした"
+            )
+
+          if (!isDefined(decryptionVerifyString))
+            throw new Error(
+              "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
+            )
+
+          const data = {
+            [key]: encryptText(value)
+          }
+
+          await updateDoc(
+            doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email),
+            data
           )
 
-        if (!isDefined(decryptionVerifyString))
-          throw new Error(
-            "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
-          )
+          const currentUserData = await snapshot.getPromise(userDataAtom)
 
-        const data = {
-          [key]: encryptText(value)
+          if (!isDefined(currentUserData))
+            throw new Error("ユーザーデーターがundefinedです")
+          const updatedUserData = { ...currentUserData, [key]: value }
+          set(userDataAtom, updatedUserData)
+        } catch (e) {
+          showError(e)
         }
-
-        await updateDoc(
-          doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email),
-          data
-        )
-
-        if (!isDefined(userData))
-          throw new Error("ユーザーデーターがundefinedです")
-        const updatedUserData = { ...userData, [key]: value }
-        setUserData(updatedUserData)
-      } catch (e) {
-        showError(e)
-      }
-    },
-    [
-      encryptText,
-      showError,
-      user,
-      decryptionVerifyString,
-      userData,
-      setUserData
-    ]
+      },
+    [encryptText, showError, user, decryptionVerifyString]
   )
 
   const deleteUserData = useCallback(

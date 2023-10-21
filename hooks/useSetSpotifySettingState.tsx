@@ -5,7 +5,6 @@ import useStorage from "./useStorage"
 import { selectedSpotifyPlaylistsAtom } from "@/atoms/selectedSpotifyPlaylistsAtom"
 import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
@@ -25,12 +24,12 @@ const useSetSpotifySettingState = () => {
     ;(async () => {
       if (isLoadingUser) return
 
-      const refreshToken = getUserData(
+      const refreshToken = await getUserData(
         FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
       )
 
-      const localStorageSelectedPlaylists = localStorage.getItem(
-        LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+      const localStorageSelectedPlaylists = await getUserData(
+        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS
       )
 
       if (!isDefined(refreshToken)) {
@@ -39,7 +38,7 @@ const useSetSpotifySettingState = () => {
       }
 
       if (
-        (localStorageSelectedPlaylists === null ||
+        (!isDefined(localStorageSelectedPlaylists) ||
           (
             JSON.parse(
               localStorageSelectedPlaylists

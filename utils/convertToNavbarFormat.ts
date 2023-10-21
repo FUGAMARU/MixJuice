@@ -1,12 +1,13 @@
+import { isDefined } from "./isDefined"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 
 export const convertToNavbarFormat = (
   provider: Provider,
-  localStorageData: string | null
+  localStorageData: string | undefined | null // TODO: LocalStorageからFirestoreへの移行が完了したらnullを許容しないようにする
 ): NavbarItem[] | undefined => {
-  if (localStorageData === null) return undefined
+  if (!isDefined(localStorageData)) return undefined
 
   switch (provider) {
     case "spotify":

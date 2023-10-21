@@ -19,15 +19,18 @@ import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
 import CheckboxListModal from "@/components/templates/ConnectPage/CheckboxListModal"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyApi from "@/hooks/useSpotifyApi"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
+import useStorage from "@/hooks/useStorage"
 import styles from "@/styles/SpotifyConnector.module.css"
 import { ListItemDetail } from "@/types/ListItemDetail"
 import { LocalStorageSpotifySelectedPlaylists } from "@/types/LocalStorageSpotifySelectedPlaylists"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   className?: string
@@ -36,6 +39,7 @@ type Props = {
 
 const SpotifyConnector = ({ className, onBack }: Props) => {
   const router = useRouter()
+  const { getUserData, updateUserData } = useStorage({ initialize: false })
   const theme = useMantineTheme()
   const [
     isPlaylistSelectorOpened,
@@ -96,36 +100,40 @@ const SpotifyConnector = ({ className, onBack }: Props) => {
     selectedSpotifyPlaylistsAtom
   )
   useEffect(() => {
-    const localStorageSelectedPlaylists = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
-    )
+    ;(async () => {
+      const localStorageSelectedPlaylists = await getUserData(
+        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS
+      )
 
-    if (localStorageSelectedPlaylists === null) return
+      if (!isDefined(localStorageSelectedPlaylists)) return
 
-    const parsed = JSON.parse(
-      localStorageSelectedPlaylists
-    ) as LocalStorageSpotifySelectedPlaylists[]
+      const parsed = JSON.parse(
+        localStorageSelectedPlaylists
+      ) as LocalStorageSpotifySelectedPlaylists[]
 
-    setSelectedPlaylists(parsed.map(obj => obj.id))
-  }, [setSelectedPlaylists])
+      setSelectedPlaylists(parsed.map(obj => obj.id))
+    })()
+  }, [setSelectedPlaylists, getUserData])
 
   useEffect(() => {
-    if (selectedPlaylists.length === 0 || playlists.length === 0) return
+    ;(async () => {
+      if (selectedPlaylists.length === 0 || playlists.length === 0) return
 
-    const linkedSelectedPlaylists: LocalStorageSpotifySelectedPlaylists[] =
-      selectedPlaylists.map(id => {
-        const item = playlists.find(obj => obj.id === id)
-        return {
-          id: id,
-          title: item?.title || ""
-        }
-      })
+      const linkedSelectedPlaylists: LocalStorageSpotifySelectedPlaylists[] =
+        selectedPlaylists.map(id => {
+          const item = playlists.find(obj => obj.id === id)
+          return {
+            id: id,
+            title: item?.title || ""
+          }
+        })
 
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS,
-      JSON.stringify(linkedSelectedPlaylists)
-    )
-  }, [selectedPlaylists, playlists])
+      await updateUserData(
+        FIRESTORE_DOCUMENT_KEYS.SPOTIFY_SELECTED_PLAYLISTS,
+        JSON.stringify(linkedSelectedPlaylists)
+      )
+    })()
+  }, [selectedPlaylists, playlists, updateUserData])
 
   return (
     <ConnectorContainer

@@ -147,7 +147,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
     console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
 
     const clientId = localStorage.getItem(LOCAL_STORAGE_KEYS.SPOTIFY_CLIENT_ID)
-    const refreshToken = getUserData(
+    const refreshToken = await getUserData(
       FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN
     )
 
