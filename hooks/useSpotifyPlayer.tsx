@@ -10,10 +10,12 @@ import {
 import { useRecoilCallback, useRecoilValue } from "recoil"
 import useSpotifyApi from "./useSpotifyApi"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   initialize: boolean
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
+  volume: number
   onTrackFinish: () => void
 }
 
@@ -22,6 +24,7 @@ let calledTrackFinishCallback = false
 const useSpotifyPlayer = ({
   initialize,
   setIsPreparingPlayback,
+  volume,
   onTrackFinish
 }: Props) => {
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
@@ -32,7 +35,7 @@ const useSpotifyPlayer = ({
   const [playbackQuality, setPlaybackQuality] = useState<string>() // string: Spotifyの再生音質 | undefined: Spotify以外の楽曲を再生している時
 
   const playbackPosition = useMemo(() => {
-    if (playbackState === undefined) return 0
+    if (!isDefined(playbackState)) return 0
     return playbackState.position
   }, [playbackState])
 
@@ -54,18 +57,18 @@ const useSpotifyPlayer = ({
   )
 
   const onPause = useCallback(async () => {
-    if (player === undefined) return
+    if (!isDefined(player)) return
     await player.pause()
   }, [player])
 
   const onResume = useCallback(async () => {
-    if (player === undefined) return
+    if (!isDefined(player)) return
     await player.resume()
   }, [player])
 
   const onSeekTo = useCallback(
     async (position: number) => {
-      if (player === undefined) return
+      if (!isDefined(player)) return
       await player.seek(position)
     },
     [player]
@@ -83,7 +86,7 @@ const useSpotifyPlayer = ({
 
   /** Web Playback SDK */
   useEffect(() => {
-    if (accessToken === undefined || player || !initialize) return
+    if (!isDefined(accessToken) || player || !initialize) return
 
     const script = document.createElement("script")
     script.src = "https://sdk.scdn.co/spotify-player.js"
@@ -98,7 +101,7 @@ const useSpotifyPlayer = ({
           const token = await getLatestToken()
           setToken(token)
         },
-        volume: 0.5
+        volume: volume / 100
       })
 
       setPlayer(spotifyPlayer)
@@ -141,7 +144,14 @@ const useSpotifyPlayer = ({
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken, initialize, onTrackFinish, player, getLatestToken])
+  }, [accessToken, initialize, onTrackFinish, player, getLatestToken, volume])
+
+  /** 音量の値をプレイヤーと同期させる */
+  useEffect(() => {
+    if (!isDefined(player)) return
+
+    player.setVolume(volume / 100)
+  }, [player, volume])
 
   return {
     playbackPosition,

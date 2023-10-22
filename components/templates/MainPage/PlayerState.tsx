@@ -1,7 +1,24 @@
-import { Badge, Box, Center, Divider, Flex, Loader, Text } from "@mantine/core"
-import { memo, useMemo } from "react"
+import {
+  Badge,
+  Box,
+  Center,
+  Divider,
+  Flex,
+  Loader,
+  Popover,
+  Slider,
+  Text
+} from "@mantine/core"
+import {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useCallback,
+  useMemo,
+  useState
+} from "react"
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs"
-import { HiVolumeUp } from "react-icons/hi"
+import { HiVolumeOff, HiVolumeUp } from "react-icons/hi"
 import TooltipDefault from "@/components/parts/TooltipDefault"
 import { Provider } from "@/types/Provider"
 
@@ -11,6 +28,8 @@ type Props = {
   spotifyPlaybackQuality: string | undefined
   remainingTime: string
   currentTrackProvider: Provider | undefined
+  volume: number
+  setVolume: Dispatch<SetStateAction<number>>
   onTogglePlay: () => Promise<void>
 }
 
@@ -20,6 +39,8 @@ const PlayerState = ({
   spotifyPlaybackQuality,
   remainingTime,
   currentTrackProvider,
+  volume,
+  setVolume,
   onTogglePlay
 }: Props) => {
   const textProps = useMemo(
@@ -29,6 +50,22 @@ const PlayerState = ({
       color: "white"
     }),
     []
+  )
+
+  const [prevVolumeValue, setPrevVolumeValue] = useState(0)
+
+  const handleVolumeIconClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+
+      if (volume > 0) {
+        setPrevVolumeValue(volume)
+        setVolume(0)
+        return
+      }
+      setVolume(prevVolumeValue)
+    },
+    [prevVolumeValue, volume, setVolume]
   )
 
   return (
@@ -76,12 +113,40 @@ const PlayerState = ({
           </>
         )}
 
-        <Flex align="center" gap="0.4rem">
-          <Box lh={0}>
-            <HiVolumeUp size="1.2rem" />
-          </Box>
-          <Text {...textProps}>0%</Text>
-        </Flex>
+        <Popover
+          width="10rem"
+          position="top"
+          withArrow
+          shadow="md"
+          styles={{
+            arrow: {
+              borderWidth: 0
+            }
+          }}
+        >
+          <Popover.Target>
+            <Flex align="center" gap="0.4rem" sx={{ cursor: "pointer" }}>
+              <Box lh={0} onClick={handleVolumeIconClick}>
+                {volume > 0 ? (
+                  <HiVolumeUp size="1.2rem" />
+                ) : (
+                  <HiVolumeOff size="1.2rem" />
+                )}
+              </Box>
+              <Text w="2rem" ta="right" {...textProps}>
+                {volume}%
+              </Text>
+            </Flex>
+          </Popover.Target>
+          <Popover.Dropdown bg="#212529" sx={{ borderWidth: 0 }}>
+            <Slider
+              value={volume}
+              onChange={setVolume}
+              color={currentTrackProvider ?? "gray"}
+              label={null}
+            />
+          </Popover.Dropdown>
+        </Popover>
 
         <Divider orientation="vertical" />
 

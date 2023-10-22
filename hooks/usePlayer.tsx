@@ -1,3 +1,4 @@
+import { useLocalStorage } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import retry from "async-retry"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -9,6 +10,7 @@ import useWebDAVPlayer from "./useWebDAVPlayer"
 import { playbackHistoryAtom } from "@/atoms/playbackHistoryAtom"
 import { playbackHistoryIndexAtom } from "@/atoms/playbackHistoryIndexAtom"
 import { queueAtom } from "@/atoms/queueAtom"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
 import { Track, removePlayNextProperty } from "@/types/Track"
@@ -27,7 +29,10 @@ const usePlayer = ({ initialize }: Props) => {
   ) // useStateにすると、Spotifyの楽曲再生終了時のハンドラー内で、何故か最新のqueueが取得できなくなるのでRecoilStateを利用
   const [currentTrackInfo, setCurrentTrackInfo] = useState<Track>()
   const [playbackPosition, setPlaybackPosition] = useState(0) // 再生位置 | 単位: ミリ秒
-  const [volume, setVolume] = useState(0.5)
+  const [volume, setVolume] = useLocalStorage<number>({
+    key: LOCAL_STORAGE_KEYS.VOLUME,
+    defaultValue: 50
+  })
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPreparingPlayback, setIsPreparingPlayback] = useState(false)
 
@@ -134,6 +139,7 @@ const usePlayer = ({ initialize }: Props) => {
   } = useSpotifyPlayer({
     initialize,
     setIsPreparingPlayback,
+    volume: volume ?? 0,
     onTrackFinish: handleTrackFinish
   })
 
@@ -145,6 +151,7 @@ const usePlayer = ({ initialize }: Props) => {
     playbackPosition: webDAVPlaybackPosition // 単位: ミリ秒
   } = useWebDAVPlayer({
     currentTrackInfo,
+    volume: volume ?? 0,
     setIsPreparingPlayback,
     onTrackFinish: handleTrackFinish
   })

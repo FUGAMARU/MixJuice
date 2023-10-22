@@ -32,6 +32,8 @@ type Props = {
   spotifyPlaybackQuality: string | undefined
   isPreparingPlayback: boolean
   setPlayerHeight: Dispatch<SetStateAction<number>>
+  volume: number
+  setVolume: Dispatch<SetStateAction<number>>
 }
 
 let timerId: NodeJS.Timeout
@@ -48,7 +50,9 @@ const Player = ({
   hasPreviousTrack,
   spotifyPlaybackQuality,
   isPreparingPlayback,
-  setPlayerHeight
+  setPlayerHeight,
+  volume,
+  setVolume
 }: Props) => {
   const { breakPoint } = useBreakPoints()
   const {
@@ -171,6 +175,8 @@ const Player = ({
               spotifyPlaybackQuality={spotifyPlaybackQuality}
               remainingTime={remainingTime}
               currentTrackProvider={currentTrackInfo?.provider}
+              volume={volume}
+              setVolume={setVolume}
               onTogglePlay={onTogglePlay}
             />
           </Box>

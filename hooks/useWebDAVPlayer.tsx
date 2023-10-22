@@ -7,15 +7,18 @@ import {
   useState
 } from "react"
 import { Track } from "@/types/Track"
+import { isDefined } from "@/utils/isDefined"
 
 type Props = {
   currentTrackInfo: Track | undefined
+  volume: number
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
   onTrackFinish: () => void
 }
 
 const useWebDAVPlayer = ({
   currentTrackInfo,
+  volume,
   setIsPreparingPlayback,
   onTrackFinish
 }: Props) => {
@@ -24,7 +27,7 @@ const useWebDAVPlayer = ({
 
   const onPlay = useCallback(
     async (url: string) => {
-      if (audio.current === undefined) return
+      if (!isDefined(audio.current)) return
 
       audio.current.src = url
       await audio.current.play()
@@ -34,18 +37,18 @@ const useWebDAVPlayer = ({
   )
 
   const onPause = useCallback(() => {
-    if (audio.current === undefined) return
+    if (!isDefined(audio.current)) return
     audio.current.pause()
   }, [])
 
   const onResume = useCallback(async () => {
-    if (audio.current === undefined) return
+    if (!isDefined(audio.current)) return
     await audio.current.play()
   }, [])
 
   const onSeekTo = useCallback((position: number) => {
     // positionはミリ秒
-    if (audio.current === undefined) return
+    if (!isDefined(audio.current)) return
     audio.current.currentTime = position / 1000 // ミリ秒を秒に変換する
   }, [])
 
@@ -57,9 +60,10 @@ const useWebDAVPlayer = ({
     audio.current = new Audio()
   }, [])
 
+  /** 再生位置の更新 */
   useEffect(() => {
     const interval = setInterval(() => {
-      if (audio.current === undefined || currentTrackInfo === undefined) {
+      if (!isDefined(audio.current) || !isDefined(currentTrackInfo)) {
         setPlaybackPosition(0)
         return
       }
@@ -69,8 +73,9 @@ const useWebDAVPlayer = ({
     return () => clearInterval(interval)
   }, [currentTrackInfo])
 
+  /** 再生終了イベントハンドラー */
   useEffect(() => {
-    if (audio.current === undefined) return
+    if (!isDefined(audio.current)) return
 
     audio.current.addEventListener("ended", handleTrackFinish)
 
@@ -78,6 +83,12 @@ const useWebDAVPlayer = ({
       audio.current?.removeEventListener("ended", handleTrackFinish)
     }
   }, [handleTrackFinish])
+
+  /** 音量の値をプレイヤーと同期させる */
+  useEffect(() => {
+    if (!isDefined(audio.current)) return
+    audio.current.volume = volume / 100
+  }, [volume])
 
   return { onPlay, onPause, onResume, onSeekTo, playbackPosition } as const
 }

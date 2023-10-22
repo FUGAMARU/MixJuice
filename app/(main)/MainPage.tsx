@@ -87,7 +87,9 @@ const MainPage = () => {
     setIsPreparingPlayback,
     onMoveNewTrackToFront,
     onAddNewTrackToFront,
-    onSeekTo
+    onSeekTo,
+    volume,
+    setVolume
   } = usePlayer({
     initialize: true
   })
@@ -124,6 +126,8 @@ const MainPage = () => {
             spotifyPlaybackQuality={spotifyPlaybackQuality}
             isPreparingPlayback={isPreparingPlayback}
             setPlayerHeight={setPlayerHeight}
+            volume={volume ?? 0}
+            setVolume={setVolume}
           />
         </Box>
 
