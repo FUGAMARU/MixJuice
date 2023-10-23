@@ -5,16 +5,18 @@ import { Children } from "@/types/Children"
 type Props = {
   h: string | undefined
   w: string | undefined
+  px?: string | number | undefined
+  py?: string | number | undefined
 } & Children
 
-const CardViewDefault = ({ h, w, children }: Props) => {
+const CardViewDefault = ({ h, w, px, py, children }: Props) => {
   return (
     <Center h="100%">
       <Box
         h={h}
         w={w}
-        px="xl"
-        py="md"
+        px={px ?? "xl"}
+        py={py ?? "md"}
         bg="white"
         ta="center"
         sx={{

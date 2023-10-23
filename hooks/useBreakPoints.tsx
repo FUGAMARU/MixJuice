@@ -16,7 +16,7 @@ const useBreakPoints = () => {
     (val1: string, val2: string, val3: string) => {
       if (breakPoint === "SmartPhone") return val1
       if (breakPoint === "Tablet") return val2
-      if (breakPoint === "PC") return val3
+      return val3
     },
     [breakPoint]
   )

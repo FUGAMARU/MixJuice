@@ -1,295 +1,187 @@
 "use client"
 
-import { Center, Box, Divider, Flex, Text, Stack, Group } from "@mantine/core"
-import { usePrevious } from "@mantine/hooks"
-import { sendEmailVerification } from "firebase/auth"
+import { Flex, Box, Text } from "@mantine/core"
 import Image from "next/image"
-import { memo, useCallback, useEffect, useMemo, useState } from "react"
-import { useAuthState } from "react-firebase-hooks/auth"
-import { HiOutlineMail } from "react-icons/hi"
-import { PiPasswordBold } from "react-icons/pi"
-import { TfiEmail } from "react-icons/tfi"
+import {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useCallback,
+  useEffect,
+  useState
+} from "react"
 import { useRecoilValue } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
-import GradientButton from "@/components/parts/GradientButton"
-import LabeledInput from "@/components/parts/LabeledInput"
-import { STYLING_VALUES } from "@/constants/StylingValues"
-import useAuth from "@/hooks/useAuth"
+import EmailVerification from "@/components/templates/SigninPage/EmailVerification"
+import Signin from "@/components/templates/SigninPage/Signin"
+import Signup from "@/components/templates/SigninPage/Signup"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useErrorModal from "@/hooks/useErrorModal"
-import styles from "@/styles/SigninPage.module.css"
-import { auth } from "@/utils/firebase"
-import { isDefined } from "@/utils/isDefined"
+import { SigninPageType } from "@/types/SigninPageType"
+import { getRandomArtwork } from "@/utils/getRandomArtwork"
 
 const SigninPage = () => {
-  const { showError } = useErrorModal()
   const { setRespVal } = useBreakPoints()
   const faviconIndex = useRecoilValue(faviconIndexAtom)
-  const [userInfo] = useAuthState(auth)
 
-  const { checkUserExists, signUp, signIn, signOut } = useAuth()
+  const [isDisplaySinginForm, setIsDisplaySigninForm] = useState(true)
+  const [isDisplaySignupForm, setIsDisplaySignupForm] = useState(false)
+  const [isDisplayEmailVerificationView, setIsDisplayEmailVerificationView] =
+    useState(false)
+  const [isDisplayForgotPasswordForm, setIsDisplayForgotPasswordForm] =
+    useState(false)
 
-  const [authState, setAuthState] = useState<
-    "NOT_SIGNIN" | "NOT_REGISTERED" | "EMAIL_NOT_VERIFIED" | "DONE"
-  >("NOT_SIGNIN")
-  const previousAuthState = usePrevious(authState)
+  const [signinFormClassName, setSigninFormClassName] = useState("")
+  const [signupFormClassName, setSignupFormClassName] = useState("")
+  const [emailVerificationFormClassName, setEmailVerificationFormClassName] =
+    useState("")
+  const [forgotPasswordFormClassName, setForgotPasswordFormClassName] =
+    useState("")
 
-  const [isGoButtonLoading, setIsGoButtonLoading] = useState(false)
-  const [
-    isResendVerificationMailButtonLoading,
-    setIsResendVerificationMailButtonLoading
-  ] = useState(false)
+  // スライドによる画面遷移
+  const onSlide = useCallback(
+    async (
+      direction: "go" | "back",
+      classNameDispatcher: Dispatch<SetStateAction<string>>,
+      displayDispatcher: Dispatch<SetStateAction<boolean>>
+    ) => {
+      switch (direction) {
+        case "go":
+          setSigninFormClassName(
+            "animate__animated animate__fadeOutLeft animate__fast"
+          )
+          await new Promise(resolve => setTimeout(resolve, 600))
+          setIsDisplaySigninForm(false)
 
-  const [emailInput, setEmailInput] = useState("")
-  const [passwordInput, setPasswordInput] = useState("")
-  const [retypePasswordInput, setRetypePasswordInput] = useState("")
-
-  const isValidEmail = useMemo(
-    () => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput),
-    [emailInput]
-  )
-  const hasValidPassword = useMemo(
-    () => passwordInput.length >= 6, // 6文字以上なのはFirebaseの仕様
-    [passwordInput]
-  )
-  const hasValidRetypePassword = useMemo(
-    () => retypePasswordInput === passwordInput,
-    [retypePasswordInput, passwordInput]
-  )
-  const canClickGoButton = useMemo(() => {
-    switch (authState) {
-      case "NOT_SIGNIN":
-        return isValidEmail && hasValidPassword
-      case "NOT_REGISTERED":
-        return isValidEmail && hasValidPassword && hasValidRetypePassword
-      default:
-        return false
-    }
-  }, [authState, isValidEmail, hasValidPassword, hasValidRetypePassword])
-
-  const handleGoButtonClick = useCallback(async () => {
-    setIsGoButtonLoading(true)
-
-    try {
-      switch (authState) {
-        case "NOT_SIGNIN":
-          const isUserExists = await checkUserExists(emailInput)
-          if (!isUserExists) {
-            setAuthState("NOT_REGISTERED")
-            return
-          }
-
-          try {
-            const userCredential = await signIn(emailInput, passwordInput)
-
-            if (
-              isDefined(userCredential) &&
-              !userCredential.user.emailVerified
-            ) {
-              setAuthState("EMAIL_NOT_VERIFIED")
-              return
-            }
-
-            setAuthState("DONE")
-            //TODO: リダイレクト処理 (Provider設定の進み具合によって遷移先を出し分ける)
-          } catch (e) {
-            showError(e)
-          }
+          classNameDispatcher(
+            "animate__animated animate__slideInRight animate__fast"
+          )
+          displayDispatcher(true)
           break
-        case "NOT_REGISTERED":
-          try {
-            await signUp(emailInput, passwordInput)
-            setAuthState("EMAIL_NOT_VERIFIED")
-          } catch (e) {
-            showError(e)
-          }
+        case "back":
+          classNameDispatcher(
+            "animate__animated animate__fadeOutRight animate__fast"
+          )
+          await new Promise(resolve => setTimeout(resolve, 600))
+          displayDispatcher(false)
+
+          setSigninFormClassName(
+            "animate__animated animate__slideInLeft animate__fast"
+          )
+          setIsDisplaySigninForm(true)
           break
       }
-    } finally {
-      setIsGoButtonLoading(false)
-    }
-  }, [
-    authState,
-    checkUserExists,
-    signUp,
-    showError,
-    emailInput,
-    passwordInput,
-    signIn
-  ])
+    },
+    []
+  )
 
-  const handleResendVerificationMailButtonClick = useCallback(async () => {
-    if (!isDefined(userInfo)) return
+  const slideSignupFormToEmailVerificationView = useCallback(async () => {
+    setSignupFormClassName(
+      "animate__animated animate__fadeOutLeft animate__fast"
+    )
+    await new Promise(resolve => setTimeout(resolve, 600))
+    setIsDisplaySignupForm(false)
 
-    try {
-      setIsResendVerificationMailButtonLoading(true)
-      await sendEmailVerification(userInfo)
-      setIsResendVerificationMailButtonLoading(false)
-    } catch (e) {
-      showError(e)
-    }
-  }, [userInfo, showError])
+    setEmailVerificationFormClassName(
+      "animate__animated animate__slideInRight animate__fast"
+    )
+    setIsDisplayEmailVerificationView(true)
+  }, [])
 
-  const handleClickedButtonClick = useCallback(async () => {
-    await signOut()
-    window.location.reload()
-  }, [signOut])
+  const slideTo = useCallback(
+    async (to: SigninPageType) => {
+      switch (to) {
+        case "signup":
+          onSlide("go", setSignupFormClassName, setIsDisplaySignupForm)
+          break
+        case "emailVerification":
+          onSlide(
+            "go",
+            setEmailVerificationFormClassName,
+            setIsDisplayEmailVerificationView
+          )
+          break
+        case "forgotPassword":
+          onSlide(
+            "go",
+            setForgotPasswordFormClassName,
+            setIsDisplayForgotPasswordForm
+          )
+          break
+      }
+    },
+    [onSlide]
+  )
 
-  const [isDisplaySigninForm, setIsDisplaySigninForm] = useState(true)
-  const [isDisplayVerificationEmailText, setIsDisplayVerificationEmailText] =
-    useState(false)
+  const [headerArtworkSrc, setHeaderArtworkSrc] = useState("")
   useEffect(() => {
-    ;(async () => {
-      if (authState !== "EMAIL_NOT_VERIFIED") return
-
-      await new Promise(resolve => setTimeout(resolve, 500))
-      setIsDisplaySigninForm(false)
-      setIsDisplayVerificationEmailText(true)
-    })()
-  }, [authState])
+    setHeaderArtworkSrc(getRandomArtwork())
+  }, [])
 
   return (
-    <CardViewDefault h="20rem" w={setRespVal("85%", "25rem", "25rem")}>
-      <Flex
-        h="100%"
-        direction="column"
-        justify="center"
-        sx={{
-          transition: "all .2s ease-in-out"
-        }}
-      >
-        <Stack spacing="0.3rem">
-          <Box ta="center">
+    <CardViewDefault
+      h="22rem"
+      w={setRespVal("85%", "25rem", "25rem")}
+      px={0}
+      py={0}
+    >
+      <Flex h="100%" direction="column">
+        <Box
+          sx={{
+            backgroundImage: `url('${headerArtworkSrc}')`,
+            backgroundPosition: "center",
+            backgroundSize: "cover"
+          }}
+        >
+          <Box
+            py="md"
+            ta="center"
+            sx={{ backdropFilter: "blur(5px) brightness(0.8)" }}
+          >
             <Image
-              src={`/header-logos/header-${faviconIndex}.png`}
+              src={`/header-logos/white/header-white-${faviconIndex}.png`}
               width={228}
               height={60}
               alt="Randomized MixJuice Logo"
             />
+            <Text color="white" fz={setRespVal("0.7rem", "0.75rem", "0.75rem")}>
+              サービスを利用するにはサインインが必要です
+            </Text>
           </Box>
-          <Text fz={setRespVal("0.7rem", "0.75rem", "0.75rem")}>
-            サービスを利用するにはサインインが必要です
-          </Text>
-        </Stack>
-
-        <Divider mt="sm" mb="xl" variant="dotted" />
-
-        <Stack
-          className={
-            authState === "EMAIL_NOT_VERIFIED"
-              ? "animate__animated animate__fadeOut"
-              : ""
-          }
-          spacing="md"
-          sx={{ display: isDisplaySigninForm ? "flex" : "none" }}
-        >
-          <LabeledInput
-            type="email"
-            icon={<HiOutlineMail />}
-            label="メール"
-            placeholder="mixjuice-user@example.com"
-            value={emailInput}
-            onChange={e => setEmailInput(e.currentTarget.value)}
-          />
-
-          <LabeledInput
-            type="password"
-            icon={<PiPasswordBold />}
-            label="パスワード"
-            placeholder="6文字以上のパスワード"
-            value={passwordInput}
-            onChange={e => setPasswordInput(e.currentTarget.value)}
-          />
-
-          <Box
-            className={
-              authState === "NOT_REGISTERED"
-                ? styles.slideIn
-                : previousAuthState === "NOT_REGISTERED" &&
-                  authState === "EMAIL_NOT_VERIFIED"
-                ? styles.slideOut
-                : styles.retypePassword
-            }
-          >
-            <Box
-              w="100%"
-              className={
-                authState === "NOT_REGISTERED"
-                  ? "animate__animated animate__fadeIn"
-                  : authState === "EMAIL_NOT_VERIFIED"
-                  ? "animate__animated animate__fadeOut"
-                  : ""
-              }
-              sx={{
-                animationDelay: authState === "NOT_REGISTERED" ? ".5s" : "0"
-              }}
-            >
-              <LabeledInput
-                type="password"
-                icon={<PiPasswordBold />}
-                label="パスワード(再入力)"
-                placeholder="6文字以上のパスワード"
-                value={retypePasswordInput}
-                onChange={e => setRetypePasswordInput(e.currentTarget.value)}
-              />
-            </Box>
-          </Box>
-
-          <Center>
-            <GradientButton
-              size="xs"
-              ff="greycliffCF"
-              fz="1rem"
-              fw={800}
-              disabled={!canClickGoButton}
-              loading={isGoButtonLoading}
-              onClick={handleGoButtonClick}
-            >
-              {authState === "NOT_REGISTERED" ? "REGISTER!" : "GO!"}
-            </GradientButton>
-          </Center>
-        </Stack>
-
-        <Box
-          className={
-            isDisplayVerificationEmailText
-              ? "animate__animated animate__fadeIn"
-              : ""
-          }
-          sx={{
-            display: isDisplayVerificationEmailText ? "box" : "none",
-            animationDelay: ".5s"
-          }}
-        >
-          <TfiEmail size="2rem" color={STYLING_VALUES.TEXT_COLOR_DEFAULT} />
-          <Text mt="0.3rem" mb="sm" fz="0.8rem" fw={700}>
-            入力したメールアドレスに送信されたリンクをクリックしてメールアドレスを確認してください
-          </Text>
-
-          <Group sx={{ justifyContent: "center" }}>
-            <GradientButton
-              size="xs"
-              ff="notoSansJP"
-              fz="0.9rem"
-              fw={600}
-              loading={isResendVerificationMailButtonLoading}
-              onClick={handleResendVerificationMailButtonClick}
-            >
-              再送信する
-            </GradientButton>
-
-            <GradientButton
-              size="xs"
-              ff="notoSansJP"
-              fz="0.9rem"
-              fw={600}
-              onClick={handleClickedButtonClick}
-            >
-              クリックした
-            </GradientButton>
-          </Group>
         </Box>
+
+        <Signin
+          className={signinFormClassName}
+          isDisplay={isDisplaySinginForm}
+          slideTo={slideTo}
+        />
+
+        {isDisplaySignupForm && (
+          <Signup
+            className={signupFormClassName}
+            isDisplay={isDisplaySignupForm}
+            onSlideSignupFormToEmailVerificationView={
+              slideSignupFormToEmailVerificationView
+            }
+            onBack={() =>
+              onSlide("back", setSignupFormClassName, setIsDisplaySignupForm)
+            }
+          />
+        )}
+
+        {isDisplayEmailVerificationView && (
+          <EmailVerification
+            className={emailVerificationFormClassName}
+            isDisplay={isDisplayEmailVerificationView}
+            onBack={() =>
+              onSlide(
+                "back",
+                setEmailVerificationFormClassName,
+                setIsDisplayEmailVerificationView
+              )
+            }
+          />
+        )}
       </Flex>
     </CardViewDefault>
   )

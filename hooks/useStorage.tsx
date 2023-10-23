@@ -141,6 +141,8 @@ const useStorage = ({ initialize }: Args) => {
   /** MixJuiceを起動した時にFirestoreのデーターをローカルのRecoilStateに取り込む */
   useEffect(() => {
     if (!initialize || !isDefined(userInfo) || isLoadingUserInfo) return
+    if (userInfo.emailVerified === false)
+      return // ユーザー登録直後はFirestoreから取得するべきデーターが無いのでスルー (逆にスルーしないとユーザー登録完了時にFirestoreにドキュメントが存在しない例外が発生する)
     ;(async () => {
       try {
         const email = userInfo?.email

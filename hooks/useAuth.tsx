@@ -22,24 +22,6 @@ const useAuth = () => {
     return res.exists()
   }, [])
 
-  const signUp = useCallback(
-    async (email: string, password: string) => {
-      /** Firebase Authに登録する */
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      )
-
-      /** メールアドレス認証メールを送信する */
-      await sendEmailVerification(userCredential.user)
-
-      /** 復号化検証用のテキストを初期データーとしてユーザーのコレクションを新規作成する */
-      await createNewUserDocument(email)
-    },
-    [createNewUserDocument]
-  )
-
   const signIn = useCallback(
     async (email: string, password: string) => {
       try {
@@ -74,6 +56,26 @@ const useAuth = () => {
   const signOut = useCallback(async () => {
     await signOutFromFirebase(auth)
   }, [])
+
+  const signUp = useCallback(
+    async (email: string, password: string) => {
+      /** Firebase Authに登録する */
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
+      /** メールアドレス認証メールを送信する */
+      await sendEmailVerification(userCredential.user)
+
+      createNewHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
+
+      /** 復号化検証用のテキストを初期データーとしてユーザーのコレクションを新規作成する */
+      await createNewUserDocument(email)
+    },
+    [createNewUserDocument, createNewHashedPassword]
+  )
 
   return { checkUserExists, signUp, signIn, signOut } as const
 }
