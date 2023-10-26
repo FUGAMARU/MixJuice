@@ -12,6 +12,7 @@ import PlaybackHistoryModal from "@/components/templates/MainPage/PlaybackHistor
 import Player from "@/components/templates/MainPage/Player"
 import Queue from "@/components/templates/MainPage/Queue"
 import SearchModal from "@/components/templates/MainPage/SearchModal"
+import SettingModal from "@/components/templates/MainPage/SettingModal"
 import TrackModal from "@/components/templates/MainPage/TrackModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -40,6 +41,11 @@ const MainPage = () => {
   const [
     isPlaybackHistoryModalOpen,
     { open: onOpenPlaybackHistoryModal, close: onClosePlaybackHistoryModal }
+  ] = useDisclosure(false)
+
+  const [
+    isSettingModalOpen,
+    { open: onOpenSettingModal, close: onCloseSettingModal }
   ] = useDisclosure(false)
 
   useEffect(() => {
@@ -111,6 +117,7 @@ const MainPage = () => {
         setQueue={setQueue}
         onCheckboxLabelClick={handleNavbarCheckboxLabelClick}
         onPlaybackHistoryModalOpen={onOpenPlaybackHistoryModal}
+        onSettingModalOpen={onOpenSettingModal}
       >
         <Box h={setRespVal("15vh", "25vh", "25vh")}>
           <Player
@@ -178,6 +185,8 @@ const MainPage = () => {
         isOpen={isPlaybackHistoryModalOpen}
         onClose={handlePlaybackHistoryModalClose} // useCallbackを経由せずにコールバックで直接stateを変更すると再レンダリングが走りまくってしまい、react-windowの表示がおかしくなる。
       />
+
+      <SettingModal isOpen={isSettingModalOpen} onClose={onCloseSettingModal} />
     </>
   )
 }

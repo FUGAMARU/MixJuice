@@ -22,6 +22,7 @@ import {
 import { BiSearchAlt } from "react-icons/bi"
 import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
 import { GrConnect } from "react-icons/gr"
+import { IoSettingsOutline } from "react-icons/io5"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import GradientButton from "../parts/GradientButton"
 import ProviderHeading from "../parts/ProviderHeading"
@@ -52,6 +53,7 @@ type Props = {
     title: string
   ) => Promise<void>
   onPlaybackHistoryModalOpen: () => void
+  onSettingModalOpen: () => void
   setIsPreparingPlayback: Dispatch<SetStateAction<boolean>>
 }
 
@@ -63,6 +65,7 @@ const LayoutNavbar = ({
   onPlay,
   onCheckboxLabelClick,
   onPlaybackHistoryModalOpen,
+  onSettingModalOpen,
   setIsPreparingPlayback
 }: Props) => {
   const router = useRouter()
@@ -368,6 +371,13 @@ const LayoutNavbar = ({
             }}
           >
             サービス接続設定
+          </NavbarItemButton>
+
+          <NavbarItemButton
+            icon={<IoSettingsOutline />}
+            onClick={onSettingModalOpen}
+          >
+            一般設定
           </NavbarItemButton>
 
           <NavbarItemButton icon={<BsInfoCircle />}>
