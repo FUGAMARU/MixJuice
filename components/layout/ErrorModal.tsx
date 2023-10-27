@@ -6,6 +6,7 @@ import { IoWarningOutline } from "react-icons/io5"
 import { useRecoilState } from "recoil"
 import { errorModalConfigAtom } from "@/atoms/errorModalConfigAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
+import { PAGE_PATH } from "@/constants/PagePath"
 import { ErrorModalConfig } from "@/types/ErrorModalConfig"
 
 const ErrorModal = () => {
@@ -36,7 +37,7 @@ const ErrorModal = () => {
   const handleModalClose = useCallback(() => {
     if (lastConfig.instance instanceof SpotifyAuthError) {
       /** ここに処理が来る段階で既にSpotifyの認証情報は削除済み */
-      router.replace("/connect?provider=spotify")
+      router.replace(`${PAGE_PATH.CONNECT_PAGE}?provider=spotify`)
       setErrorModalConfigs([])
       return
     }

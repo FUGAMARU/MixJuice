@@ -11,6 +11,7 @@ import LayoutHeader from "./LayoutHeader"
 import NowLoading from "./NowLoading"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { PAGE_PATH } from "@/constants/PagePath"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -32,8 +33,14 @@ const Curtain = ({ children }: Children) => {
     () => `calc(100vh - ${STYLING_VALUES.HEADER_HEIGHT}px)`,
     []
   )
-  const isConnectPage = useMemo(() => pathname === "/connect", [pathname])
-  const isSigninPage = useMemo(() => pathname === "/signin", [pathname])
+  const isConnectPage = useMemo(
+    () => pathname === PAGE_PATH.CONNECT_PAGE,
+    [pathname]
+  )
+  const isSigninPage = useMemo(
+    () => pathname === PAGE_PATH.SIGNIN_PAGE,
+    [pathname]
+  )
 
   const isLoading = useRecoilValue(loadingAtom)
   const [className, setClassName] = useState("")
@@ -65,7 +72,7 @@ const Curtain = ({ children }: Children) => {
         return
       }
 
-      if (isLoading.state && isLoading.stateChangedOn !== "initial") {
+      if (isLoading.state && isDefined(isLoading.stateChangedOn)) {
         setIsDisplayLoadingScreen(true)
         setClassName("animate__animated animate__fadeIn")
       }

@@ -10,6 +10,7 @@ import useSetWebDAVSettingState from "./useWebDAVSettingState"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PAGE_PATH } from "@/constants/PagePath"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
@@ -51,12 +52,12 @@ const useInitializer = () => {
         !userInfo.emailVerified ||
         !isDefined(decryptionKey))
     ) {
-      router.push("/signin")
+      router.push(PAGE_PATH.SIGNIN_PAGE)
       return
     }
 
     setIsLoading({
-      stateChangedOn: "SigninPage",
+      stateChangedOn: PAGE_PATH.MAIN_PAGE,
       state: false
     })
   }, [setIsLoading, isLoadingUserInfo, userInfo, router])

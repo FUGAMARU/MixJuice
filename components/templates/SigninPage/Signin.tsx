@@ -1,17 +1,17 @@
 import { Stack, Group, Button } from "@mantine/core"
-import { useRouter } from "next/navigation"
 import { memo, useCallback, useMemo, useState } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import { loadingAtom } from "@/atoms/loadingAtom"
+import { useRecoilValue } from "recoil"
 import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import GradientButton from "@/components/parts/GradientButton"
 import LabeledInput from "@/components/parts/LabeledInput"
+import { PAGE_PATH } from "@/constants/PagePath"
 import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
+import useTransit from "@/hooks/useTransit"
 import { SigninPageType } from "@/types/SigninPageType"
 import { isDefined } from "@/utils/isDefined"
 
@@ -22,14 +22,13 @@ type Props = {
 }
 
 const Signin = ({ className, isDisplay, slideTo }: Props) => {
+  const { onTransit } = useTransit()
   const { setRespVal } = useBreakPoints()
   const { showError } = useErrorModal()
-  const router = useRouter()
 
   const { checkUserExists, signIn } = useAuth()
   const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
   const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
-  const setIsLoading = useSetRecoilState(loadingAtom)
 
   const [emailInput, setEmailInput] = useState("")
   const [passwordInput, setPasswordInput] = useState("")
@@ -51,21 +50,11 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
       }
 
       if (spotifySettingState !== "done" || webDAVSettingState !== "done") {
-        setIsLoading({
-          stateChangedOn: "SigninPage",
-          state: true
-        })
-        await new Promise(resolve => setTimeout(resolve, 300))
-        router.push("/connect")
+        await onTransit(PAGE_PATH.SIGNIN_PAGE, PAGE_PATH.CONNECT_PAGE)
         return
       }
 
-      setIsLoading({
-        stateChangedOn: "SigninPage",
-        state: true
-      })
-      await new Promise(resolve => setTimeout(resolve, 300))
-      router.push("/")
+      await onTransit(PAGE_PATH.SIGNIN_PAGE, PAGE_PATH.MAIN_PAGE)
     } catch (e) {
       showError(e)
     } finally {
@@ -77,11 +66,10 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     passwordInput,
     signIn,
     showError,
-    router,
-    setIsLoading,
     spotifySettingState,
     webDAVSettingState,
-    slideTo
+    slideTo,
+    onTransit
   ])
 
   const isValidEmail = useMemo(

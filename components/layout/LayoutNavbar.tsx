@@ -9,7 +9,6 @@ import {
   ScrollArea
 } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
-import { useRouter } from "next/navigation"
 import {
   Dispatch,
   SetStateAction,
@@ -28,13 +27,14 @@ import GradientButton from "../parts/GradientButton"
 import ProviderHeading from "../parts/ProviderHeading"
 import NavbarCheckbox from "../parts/navbar/NavbarCheckbox"
 import NavbarItemButton from "../parts/navbar/NavbarItemButton"
-import { loadingAtom } from "@/atoms/loadingAtom"
 import { navbarAtom, navbarClassNameAtom } from "@/atoms/navbarAtom"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PAGE_PATH } from "@/constants/PagePath"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useErrorModal from "@/hooks/useErrorModal"
 import useMIX from "@/hooks/useMIX"
+import useTransit from "@/hooks/useTransit"
 import { NavbarItem } from "@/types/NavbarItem"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
@@ -68,14 +68,13 @@ const LayoutNavbar = ({
   onSettingModalOpen,
   setIsPreparingPlayback
 }: Props) => {
-  const router = useRouter()
-  const setIsLoading = useSetRecoilState(loadingAtom)
   const [isMixing, setIsMixing] = useState(false)
   const [navbarClassName, setNavbarClassName] =
     useRecoilState(navbarClassNameAtom)
   const [isOpened, setIsOpened] = useRecoilState(navbarAtom)
   const { showError } = useErrorModal()
   const { mixAllTracks } = useMIX()
+  const { onTransit } = useTransit()
   const setIsSearchModalOpen = useSetRecoilState(searchModalAtom)
   useHotkeys([
     ["Slash", () => setIsSearchModalOpen(true)],
@@ -361,14 +360,9 @@ const LayoutNavbar = ({
 
           <NavbarItemButton
             icon={<GrConnect />}
-            onClick={async () => {
-              setIsLoading({
-                stateChangedOn: "MainPage",
-                state: true
-              })
-              await new Promise(resolve => setTimeout(resolve, 300))
-              router.push("/connect")
-            }}
+            onClick={() =>
+              onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.CONNECT_PAGE)
+            }
           >
             サービス接続設定
           </NavbarItemButton>

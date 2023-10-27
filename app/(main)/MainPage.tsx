@@ -15,6 +15,7 @@ import SearchModal from "@/components/templates/MainPage/SearchModal"
 import SettingModal from "@/components/templates/MainPage/SettingModal"
 import TrackModal from "@/components/templates/MainPage/TrackModal"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PAGE_PATH } from "@/constants/PagePath"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import useTarckModal from "@/hooks/useTrackModal"
@@ -57,15 +58,15 @@ const MainPage = () => {
     )
 
     if (!isDefined(selectedSpotifyPlaylists) && !isDefined(webDAVFolderPaths)) {
-      router.push("/connect")
+      router.push(PAGE_PATH.CONNECT_PAGE)
       return
     }
 
     setIsLoading({
-      stateChangedOn: "MainPage",
+      stateChangedOn: PAGE_PATH.MAIN_PAGE,
       state: false
     })
-    router.prefetch("/connect")
+    router.prefetch(PAGE_PATH.CONNECT_PAGE)
   }, [setIsLoading, router])
 
   const {

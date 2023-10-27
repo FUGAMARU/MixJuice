@@ -1,17 +1,13 @@
 import { atom } from "recoil"
+import { PagePath } from "@/types/PagePath"
 
 export const loadingAtom = atom<{
-  stateChangedOn:
-    | "initial"
-    | "MainPage"
-    | "ConnectPage"
-    | "SpotifyCallbackPage"
-    | "SigninPage"
+  stateChangedOn: PagePath | undefined
   state: boolean
 }>({
   key: "loadingAtom",
   default: {
-    stateChangedOn: "initial",
+    stateChangedOn: undefined,
     state: false
   }
 })

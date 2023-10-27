@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { memo, useEffect, useRef } from "react"
+import { PAGE_PATH } from "@/constants/PagePath"
 import useErrorModal from "@/hooks/useErrorModal"
 import useSpotifyToken from "@/hooks/useSpotifyToken"
 import useStorage from "@/hooks/useStorage"
@@ -31,7 +32,7 @@ const SpotifyApiCallbackPage = () => {
       } catch (e) {
         showError(e)
       } finally {
-        router.push("/connect?provider=spotify")
+        router.push(`${PAGE_PATH.CONNECT_PAGE}?provider=spotify`)
       }
     })()
   }, [searchParams, router, getAccessToken, showError, userData])

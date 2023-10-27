@@ -15,6 +15,7 @@ import SpotifyConnector from "../../components/templates/ConnectPage/SpotifyConn
 import WebDAVConnector from "../../components/templates/ConnectPage/WebDAVConnector"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
+import { PAGE_PATH } from "@/constants/PagePath"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 const ConnectPage = () => {
@@ -75,7 +76,7 @@ const ConnectPage = () => {
   useEffect(() => {
     ;(async () => {
       setIsLoading({
-        stateChangedOn: "ConnectPage",
+        stateChangedOn: PAGE_PATH.CONNECT_PAGE,
         state: false
       })
 
