@@ -46,7 +46,8 @@ const useInitializer = () => {
     )
     if (
       !isLoadingUserInfo &&
-      (!isDefined(userInfo) ||
+      userInfo !== undefined && // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
+      (userInfo === null || // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
         !userInfo.emailVerified ||
         !isDefined(decryptionKey))
     ) {
