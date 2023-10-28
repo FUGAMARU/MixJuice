@@ -10,12 +10,14 @@ import {
   useEffect,
   useState
 } from "react"
-import { useRecoilValue } from "recoil"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
+import { loadingAtom } from "@/atoms/loadingAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
 import EmailVerification from "@/components/templates/SigninPage/EmailVerification"
 import Signin from "@/components/templates/SigninPage/Signin"
 import Signup from "@/components/templates/SigninPage/Signup"
+import { PAGE_PATH } from "@/constants/PagePath"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { SigninPageType } from "@/types/SigninPageType"
 import { getRandomArtwork } from "@/utils/getRandomArtwork"
@@ -114,9 +116,14 @@ const SigninPage = () => {
   )
 
   const [headerArtworkSrc, setHeaderArtworkSrc] = useState("")
+  const setIsLoading = useSetRecoilState(loadingAtom)
   useEffect(() => {
     setHeaderArtworkSrc(getRandomArtwork())
-  }, [])
+    setIsLoading({
+      stateChangedOn: PAGE_PATH.SIGNIN_PAGE,
+      state: false
+    })
+  }, [setIsLoading])
 
   return (
     <CardViewDefault

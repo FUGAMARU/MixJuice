@@ -10,14 +10,17 @@ import {
   Text
 } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
-import { memo, useMemo } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { IoSettingsOutline } from "react-icons/io5"
 import { PiUserCircleThin } from "react-icons/pi"
 import ModalDefault from "@/components/parts/ModalDefault"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { PAGE_PATH } from "@/constants/PagePath"
 import { DEFAULT_SETTING_VALUES, SETTING_ITEMS } from "@/constants/Settings"
+import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import useTransit from "@/hooks/useTransit"
 import { SettingValues } from "@/types/DefaultSettings"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
@@ -30,10 +33,20 @@ type Props = {
 const SettingModal = ({ isOpen, onClose }: Props) => {
   const { breakPoint, setRespVal } = useBreakPoints()
   const [userInfo] = useAuthState(auth)
+  const { signOut } = useAuth()
+  const { onTransit } = useTransit()
   const [settings, setSettings] = useLocalStorage<SettingValues>({
     key: LOCAL_STORAGE_KEYS.SETTINGS,
     defaultValue: DEFAULT_SETTING_VALUES
   })
+
+  const [isProcessingSignout, setIsProcessingSignout] = useState(false)
+  const handleSignoutButtonClick = useCallback(async () => {
+    setIsProcessingSignout(true)
+    await signOut()
+    onClose()
+    await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
+  }, [signOut, onClose, onTransit])
 
   const footerFunctions = useMemo(() => {
     if (breakPoint === "SmartPhone") {
@@ -104,7 +117,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
           </Text>
         </Group>
 
-        <Button variant="outline" size="xs">
+        <Button
+          variant="outline"
+          size="xs"
+          loading={isProcessingSignout}
+          onClick={handleSignoutButtonClick}
+        >
           サインアウト
         </Button>
       </Flex>
