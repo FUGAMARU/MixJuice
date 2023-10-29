@@ -2,16 +2,17 @@ import { Stack, Group, Button } from "@mantine/core"
 import { memo, useCallback, useMemo, useState } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
-import { useRecoilValue } from "recoil"
-import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
-import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import GradientButton from "@/components/parts/GradientButton"
 import LabeledInput from "@/components/parts/LabeledInput"
+import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { PAGE_PATH } from "@/constants/PagePath"
 import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
+import useSpotifySettingState from "@/hooks/useSpotifySettingState"
+import useStorage from "@/hooks/useStorage"
 import useTransit from "@/hooks/useTransit"
+import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import { SigninPageType } from "@/types/SigninPageType"
 import { isDefined } from "@/utils/isDefined"
 
@@ -27,8 +28,13 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
   const { showError } = useErrorModal()
 
   const { checkUserExists, signIn } = useAuth()
-  const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
-  const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
+  const { getCurrentUserData } = useStorage({ initialize: false })
+  const { getSettingState: getSpotifySettingState } = useSpotifySettingState({
+    initialize: false
+  })
+  const { getSettingState: getWebDAVSettingState } = useWebDAVSettingState({
+    initialize: false
+  })
 
   const [emailInput, setEmailInput] = useState("")
   const [passwordInput, setPasswordInput] = useState("")
@@ -49,6 +55,14 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
         return
       }
 
+      const userData = await getCurrentUserData(emailInput)
+      const spotifySettingState = getSpotifySettingState(
+        userData[FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]
+      )
+      const webDAVSettingState = getWebDAVSettingState(
+        userData[FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]
+      )
+
       if (spotifySettingState !== "done" || webDAVSettingState !== "done") {
         await onTransit(PAGE_PATH.SIGNIN_PAGE, PAGE_PATH.CONNECT_PAGE)
         return
@@ -66,10 +80,11 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     passwordInput,
     signIn,
     showError,
-    spotifySettingState,
-    webDAVSettingState,
     slideTo,
-    onTransit
+    onTransit,
+    getCurrentUserData,
+    getSpotifySettingState,
+    getWebDAVSettingState
   ])
 
   const isValidEmail = useMemo(

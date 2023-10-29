@@ -2,11 +2,11 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useSetRecoilState } from "recoil"
-import useSetSpotifySettingState from "./useSetSpotifySettingState"
 import useSpotifyApi from "./useSpotifyApi"
+import useSpotifySettingState from "./useSpotifySettingState"
 import useSpotifyToken from "./useSpotifyToken"
 import useStorage from "./useStorage"
-import useSetWebDAVSettingState from "./useWebDAVSettingState"
+import useWebDAVSettingState from "./useWebDAVSettingState"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
@@ -26,8 +26,8 @@ const useInitializer = () => {
   useSpotifyToken({ initialize: true })
   useStorage({ initialize: true })
 
-  useSetSpotifySettingState()
-  useSetWebDAVSettingState()
+  useSpotifySettingState({ initialize: true })
+  useWebDAVSettingState({ initialize: true })
 
   const setFaviconIndex = useSetRecoilState(faviconIndexAtom)
   useEffect(() => {

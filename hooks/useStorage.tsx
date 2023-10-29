@@ -138,6 +138,48 @@ const useStorage = ({ initialize }: Args) => {
     [showError, userInfo, userData, setUserData]
   )
 
+  const getCurrentUserData = useCallback(
+    async (specifiedEmail?: string) => {
+      const email = specifiedEmail ?? userInfo?.email
+      if (!isDefined(email))
+        throw new Error(
+          "ログイン中ユーザーのメールアドレスを取得できませんでした"
+        )
+
+      if (!isDefined(decryptionVerifyString))
+        throw new Error(
+          "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
+        )
+
+      const userDataDocument = await getDoc(
+        doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
+      )
+      console.log("🟧DEBUG: Firestoreからの読み込みが発生しました")
+
+      if (!userDataDocument.exists())
+        throw new Error("ユーザーデーターが存在しません")
+
+      const encryptedUserData = userDataDocument.data() as UserData // TODO: withConverter使って型に強くしたい
+      const decryptedUserData = Object.fromEntries(
+        Object.entries(encryptedUserData).map(([key, value]) => [
+          key,
+          decryptText(value as string)
+        ])
+      ) as unknown as UserData
+
+      const decryptedVerifyString =
+        decryptedUserData[FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]
+
+      if (decryptionVerifyString !== decryptedVerifyString)
+        throw new Error(
+          "データーの復号化検証に失敗しました。再ログインしてください。"
+        ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
+
+      return decryptedUserData
+    },
+    [decryptText, userInfo, decryptionVerifyString]
+  )
+
   /** MixJuiceを起動した時にFirestoreのデーターをローカルのRecoilStateに取り込む */
   useEffect(() => {
     if (!initialize || !isDefined(userInfo) || isLoadingUserInfo) return
@@ -145,42 +187,8 @@ const useStorage = ({ initialize }: Args) => {
       return // ユーザー登録直後はFirestoreから取得するべきデーターが無いのでスルー (逆にスルーしないとユーザー登録完了時にFirestoreにドキュメントが存在しない例外が発生する)
     ;(async () => {
       try {
-        const email = userInfo?.email
-        if (!isDefined(email))
-          throw new Error(
-            "ログイン中ユーザーのメールアドレスを取得できませんでした"
-          )
-
-        if (!isDefined(decryptionVerifyString))
-          throw new Error(
-            "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
-          )
-
-        const userDataDocument = await getDoc(
-          doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
-        )
-        console.log("🟧DEBUG: Firestoreからの読み込みが発生しました")
-
-        if (!userDataDocument.exists())
-          throw new Error("ユーザーデーターが存在しません")
-
-        const encryptedUserData = userDataDocument.data() as UserData // TODO: withConverter使って型に強くしたい
-        const decryptedUserData = Object.fromEntries(
-          Object.entries(encryptedUserData).map(([key, value]) => [
-            key,
-            decryptText(value as string)
-          ])
-        ) as unknown as UserData
-
-        const decryptedVerifyString =
-          decryptedUserData[FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]
-
-        if (decryptionVerifyString !== decryptedVerifyString)
-          throw new Error(
-            "データーの復号化検証に失敗しました。再ログインしてください。"
-          ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
-
-        setUserData(decryptedUserData)
+        const userData = await getCurrentUserData()
+        setUserData(userData)
         console.log(
           "🟩DEBUG: Firestore上のユーザーデータをRecoilStateに取り込みました"
         )
@@ -194,14 +202,14 @@ const useStorage = ({ initialize }: Args) => {
     isLoadingUserInfo,
     setUserData,
     showError,
-    decryptText,
-    decryptionVerifyString
+    getCurrentUserData
   ])
 
   return {
     createNewHashedPassword,
     createNewUserDocument,
     userData,
+    getCurrentUserData,
     updateUserData,
     deleteUserData
   } as const

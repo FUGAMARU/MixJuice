@@ -2,9 +2,8 @@ import { Box, Flex, Input, Title, useMantineTheme, Button } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { AiFillCheckCircle } from "react-icons/ai"
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { selectedWebDAVFoldersAtom } from "@/atoms/selectedWebDAVFoldersAtom"
-import { webDAVAuthenticatedAtom } from "@/atoms/webDAVAuthenticatedAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import CircleStep from "@/components/parts/CircleStep"
 import ConnectorContainer from "@/components/parts/ConnectorContainer"
@@ -36,7 +35,6 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     isFolderPathInputModalOpen,
     { open: onFolderPathInputModalOpen, close: onFolderPathInputModalClose }
   ] = useDisclosure(false)
-  const setIsAuthenticated = useSetRecoilState(webDAVAuthenticatedAtom)
   const [folderPaths, setFolderPaths] = useRecoilState(
     selectedWebDAVFoldersAtom
   )
@@ -79,14 +77,12 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       setIsConnecting(true)
       await tryServerConnection(address, user, password)
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
-      setIsAuthenticated(true)
       await updateUserData(
         FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS,
         JSON.stringify({ address, user, password })
       )
       onFolderPathInputModalOpen()
     } catch (e) {
-      setIsAuthenticated(false)
       showError(e)
     } finally {
       setIsConnecting(false)
@@ -98,7 +94,6 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     tryServerConnection,
     onFolderPathInputModalOpen,
     showError,
-    setIsAuthenticated,
     updateUserData
   ])
 
