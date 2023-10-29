@@ -85,7 +85,7 @@ const FolderListModal = ({
       isOpen={isOpen}
       onClose={onClose}
     >
-      <Flex gap="md" align="start" justify="space-between">
+      <Flex gap="md" align="start" justify="space-between" data-autoFocus>
         <Input.Wrapper
           w="100%"
           error={

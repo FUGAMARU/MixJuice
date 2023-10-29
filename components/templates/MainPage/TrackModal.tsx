@@ -1,4 +1,4 @@
-import { Flex, Loader } from "@mantine/core"
+import { Box, Flex, Loader } from "@mantine/core"
 import Image from "next/image"
 import { memo, useCallback } from "react"
 import { FixedSizeList } from "react-window"
@@ -71,53 +71,54 @@ const TrackModal = ({
           }
           isOpen={isOpen}
           onClose={onClose}
-          withoutCloseButton
         >
-          {spotifyTracks && (
-            <FixedSizeList
-              width="100%"
-              height={remToPx(30)}
-              itemCount={spotifyTracks.length}
-              itemSize={80} // キューのアイテム1つ分の高さ
-            >
-              {({ index, style }) => {
-                const track = spotifyTracks[index]
-                return (
-                  <div style={style}>
-                    <ListItemContainer key={track.id}>
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        sx={{ flex: "1", overflow: "hidden" }}
-                      >
-                        <ListItem
-                          image={track.image}
-                          title={track.title}
-                          caption={track.artist}
-                          onArtworkPlayButtonClick={() =>
-                            handleArtworkPlayButtonClick(track)
-                          }
-                        />
+          <Box data-autoFocus>
+            {spotifyTracks && (
+              <FixedSizeList
+                width="100%"
+                height={remToPx(30)}
+                itemCount={spotifyTracks.length}
+                itemSize={80} // キューのアイテム1つ分の高さ
+              >
+                {({ index, style }) => {
+                  const track = spotifyTracks[index]
+                  return (
+                    <div style={style}>
+                      <ListItemContainer key={track.id}>
+                        <Flex
+                          align="center"
+                          justify="space-between"
+                          sx={{ flex: "1", overflow: "hidden" }}
+                        >
+                          <ListItem
+                            image={track.image}
+                            title={track.title}
+                            caption={track.artist}
+                            onArtworkPlayButtonClick={() =>
+                              handleArtworkPlayButtonClick(track)
+                            }
+                          />
 
-                        <QueueOperator
-                          canMoveToFront={canMoveToFront}
-                          canAddToFront={canAddToFront}
-                          onMoveToFront={() => onMoveNewTrackToFront(track)}
-                          onAddToFront={() => onAddNewTrackToFront(track)}
-                          hiddenMethod={
-                            breakPoint === "SmartPhone"
-                              ? "display"
-                              : "visibility"
-                          }
-                          animated
-                        />
-                      </Flex>
-                    </ListItemContainer>
-                  </div>
-                )
-              }}
-            </FixedSizeList>
-          )}
+                          <QueueOperator
+                            canMoveToFront={canMoveToFront}
+                            canAddToFront={canAddToFront}
+                            onMoveToFront={() => onMoveNewTrackToFront(track)}
+                            onAddToFront={() => onAddNewTrackToFront(track)}
+                            hiddenMethod={
+                              breakPoint === "SmartPhone"
+                                ? "display"
+                                : "visibility"
+                            }
+                            animated
+                          />
+                        </Flex>
+                      </ListItemContainer>
+                    </div>
+                  )
+                }}
+              </FixedSizeList>
+            )}
+          </Box>
         </ModalDefault>
       )
     case "webdav":
@@ -139,53 +140,54 @@ const TrackModal = ({
           }
           isOpen={isOpen}
           onClose={onClose}
-          withoutCloseButton
         >
-          {mergedWebDAVSearchResult.data.length > 0 && (
-            <FixedSizeList
-              width="100%"
-              height={remToPx(30)}
-              itemCount={mergedWebDAVSearchResult.data.length}
-              itemSize={80} // キューのアイテム1つ分の高さ
-            >
-              {({ index, style }) => {
-                const track = mergedWebDAVSearchResult.data[index]
-                return (
-                  <div style={style}>
-                    <ListItemContainer key={track.id}>
-                      <Flex
-                        align="center"
-                        justify="space-between"
-                        sx={{ flex: "1", overflow: "hidden" }}
-                      >
-                        <ListItem
-                          image={track.image}
-                          title={track.title}
-                          caption={track.artist}
-                          onArtworkPlayButtonClick={() =>
-                            handleArtworkPlayButtonClick(track)
-                          }
-                        />
+          <Box data-autoFocus>
+            {mergedWebDAVSearchResult.data.length > 0 && (
+              <FixedSizeList
+                width="100%"
+                height={remToPx(30)}
+                itemCount={mergedWebDAVSearchResult.data.length}
+                itemSize={80} // キューのアイテム1つ分の高さ
+              >
+                {({ index, style }) => {
+                  const track = mergedWebDAVSearchResult.data[index]
+                  return (
+                    <div style={style}>
+                      <ListItemContainer key={track.id}>
+                        <Flex
+                          align="center"
+                          justify="space-between"
+                          sx={{ flex: "1", overflow: "hidden" }}
+                        >
+                          <ListItem
+                            image={track.image}
+                            title={track.title}
+                            caption={track.artist}
+                            onArtworkPlayButtonClick={() =>
+                              handleArtworkPlayButtonClick(track)
+                            }
+                          />
 
-                        <QueueOperator
-                          canMoveToFront={canMoveToFront}
-                          canAddToFront={canAddToFront}
-                          onMoveToFront={() => onMoveNewTrackToFront(track)}
-                          onAddToFront={() => onAddNewTrackToFront(track)}
-                          hiddenMethod={
-                            breakPoint === "SmartPhone"
-                              ? "display"
-                              : "visibility"
-                          }
-                          animated
-                        />
-                      </Flex>
-                    </ListItemContainer>
-                  </div>
-                )
-              }}
-            </FixedSizeList>
-          )}
+                          <QueueOperator
+                            canMoveToFront={canMoveToFront}
+                            canAddToFront={canAddToFront}
+                            onMoveToFront={() => onMoveNewTrackToFront(track)}
+                            onAddToFront={() => onAddNewTrackToFront(track)}
+                            hiddenMethod={
+                              breakPoint === "SmartPhone"
+                                ? "display"
+                                : "visibility"
+                            }
+                            animated
+                          />
+                        </Flex>
+                      </ListItemContainer>
+                    </div>
+                  )
+                }}
+              </FixedSizeList>
+            )}
+          </Box>
         </ModalDefault>
       )
     default:

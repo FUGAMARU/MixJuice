@@ -1,5 +1,5 @@
 import { Box, Center, Flex, Input, Loader, Stack, Text } from "@mantine/core"
-import { memo, useCallback, useEffect, useRef } from "react"
+import { memo, useCallback, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import ArrowTextButton from "../../parts/ArrowTextButton"
 import ListItem from "../../parts/ListItem"
@@ -45,15 +45,8 @@ const SearchModal = ({
   const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
   const webDAVSettingState = useRecoilValue(webDAVSettingStateAtom)
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
-    if (isOpen) {
-      inputRef.current?.focus()
-      return
-    }
-
-    resetAll()
+    if (!isOpen) resetAll()
   }, [isOpen, resetAll])
 
   const handleArtworkPlayButtonClick = useCallback(
@@ -66,17 +59,12 @@ const SearchModal = ({
   )
 
   return (
-    <ModalDefault
-      title="🔍 楽曲を検索"
-      isOpen={isOpen}
-      onClose={onClose}
-      withoutCloseButton // 閉じるボタンを非表示にしないとモーダルを開いたときに検索窓にフォーカルが当たらない
-    >
+    <ModalDefault title="🔍 楽曲を検索" isOpen={isOpen} onClose={onClose}>
       <Input
+        data-autofocus
         placeholder="楽曲タイトルを入力…"
         value={keyword}
         onChange={e => handleKeywordChange(e)}
-        ref={inputRef}
       />
 
       <Stack

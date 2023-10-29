@@ -37,32 +37,34 @@ const CheckboxListModal = ({
 
   return (
     <ModalDefault title={title} isOpen={isOpen} onClose={onClose}>
-      {items.map(item => (
-        <ListItemContainer
-          key={item.id}
-          flex
-          onClick={() => handleItemClick(item.id)}
-        >
-          <Checkbox
-            checked={checkedValues.includes(item.id)}
-            value={item.id}
-            color={color}
-            styles={{
-              input: {
-                cursor: "pointer"
-              }
-            }}
-          />
-
-          <Box sx={{ flex: "1", overflow: "hidden" }}>
-            <ListItem
-              image={item.image}
-              title={item.title}
-              caption={item.caption}
+      <Box data-autoFocus>
+        {items.map(item => (
+          <ListItemContainer
+            key={item.id}
+            flex
+            onClick={() => handleItemClick(item.id)}
+          >
+            <Checkbox
+              checked={checkedValues.includes(item.id)}
+              value={item.id}
+              color={color}
+              styles={{
+                input: {
+                  cursor: "pointer"
+                }
+              }}
             />
-          </Box>
-        </ListItemContainer>
-      ))}
+
+            <Box sx={{ flex: "1", overflow: "hidden" }}>
+              <ListItem
+                image={item.image}
+                title={item.title}
+                caption={item.caption}
+              />
+            </Box>
+          </ListItemContainer>
+        ))}
+      </Box>
     </ModalDefault>
   )
 }

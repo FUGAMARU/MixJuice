@@ -101,7 +101,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
       isOpen={isOpen}
       onClose={onClose}
     >
-      <Flex align="center" justify="space-between">
+      <Flex align="center" justify="space-between" data-autofocus>
         <Group spacing="0.3rem">
           <PiUserCircleThin size="2.5rem" />
           <Text
