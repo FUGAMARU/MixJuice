@@ -4,8 +4,7 @@ import { Box } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { useRouter } from "next/navigation"
 import { memo, useCallback, useEffect, useState } from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
-import { loadingAtom } from "../../atoms/loadingAtom"
+import { useRecoilState } from "recoil"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import MainPageLayout from "@/components/templates/MainPage/MainPageLayout"
 import PlaybackHistoryModal from "@/components/templates/MainPage/PlaybackHistoryModal"
@@ -24,7 +23,6 @@ import { isDefined } from "@/utils/isDefined"
 const MainPage = () => {
   const router = useRouter()
   const { setRespVal } = useBreakPoints()
-  const setIsLoading = useSetRecoilState(loadingAtom)
   const [isSearchModalOpen, setIsSearchModalOpen] =
     useRecoilState(searchModalAtom)
   const [playerHeight, setPlayerHeight] = useState(0)
@@ -61,13 +59,7 @@ const MainPage = () => {
       router.push(PAGE_PATH.CONNECT_PAGE)
       return
     }
-
-    setIsLoading({
-      stateChangedOn: PAGE_PATH.MAIN_PAGE,
-      state: false
-    })
-    router.prefetch(PAGE_PATH.CONNECT_PAGE)
-  }, [setIsLoading, router])
+  }, [router])
 
   const {
     queue,

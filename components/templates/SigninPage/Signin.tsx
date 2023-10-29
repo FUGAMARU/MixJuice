@@ -63,7 +63,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
         userData[FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS]
       )
 
-      if (spotifySettingState !== "done" || webDAVSettingState !== "done") {
+      if (spotifySettingState !== "done" && webDAVSettingState !== "done") {
         await onTransit(PAGE_PATH.SIGNIN_PAGE, PAGE_PATH.CONNECT_PAGE)
         return
       }

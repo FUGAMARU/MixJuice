@@ -1,4 +1,4 @@
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useSetRecoilState } from "recoil"
@@ -11,6 +11,7 @@ import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PAGE_PATH } from "@/constants/PagePath"
+import { isPagePath } from "@/types/PagePath"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 import { generateRandomNumber } from "@/utils/randomNumberGenerator"
@@ -19,6 +20,8 @@ const useInitializer = () => {
   /** MixJuiceを開いた時に実行したい、かつ表示に直接関係ない処理はこのフック内で行う */
 
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const setIsLoading = useSetRecoilState(loadingAtom)
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
 
@@ -33,6 +36,19 @@ const useInitializer = () => {
   useEffect(() => {
     setFaviconIndex(generateRandomNumber(1, 12))
   }, [setFaviconIndex])
+
+  /** ページ遷移完了のイベントはここで拾う */
+  useEffect(() => {
+    ;(async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (isPagePath(pathname)) {
+        setIsLoading({
+          stateChangedOn: pathname,
+          state: false
+        })
+      }
+    })()
+  }, [pathname, searchParams, setIsLoading])
 
   useEffect(() => {
     /** 【サインインページに飛ばす条件】

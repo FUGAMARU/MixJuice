@@ -9,13 +9,10 @@ import {
   useEffect,
   useState
 } from "react"
-import { useSetRecoilState } from "recoil"
 import ProviderSelector from "../../components/templates/ConnectPage/ProviderSelector"
 import SpotifyConnector from "../../components/templates/ConnectPage/SpotifyConnector"
 import WebDAVConnector from "../../components/templates/ConnectPage/WebDAVConnector"
-import { loadingAtom } from "@/atoms/loadingAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
-import { PAGE_PATH } from "@/constants/PagePath"
 import useBreakPoints from "@/hooks/useBreakPoints"
 
 const ConnectPage = () => {
@@ -72,14 +69,8 @@ const ConnectPage = () => {
     []
   )
 
-  const setIsLoading = useSetRecoilState(loadingAtom)
   useEffect(() => {
     ;(async () => {
-      setIsLoading({
-        stateChangedOn: PAGE_PATH.CONNECT_PAGE,
-        state: false
-      })
-
       if (!provider) return
 
       await new Promise(resolve => setTimeout(resolve, 2500))
@@ -101,7 +92,7 @@ const ConnectPage = () => {
           break
       }
     })()
-  }, [setIsLoading, provider, handleSlide])
+  }, [provider, handleSlide])
 
   return (
     <CardViewDefault
