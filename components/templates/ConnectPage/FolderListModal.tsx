@@ -6,6 +6,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useState
 } from "react"
 import ModalDefault from "../../parts/ModalDefault"
@@ -79,6 +80,20 @@ const FolderListModal = ({
     [setFolderPaths, folderPaths]
   )
 
+  const isAddButtonDisabled = useMemo(
+    () => !inputFolderPath || !inputFolderPath.startsWith("/"),
+    [inputFolderPath]
+  )
+
+  const handlePathInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.nativeEvent.isComposing || e.key !== "Enter" || isAddButtonDisabled)
+        return
+      handleAddFolderPathButtonClick()
+    },
+    [handleAddFolderPathButtonClick, isAddButtonDisabled]
+  )
+
   return (
     <ModalDefault
       title="MixJuiceで使用するフォルダーを追加"
@@ -96,13 +111,14 @@ const FolderListModal = ({
             placeholder="例: /home/user/music"
             value={inputFolderPath}
             onChange={e => setInputFolderPath(e.target.value)}
+            onKeyDown={handlePathInputKeyDown}
           />
         </Input.Wrapper>
 
         <Button
           color="webdav"
           loading={isCheckingFolderExists}
-          disabled={!inputFolderPath || !inputFolderPath.startsWith("/")}
+          disabled={isAddButtonDisabled}
           onClick={handleAddFolderPathButtonClick}
         >
           追加

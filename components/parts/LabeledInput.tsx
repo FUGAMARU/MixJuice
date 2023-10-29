@@ -9,6 +9,7 @@ type Props = {
   placeholder: string
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
 }
 
 const LabeledInput = ({
@@ -17,7 +18,8 @@ const LabeledInput = ({
   label,
   placeholder,
   value,
-  onChange
+  onChange,
+  onKeyDown
 }: Props) => {
   const commonProps = useMemo(
     () => ({
@@ -37,9 +39,10 @@ const LabeledInput = ({
         }
       },
       value,
-      onChange
+      onChange,
+      onKeyDown
     }),
-    [value, onChange, placeholder]
+    [value, onChange, placeholder, onKeyDown]
   )
 
   return (

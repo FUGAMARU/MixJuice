@@ -1,5 +1,5 @@
 import { Stack, Group, Button } from "@mantine/core"
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useMemo, useState, KeyboardEvent } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
 import GradientButton from "@/components/parts/GradientButton"
@@ -95,6 +95,23 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     () => passwordInput.length >= 6, // 6文字以上なのはFirebaseの仕様
     [passwordInput]
   )
+  const isSigninButtonDisabled = useMemo(
+    () => !isValidEmail || !hasValidPassword,
+    [isValidEmail, hasValidPassword]
+  )
+
+  const handlePasswordKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (
+        e.nativeEvent.isComposing ||
+        e.key !== "Enter" ||
+        isSigninButtonDisabled
+      )
+        return
+      handleSinginButtonClick()
+    },
+    [handleSinginButtonClick, isSigninButtonDisabled]
+  )
 
   return (
     <Stack
@@ -122,6 +139,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
           placeholder="パスワード"
           value={passwordInput}
           onChange={e => setPasswordInput(e.currentTarget.value)}
+          onKeyDown={handlePasswordKeyDown}
         />
       </Stack>
 
@@ -130,7 +148,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
         ff="notoSansJP"
         fz="0.9rem"
         fw={600}
-        disabled={!isValidEmail || !hasValidPassword}
+        disabled={isSigninButtonDisabled}
         loading={isProcessing}
         onClick={handleSinginButtonClick}
       >
