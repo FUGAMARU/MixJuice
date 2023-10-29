@@ -1,6 +1,8 @@
 export const ZINDEX_NUMBERS = {
   VERCEL_SHAPE: -1, // 背景要素のコンテナ
-  NOW_LOADING: 10, // ローディングアニメーション画面
+  NOW_LOADING: 12, // ローディングアニメーション画面
+  MODAL: 11, // モーダル
+  MODAL_OVERLAY: 10, // モーダルのオーバーレイ
   HEADER: 9, // ヘッダー
   NAVBAR_EXPANDED: 3, // ナビゲーションバー (常時表示されている場合)
   NAVBAR_COLLAPSED: 8, // ナビゲーションバー (ハンバーガーメニューによって表示/非表示を切り替えられる場合)
