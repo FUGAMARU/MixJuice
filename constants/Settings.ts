@@ -28,7 +28,7 @@ export const SETTING_ITEMS: SettingItems = {
   SEARCH_ALL_METADATA_FOR_UNCACHED_WEBDAV_TRACK: {
     label: "WebDAVの未キャッシュ楽曲の詳細検索を有効にする",
     description:
-      "WebDAVサーバー上にある楽曲を検索する時、ファイル名ではなくメタデータを対象に検索するかどうか"
+      "WebDAVサーバー上にある楽曲を検索する時、ファイル名だけでなくメタデータも対象に検索するかどうか (検索にかかる時間が長くなります)"
   },
   DEBUGMODE: {
     label: "デバッグモードを有効にする",
@@ -36,7 +36,7 @@ export const SETTING_ITEMS: SettingItems = {
   },
   BACKGROUND_OF_QUEUE: {
     label: "キューの背景",
-    description: "そのうち選択肢が増えるかも…？",
+    description: "そのうち選択肢が増えるかも…？(TODO: 未実装)",
     options: ["vercel", "meta"]
   }
 } as const

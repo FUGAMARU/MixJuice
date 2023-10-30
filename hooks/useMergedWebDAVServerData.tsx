@@ -1,10 +1,19 @@
+import { useLocalStorage } from "@mantine/hooks"
 import { useCallback, useState } from "react"
 import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
+import { SettingValues } from "@/types/DefaultSettings"
 import { MergedWebDAVSearchResult } from "@/types/MergedWebDAVSearchResult"
 import { removePathProperty } from "@/types/Track"
+import { filterTracksByKeyword } from "@/utils/filterTracksByKeyword"
 
 const useMergedWebDAVServerData = () => {
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
   const [mergedSearchResult, setMergedSearchResult] =
     useState<MergedWebDAVSearchResult>({
       status: "IDLE",
@@ -24,6 +33,7 @@ const useMergedWebDAVServerData = () => {
         data: []
       })
 
+      /** IndexedDBにキャッシュ済みのメタデーターを検索 */
       const indexedDBTracks = (await searchTracks(keyword)).filter(track =>
         folderPaths.some(folderPath => track.path.startsWith(folderPath))
       )
@@ -32,22 +42,35 @@ const useMergedWebDAVServerData = () => {
         data: indexedDBTracks.map(track => removePathProperty(track))
       })
 
+      /** WebDAVサーバー上にある楽曲を検索する時、ファイル名ではなくメタデータを対象に検索するかどうか */
+      const shouldSearchAllMetadata =
+        settings.SEARCH_ALL_METADATA_FOR_UNCACHED_WEBDAV_TRACK
+
+      /** 検索対象となり得る楽曲の絶対パスを列挙する */
       const folderTracks = await Promise.all(
-        folderPaths.map(folderPath => getFolderTracks(folderPath, keyword))
+        folderPaths.map(folderPath =>
+          getFolderTracks(folderPath, shouldSearchAllMetadata ? "" : keyword)
+        )
       )
+
+      /** IndexedDBに存在しない楽曲ファイルを抽出 */
       const filteredFolderTracks = folderTracks
         .flat()
         .filter(
           track =>
             !indexedDBTracks.map(track => track.path).includes(track.filename)
         )
-      const folderTracksInfo = await Promise.all(
-        filteredFolderTracks.map(async fileInfo => {
-          const trackInfo = await getTrackInfo(fileInfo)
-          saveTrackInfo(trackInfo)
-          return trackInfo
-        })
+
+      const keywordFilteredUnCachedTracks = await Promise.all(
+        filteredFolderTracks.map(fileInfo => getTrackInfo(fileInfo))
       )
+
+      const folderTracksInfo = shouldSearchAllMetadata
+        ? filterTracksByKeyword(keywordFilteredUnCachedTracks, keyword)
+        : keywordFilteredUnCachedTracks
+
+      /** 新しく取得した楽曲のメタデーターをIndexedDBに保存しておく */
+      folderTracksInfo.forEach(trackInfo => saveTrackInfo(trackInfo))
 
       // indexedDBの検索結果とwebDAVサーバーの検索結果を結合して、楽曲タイトルの昇順にソートする
       const mergedTracks = indexedDBTracks
@@ -64,7 +87,7 @@ const useMergedWebDAVServerData = () => {
         data: mergedTracks
       })
     },
-    [searchTracks, getFolderTracks, getTrackInfo, saveTrackInfo]
+    [searchTracks, getFolderTracks, getTrackInfo, saveTrackInfo, settings]
   )
 
   const resetMergedSearchResult = useCallback(() => {

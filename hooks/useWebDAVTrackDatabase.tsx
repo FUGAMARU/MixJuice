@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react"
 import { WebDAVTrackDatabase } from "@/classes/TrackDatabase"
 import { TrackWithPath } from "@/types/Track"
+import { filterTracksByKeyword } from "@/utils/filterTracksByKeyword"
 
 // WebDAVのトラック取得の際のキャッシュ戦略用のIndexedDBを使用するためのカスタムフック
 const useWebDAVTrackDatabase = () => {
@@ -29,17 +30,9 @@ const useWebDAVTrackDatabase = () => {
   )
 
   const searchTracks = useCallback(
-    (keyword: string) => {
-      const lowerKeyword = keyword.toLowerCase()
-
-      const filteredTracks = db.tracks.filter(
-        (track: TrackWithPath) =>
-          track.title.toLowerCase().includes(lowerKeyword) ||
-          track.albumTitle.toLowerCase().includes(lowerKeyword) ||
-          track.artist.toLowerCase().includes(lowerKeyword)
-      )
-
-      return filteredTracks.toArray()
+    async (keyword: string) => {
+      const trackWithPathArray = await db.tracks.toArray()
+      return filterTracksByKeyword(trackWithPathArray, keyword)
     },
     [db.tracks]
   )

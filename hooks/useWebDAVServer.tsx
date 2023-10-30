@@ -180,7 +180,7 @@ const useWebDAVServer = () => {
     [getClient, checkServerConnectionRoutine]
   )
 
-  const searchTracks = useCallback(
+  const searchTracksByFilename = useCallback(
     async (folderPaths: string[], keyword: string) => {
       try {
         await checkServerConnectionRoutine()
@@ -216,7 +216,7 @@ const useWebDAVServer = () => {
     checkIsFolderExists,
     getFolderTracks,
     getTrackInfo,
-    searchTracks
+    searchTracksByFilename
   } as const
 }
 
