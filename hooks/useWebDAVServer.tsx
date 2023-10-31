@@ -5,6 +5,7 @@ import useStorage from "./useStorage"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { TrackWithPath, removePathProperty } from "@/types/Track"
 import { WebDAVDirectoryContent } from "@/types/WebDAVDirectoryContent"
+import { WebDAVServerCredentials } from "@/types/WebDAVServerCredentials"
 import { expandTrackInfo } from "@/utils/expandTrackInfo"
 import { getMimeType } from "@/utils/getMimeType"
 import { isDefined } from "@/utils/isDefined"
@@ -20,7 +21,9 @@ const useWebDAVServer = () => {
 
     if (!isDefined(webdavServerCredentials)) return undefined
 
-    const { address, user, password } = JSON.parse(webdavServerCredentials)
+    const { address, user, password } = JSON.parse(
+      webdavServerCredentials
+    ) as WebDAVServerCredentials
 
     return createClient(address as string, {
       authType: AuthType.Password,

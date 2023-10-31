@@ -16,6 +16,7 @@ import useErrorModal from "@/hooks/useErrorModal"
 import useStorage from "@/hooks/useStorage"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
 import styles from "@/styles/WebDAVConnector.module.css"
+import { WebDAVServerCredentials } from "@/types/WebDAVServerCredentials"
 import { isDefined } from "@/utils/isDefined"
 
 type Props = {
@@ -79,7 +80,11 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
       console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
       await updateUserData(
         FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS,
-        JSON.stringify({ address, user, password })
+        JSON.stringify({
+          address,
+          user,
+          password
+        } satisfies WebDAVServerCredentials)
       )
       onFolderPathInputModalOpen()
     } catch (e) {

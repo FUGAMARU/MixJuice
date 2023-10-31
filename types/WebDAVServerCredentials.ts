@@ -1,4 +1,4 @@
-export type WebDAVAuthInfo = {
+export type WebDAVServerCredentials = {
   address: string
   user: string
   password: string
