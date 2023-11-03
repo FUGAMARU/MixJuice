@@ -52,7 +52,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     if (breakPoint === "SmartPhone") {
       return (
         <Stack spacing="xs">
-          <Group spacing="xs" sx={{ justifyContent: "center" }} grow>
+          <Group spacing="xs" position="right" grow>
             <Button size="xs" variant="outline" color="gray">
               メールアドレス変更
             </Button>
@@ -60,7 +60,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
               パスワード変更
             </Button>
           </Group>
-          <Group spacing="xs" sx={{ justifyContent: "center" }} grow>
+          <Group spacing="xs" position="right" grow>
             <Button size="xs" variant="outline" color="gray">
               アカウント削除
             </Button>
@@ -73,7 +73,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     }
 
     return (
-      <Group spacing="xs" sx={{ justifyContent: "center" }} grow>
+      <Group spacing="xs" position="right" grow>
         <Button size="xs" variant="outline" color="gray">
           メールアドレス変更
         </Button>

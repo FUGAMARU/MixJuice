@@ -47,10 +47,30 @@ const useStorage = ({ initialize }: Args) => {
     return CryptoJS.AES.decrypt(cipherText, key).toString(CryptoJS.enc.Utf8)
   }, [])
 
-  const createNewHashedPassword = useCallback((password: string) => {
+  const createHashedPassword = useCallback((password: string) => {
     const hash = CryptoJS.SHA256(password).toString()
     localStorage.setItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY, hash)
   }, [])
+
+  const setDecryptionVerifyString = useCallback(
+    async (email: string) => {
+      if (!isDefined(decryptionVerifyString))
+        throw new Error(
+          "データーの復号化検証に必要な環境変数 NEXT_PUBLIC_DECRYPTION_VERIFY_STRING が設定されていません。サーバー管理者にお問い合わせください。"
+        )
+
+      const encryptedDecryptionVerifyString = encryptText(
+        decryptionVerifyString
+      )
+
+      await updateDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {
+        [FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]:
+          encryptedDecryptionVerifyString
+      })
+      console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+    },
+    [decryptionVerifyString, encryptText]
+  )
 
   const createNewUserDocument = useCallback(
     async (email: string) => {
@@ -63,12 +83,13 @@ const useStorage = ({ initialize }: Args) => {
         decryptionVerifyString
       )
 
-      const userData: UserData = {
+      const userData = {
         [FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]:
           encryptedDecryptionVerifyString
-      }
+      } satisfies UserData
 
       await setDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), userData)
+      console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
     },
     [encryptText, decryptionVerifyString]
   )
@@ -138,6 +159,13 @@ const useStorage = ({ initialize }: Args) => {
     [showError, userInfo, userData, setUserData]
   )
 
+  /** ユーザーのデーターを削除するのであってユーザードキュメント自体は削除しない */
+  const deleteAllUserData = useCallback(async (email: string) => {
+    await setDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {})
+    console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
+  }, [])
+
   const getCurrentUserData = useCallback(
     async (specifiedEmail?: string) => {
       const email = specifiedEmail ?? userInfo?.email
@@ -206,12 +234,14 @@ const useStorage = ({ initialize }: Args) => {
   ])
 
   return {
-    createNewHashedPassword,
+    createHashedPassword,
     createNewUserDocument,
+    setDecryptionVerifyString,
     userData,
     getCurrentUserData,
     updateUserData,
-    deleteUserData
+    deleteUserData,
+    deleteAllUserData
   } as const
 }
 

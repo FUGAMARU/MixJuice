@@ -64,7 +64,7 @@ const EmailVerification = ({ className, isDisplay, onBack }: Props) => {
         </Text>
       </Box>
 
-      <Group grow sx={{ justifyContent: "center" }}>
+      <Group position="center" grow>
         <GradientButton
           size="xs"
           ff="notoSansJP"

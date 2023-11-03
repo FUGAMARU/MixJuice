@@ -28,7 +28,11 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
   const { showError } = useErrorModal()
 
   const { checkUserExists, signIn } = useAuth()
-  const { getCurrentUserData } = useStorage({ initialize: false })
+  const {
+    getCurrentUserData,
+    createHashedPassword,
+    setDecryptionVerifyString
+  } = useStorage({ initialize: false })
   const { getSettingState: getSpotifySettingState } = useSpotifySettingState({
     initialize: false
   })
@@ -54,6 +58,9 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
         await slideTo("emailVerification")
         return
       }
+
+      createHashedPassword(passwordInput)
+      await setDecryptionVerifyString(emailInput)
 
       const userData = await getCurrentUserData(emailInput)
       const spotifySettingState = getSpotifySettingState(
@@ -84,20 +91,22 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     onTransit,
     getCurrentUserData,
     getSpotifySettingState,
-    getWebDAVSettingState
+    getWebDAVSettingState,
+    createHashedPassword,
+    setDecryptionVerifyString
   ])
 
   const isValidEmail = useMemo(
     () => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput),
     [emailInput]
   )
-  const hasValidPassword = useMemo(
+  const isValidPassword = useMemo(
     () => passwordInput.length >= 6, // 6文字以上なのはFirebaseの仕様
     [passwordInput]
   )
   const isSigninButtonDisabled = useMemo(
-    () => !isValidEmail || !hasValidPassword,
-    [isValidEmail, hasValidPassword]
+    () => !isValidEmail || !isValidPassword,
+    [isValidEmail, isValidPassword]
   )
 
   const handlePasswordKeyDown = useCallback(
@@ -171,6 +180,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
           color="blue"
           fz={setRespVal("0.7rem", "0.8rem", "0.8rem")}
           styles={{ label: { lineHeight: 0 } }}
+          onClick={() => slideTo("forgotPassword")}
         >
           パスワードを忘れた
         </Button>

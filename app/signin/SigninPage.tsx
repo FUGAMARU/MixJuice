@@ -14,6 +14,7 @@ import { useRecoilValue } from "recoil"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import CardViewDefault from "@/components/parts/CardViewDefault"
 import EmailVerification from "@/components/templates/SigninPage/EmailVerification"
+import ForgotPassword from "@/components/templates/SigninPage/ForgotPassword"
 import Signin from "@/components/templates/SigninPage/Signin"
 import Signup from "@/components/templates/SigninPage/Signup"
 import useBreakPoints from "@/hooks/useBreakPoints"
@@ -178,6 +179,20 @@ const SigninPage = () => {
                 "back",
                 setEmailVerificationFormClassName,
                 setIsDisplayEmailVerificationView
+              )
+            }
+          />
+        )}
+
+        {isDisplayForgotPasswordForm && (
+          <ForgotPassword
+            className={forgotPasswordFormClassName}
+            isDisplay={isDisplayForgotPasswordForm}
+            onBack={() =>
+              onSlide(
+                "back",
+                setForgotPasswordFormClassName,
+                setIsDisplayForgotPasswordForm
               )
             }
           />
