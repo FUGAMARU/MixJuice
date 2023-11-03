@@ -18,6 +18,8 @@ jobs:
           script: |
             export VOLTA_HOME="$HOME/.volta"
             export PATH="$VOLTA_HOME/bin:$PATH"
+            cd ~/repos/PaperMC
+            docker-compose down
             cd ~/node/MixJuice
             pm2 stop mixjuice
             git fetch
@@ -25,3 +27,5 @@ jobs:
             yarn install
             yarn build
             pm2 restart mixjuice
+            cd ~/repos/PaperMC
+            docker-compose up -d
