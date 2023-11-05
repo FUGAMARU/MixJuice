@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, Text } from "@mantine/core"
+import { Badge, Box, Divider, Flex, Text } from "@mantine/core"
 import { memo, useCallback } from "react"
 import { BsClockHistory } from "react-icons/bs"
 import { FixedSizeList } from "react-window"
@@ -8,6 +8,7 @@ import ModalDefault from "@/components/parts/ModalDefault"
 import QueueOperator from "@/components/parts/QueueOperator"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { Track } from "@/types/Track"
+import { millisecondsToHoursMinutesSeconds } from "@/utils/millisecondsToHoursMinutesSeconds"
 import { remToPx } from "@/utils/remToPx"
 
 type Props = {
@@ -43,6 +44,14 @@ const PlaybackHistoryModal = ({
     [onClose, onPlayFromPlaybackHistory]
   )
 
+  const {
+    hours: totalHours,
+    minutes: totalMinutes,
+    seconds: totalSeconds
+  } = millisecondsToHoursMinutesSeconds(
+    playbackHistories.reduce((acc, cur) => acc + cur.duration, 0)
+  )
+
   return (
     <ModalDefault
       title={
@@ -55,10 +64,27 @@ const PlaybackHistoryModal = ({
       onClose={onClose}
     >
       <Box data-autoFocus>
+        <Flex h="1.3rem" justify="center" align="center">
+          {playbackHistories.length > 0 && (
+            <>
+              <Text w="10rem" fz="0.8rem" fw={700} ta="right">
+                {playbackHistories.length}曲
+              </Text>
+              <Divider mx="xl" orientation="vertical" />
+              <Text w="10rem" fz="0.8rem" fw={700} ta="left">
+                {totalHours > 0
+                  ? `${totalHours}時間${totalMinutes}分${totalSeconds}秒`
+                  : totalMinutes > 0
+                  ? `${totalMinutes}分${totalSeconds}秒`
+                  : `${totalSeconds}秒`}
+              </Text>
+            </>
+          )}
+        </Flex>
         {playbackHistories.length > 0 ? (
           <FixedSizeList
             width="100%"
-            height={remToPx(30)}
+            height={remToPx(28.7)} // ModalDefaultのmax-height(30rem)から再生履歴の合計時間などの表示エリアの高さ(1.3rem)を引いたもの
             itemCount={playbackHistories.length}
             itemSize={80} // キューのアイテム1つ分の高さ
           >
