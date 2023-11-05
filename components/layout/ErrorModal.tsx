@@ -6,6 +6,8 @@ import { IoWarningOutline } from "react-icons/io5"
 import { useRecoilState } from "recoil"
 import { errorModalConfigAtom } from "@/atoms/errorModalConfigAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
+import { UserDataOperationError } from "@/classes/UserDataOperationError"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PAGE_PATH } from "@/constants/PagePath"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import { ErrorModalConfig } from "@/types/ErrorModalConfig"
@@ -18,6 +20,13 @@ const ErrorModal = () => {
   const lastConfig = modalStack[modalStack.length - 1]
 
   useEffect(() => {
+    const userDataOperationErros = errorModalConfigs.filter(
+      item =>
+        (item.instance instanceof Error ||
+          item.instance instanceof UserDataOperationError) &&
+        item.instance.name === "UserDataOperationError"
+    )
+
     const spotifyAuthErrors = errorModalConfigs.filter(
       item =>
         (item.instance instanceof Error ||
@@ -25,17 +34,28 @@ const ErrorModal = () => {
         item.instance.name === "SpotifyAuthError"
     )
 
-    const nonSpotifyAuthErrors = errorModalConfigs.filter(
+    const generalErrors = errorModalConfigs.filter(
       item =>
         (item.instance instanceof Error ||
           item.instance instanceof SpotifyAuthError) &&
         item.instance.name !== "SpotifyAuthError"
     )
 
-    setModalStack([...nonSpotifyAuthErrors, ...spotifyAuthErrors])
+    setModalStack([
+      ...generalErrors,
+      ...spotifyAuthErrors,
+      ...userDataOperationErros
+    ])
   }, [errorModalConfigs])
 
   const handleModalClose = useCallback(() => {
+    if (lastConfig?.instance instanceof UserDataOperationError) {
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
+      router.replace(PAGE_PATH.SIGNIN_PAGE)
+      setErrorModalConfigs([])
+      return
+    }
+
     if (lastConfig?.instance instanceof SpotifyAuthError) {
       /** ここに処理が来る段階で既にSpotifyの認証情報は削除済み */
       router.replace(`${PAGE_PATH.CONNECT_PAGE}?provider=spotify`)
@@ -47,9 +67,11 @@ const ErrorModal = () => {
       prevConfigs.filter(config => {
         if (
           (config.instance instanceof Error ||
-            config.instance instanceof SpotifyAuthError) &&
+            config.instance instanceof SpotifyAuthError ||
+            config.instance instanceof UserDataOperationError) &&
           (lastConfig?.instance instanceof Error ||
-            lastConfig?.instance instanceof SpotifyAuthError)
+            lastConfig?.instance instanceof SpotifyAuthError ||
+            lastConfig?.instance instanceof UserDataOperationError)
         ) {
           return config.instance.message !== lastConfig?.instance.message
         }

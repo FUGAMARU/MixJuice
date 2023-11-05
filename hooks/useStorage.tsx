@@ -6,6 +6,7 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilCallback, useRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
 import { userDataAtom } from "@/atoms/userDataAtom"
+import { UserDataOperationError } from "@/classes/UserDataOperationError"
 import {
   FIRESTORE_USERDATA_COLLECTION_NAME,
   FIRESTORE_DOCUMENT_KEYS
@@ -30,9 +31,9 @@ const useStorage = ({ initialize }: Args) => {
   const encryptText = useCallback((text: string) => {
     const key = localStorage.getItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
     if (!isDefined(key))
-      throw new Error(
+      throw new UserDataOperationError(
         "共通鍵がLocalStorageに存在しません。再ログインしてください。"
-      ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
+      )
 
     return CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(text), key).toString()
   }, [])
@@ -40,9 +41,9 @@ const useStorage = ({ initialize }: Args) => {
   const decryptText = useCallback((cipherText: string) => {
     const key = localStorage.getItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
     if (!isDefined(key))
-      throw new Error(
+      throw new UserDataOperationError(
         "共通鍵がLocalStorageに存在しません。再ログインしてください。"
-      ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
+      )
 
     return CryptoJS.AES.decrypt(cipherText, key).toString(CryptoJS.enc.Utf8)
   }, [])
@@ -199,9 +200,9 @@ const useStorage = ({ initialize }: Args) => {
         decryptedUserData[FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]
 
       if (decryptionVerifyString !== decryptedVerifyString)
-        throw new Error(
+        throw new UserDataOperationError(
           "データーの復号化検証に失敗しました。再ログインしてください。"
-        ) // TODO: モーダルのボタン押したらログインフォームに飛ばされる独自例外に置き換える
+        )
 
       return decryptedUserData
     },

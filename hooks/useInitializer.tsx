@@ -1,3 +1,4 @@
+import { signOut } from "firebase/auth"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
@@ -51,31 +52,34 @@ const useInitializer = () => {
   }, [pathname, searchParams, setIsLoading])
 
   useEffect(() => {
-    /** 【サインインページに飛ばす条件】
-     * ユーザーの認証情報が読み込み中でない、かつ
-     * ①ユーザー情報が空 (ユーザー登録が済んでいない or ログインしていない)
-     * ②メールアドレスの認証が完了していない
-     * ③LocalStorageにデーターの復号化キーが存在しない
-     * のいずれかに該当する場合はサインインページに飛ばす
-     */
-    const decryptionKey = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY
-    )
-    if (
-      !isLoadingUserInfo &&
-      userInfo !== undefined && // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
-      (userInfo === null || // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
-        !userInfo.emailVerified ||
-        !isDefined(decryptionKey))
-    ) {
-      router.push(PAGE_PATH.SIGNIN_PAGE)
-      return
-    }
+    ;async () => {
+      /** 【サインインページに飛ばす条件】
+       * ユーザーの認証情報が読み込み中でない、かつ
+       * ①ユーザー情報が空 (ユーザー登録が済んでいない or ログインしていない)
+       * ②メールアドレスの認証が完了していない
+       * ③LocalStorageにデーターの復号化キーが存在しない
+       * のいずれかに該当する場合はサインインページに飛ばす
+       */
+      const decryptionKey = localStorage.getItem(
+        LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY
+      )
+      if (
+        !isLoadingUserInfo &&
+        userInfo !== undefined && // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
+        (userInfo === null || // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
+          !userInfo.emailVerified ||
+          !isDefined(decryptionKey))
+      ) {
+        await signOut(auth) // 共通鍵がLocalStorageに存在しないという理由でサインインページに飛ばす場合、先にサインアウトさせておかないとサインインページに飛ばされてもログイン済み扱いになるためまたメインページに飛ばされてしまう
+        router.push(PAGE_PATH.SIGNIN_PAGE)
+        return
+      }
 
-    setIsLoading({
-      stateChangedOn: PAGE_PATH.MAIN_PAGE,
-      state: false
-    })
+      setIsLoading({
+        stateChangedOn: PAGE_PATH.MAIN_PAGE,
+        state: false
+      })
+    }
   }, [setIsLoading, isLoadingUserInfo, userInfo, router])
 
   /** 不要説 */
