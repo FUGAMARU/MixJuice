@@ -23,11 +23,7 @@ const useAuth = () => {
   }, [])
 
   const signIn = useCallback(
-    async (
-      email: string,
-      password: string,
-      skipCreateHashedPassword?: boolean
-    ) => {
+    async (email: string, password: string) => {
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
@@ -35,7 +31,7 @@ const useAuth = () => {
           password
         )
 
-        if (!skipCreateHashedPassword) createHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
+        createHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
 
         return userCredential
       } catch (e) {
