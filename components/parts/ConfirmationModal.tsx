@@ -35,7 +35,7 @@ const ConfirmationModal = ({
       closeOnClickOutside={false}
       closeOnEscape={false}
     >
-      <Stack mah="30rem" spacing="xl" sx={{ overflowY: "auto" }}>
+      <Stack mah="30rem" spacing="xl">
         {children}
         <Group position="right">
           <Button onClick={onConfirm}>{confirmButtonText}</Button>

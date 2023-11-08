@@ -80,11 +80,16 @@ const useWebDAVTrackDatabase = () => {
     [db.tracks, restoreServerCredentials]
   )
 
+  const clearAllData = useCallback(async () => {
+    await db.tracks.clear()
+  }, [db.tracks])
+
   return {
     saveTrackInfo,
     isTrackInfoExists,
     getTrackInfo,
-    searchTracks
+    searchTracks,
+    clearAllData
   } as const
 }
 

@@ -23,7 +23,11 @@ const useAuth = () => {
   }, [])
 
   const signIn = useCallback(
-    async (email: string, password: string) => {
+    async (
+      email: string,
+      password: string,
+      skipCreateHashedPassword?: boolean
+    ) => {
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
@@ -31,12 +35,11 @@ const useAuth = () => {
           password
         )
 
-        createHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
+        if (!skipCreateHashedPassword) createHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
 
         return userCredential
       } catch (e) {
         if (e instanceof FirebaseError) {
-          // TODO: auth/user-not-found を使えばユーザーの存在確認できそうなのでFirestoreのドキュメントIDをメアドにする必要ない説
           switch (
             e.code // TODO: エラーコード対応拡充？？ (https://firebase.google.com/docs/reference/js/v8/firebase.FirebaseError#code)
           ) {
@@ -45,6 +48,7 @@ const useAuth = () => {
                 "サインインに失敗しました。パスワードが間違っている可能性があります。"
               )
             default:
+              console.log("🟥ERROR: ", e)
               throw new Error("何らかの原因でサインインに失敗しました")
           }
         }

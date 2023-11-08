@@ -1,10 +1,18 @@
 import CryptoJS from "crypto-js"
-import { setDoc, doc, getDoc, deleteField, updateDoc } from "firebase/firestore"
+import {
+  setDoc,
+  doc,
+  getDoc,
+  deleteField,
+  updateDoc,
+  deleteDoc
+} from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilCallback, useRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
+import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { userDataAtom } from "@/atoms/userDataAtom"
 import { UserDataOperationError } from "@/classes/UserDataOperationError"
 import {
@@ -22,6 +30,7 @@ const useStorage = ({ initialize }: Args) => {
   const { showError } = useErrorModal()
   const [userData, setUserData] = useRecoilState(userDataAtom)
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
+  const { clearAllData } = useWebDAVTrackDatabase()
 
   const decryptionVerifyString = useMemo(
     () => process.env.NEXT_PUBLIC_DECRYPTION_VERIFY_STRING,
@@ -134,7 +143,7 @@ const useStorage = ({ initialize }: Args) => {
     [encryptText, showError, userInfo, decryptionVerifyString]
   )
 
-  const deleteUserData = useCallback(
+  const deleteUserDataWithKey = useCallback(
     async (key: UserDataKey) => {
       try {
         const email = userInfo?.email
@@ -166,6 +175,16 @@ const useStorage = ({ initialize }: Args) => {
     console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
     localStorage.removeItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
   }, [])
+
+  /** ユーザーが退会する時に使うやつ */
+  const deleteUserData = useCallback(
+    async (email: string) => {
+      await deleteDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email))
+      localStorage.clear()
+      clearAllData()
+    },
+    [clearAllData]
+  )
 
   const getCurrentUserData = useCallback(
     async (specifiedEmail?: string) => {
@@ -241,8 +260,9 @@ const useStorage = ({ initialize }: Args) => {
     userData,
     getCurrentUserData,
     updateUserData,
-    deleteUserData,
-    deleteAllUserData
+    deleteUserDataWithKey,
+    deleteAllUserData,
+    deleteUserData
   } as const
 }
 
