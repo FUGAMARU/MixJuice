@@ -124,7 +124,6 @@ const ForgotPassword = ({ className, isDisplay, onBack }: Props) => {
 
       <ConfirmationModal
         isOpen={isConfirmationModalOpen}
-        title="確認"
         confirmButtonText="リセットする"
         cancelButtonText="やめる"
         onConfirm={handleModalConfirm}

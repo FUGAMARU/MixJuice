@@ -12,7 +12,7 @@ import { FIRESTORE_USERDATA_COLLECTION_NAME } from "@/constants/Firestore"
 import { db, auth } from "@/utils/firebase"
 
 const useAuth = () => {
-  const { createHashedPassword, createNewUserDocument } = useStorage({
+  const { setHashedPassword, createNewUserDocument } = useStorage({
     initialize: false
   })
 
@@ -31,7 +31,7 @@ const useAuth = () => {
           password
         )
 
-        createHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
+        setHashedPassword(password) // 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う
 
         return userCredential
       } catch (e) {
@@ -50,7 +50,7 @@ const useAuth = () => {
         }
       }
     },
-    [createHashedPassword]
+    [setHashedPassword]
   )
 
   const signOut = useCallback(async () => {
@@ -70,12 +70,12 @@ const useAuth = () => {
       await sendEmailVerification(userCredential.user)
 
       /** 渡されたパスワードをハッシュ化し、LocalStorageに保存、以後共通鍵として使う */
-      createHashedPassword(password)
+      setHashedPassword(password)
 
       /** 復号化検証用のテキストを初期データーとしてユーザーのコレクションを新規作成する */
       await createNewUserDocument(email)
     },
-    [createNewUserDocument, createHashedPassword]
+    [createNewUserDocument, setHashedPassword]
   )
 
   return { checkUserExists, signUp, signIn, signOut } as const

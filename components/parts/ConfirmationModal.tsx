@@ -5,7 +5,6 @@ import { Children } from "@/types/Children"
 
 type Props = {
   isOpen: boolean
-  title: string
   confirmButtonText: string
   cancelButtonText: string
   onConfirm: () => void
@@ -14,7 +13,6 @@ type Props = {
 
 const ConfirmationModal = ({
   isOpen,
-  title,
   children,
   confirmButtonText,
   cancelButtonText,
@@ -26,7 +24,7 @@ const ConfirmationModal = ({
       size="md"
       opened={isOpen}
       onClose={onCancel}
-      title={title}
+      title="確認"
       centered
       styles={{
         title: { color: STYLING_VALUES.TEXT_COLOR_DEFAULT, fontWeight: 700 }

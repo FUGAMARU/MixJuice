@@ -9,27 +9,21 @@ import {
   Switch,
   Text
 } from "@mantine/core"
-import { useDisclosure, useLocalStorage } from "@mantine/hooks"
+import { useLocalStorage } from "@mantine/hooks"
+
 import { FirebaseError } from "firebase/app"
-import {
-  AuthCredential,
-  deleteUser,
-  reauthenticateWithCredential
-} from "firebase/auth"
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useMemo } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { IoSettingsOutline } from "react-icons/io5"
 import { PiUserCircleThin } from "react-icons/pi"
 import ConfirmationModal from "@/components/parts/ConfirmationModal"
-import GetLatestAuthCredentialModal from "@/components/parts/GetLatestAuthCredentialModal"
+
+import InputModal from "@/components/parts/InputModal"
 import ModalDefault from "@/components/parts/ModalDefault"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { PAGE_PATH } from "@/constants/PagePath"
 import { DEFAULT_SETTING_VALUES, SETTING_ITEMS } from "@/constants/Settings"
-import useAuth from "@/hooks/useAuth"
 import useBreakPoints from "@/hooks/useBreakPoints"
-import useStorage from "@/hooks/useStorage"
-import useTransit from "@/hooks/useTransit"
+import useSettingModal from "@/hooks/useSettingModal"
 import { SettingValues } from "@/types/DefaultSettings"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
@@ -42,105 +36,33 @@ type Props = {
 const SettingModal = ({ isOpen, onClose }: Props) => {
   const { breakPoint, setRespVal } = useBreakPoints()
   const [userInfo] = useAuthState(auth)
-  const { signOut } = useAuth()
-  const { deleteUserData } = useStorage({ initialize: false })
-  const { onTransit } = useTransit()
   const [settings, setSettings] = useLocalStorage<SettingValues>({
     key: LOCAL_STORAGE_KEYS.SETTINGS,
     defaultValue: DEFAULT_SETTING_VALUES
   })
-  const [
+  const {
+    isProcessingSignout,
+    handleSignoutButtonClick,
+    showSimpleError,
+    reAuth,
     isConfirmationDeleteUserModalOpen,
-    {
-      open: onOpenConfirmationDeleteUserModal,
-      close: onCloseConfirmationDeleteUserModal
-    }
-  ] = useDisclosure(false)
-  const [
-    isGetLatestAuthCredentialModalOpen,
-    {
-      open: onOpenGetLatestAuthCredentialModal,
-      close: onCloseGetLatestAuthCredentialModal
-    }
-  ] = useDisclosure(false)
-
-  const [isProcessingSignout, setIsProcessingSignout] = useState(false)
-  const handleSignoutButtonClick = useCallback(async () => {
-    setIsProcessingSignout(true)
-    await signOut()
-    onClose()
-    await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
-  }, [signOut, onClose, onTransit])
-
-  const executeDeleteUser = useCallback(
-    async (latestUserCredential: AuthCredential) => {
-      try {
-        if (!isDefined(userInfo)) return
-
-        const newUserCredential = await reauthenticateWithCredential(
-          userInfo,
-          latestUserCredential
-        )
-        if (!isDefined(newUserCredential.user.email)) return
-
-        await deleteUser(newUserCredential.user)
-        await deleteUserData(newUserCredential.user.email)
-        await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
-      } catch (e) {
-        if (e instanceof FirebaseError) {
-          switch (
-            e.code // TODO: エラーコード対応拡充？？ (https://firebase.google.com/docs/reference/js/v8/firebase.FirebaseError#code)
-          ) {
-            case "auth/invalid-login-credentials":
-              alert(
-                "サインインに失敗しました。パスワードが間違っている可能性があります。"
-              ) // TODO: showErrorを使うとz-indexを指定しても最前面に表示されないので暫定対応
-              break
-            default:
-              console.log("🟥ERROR: ", e)
-              alert("何らかの原因でサインインに失敗しました") // TODO: showErrorを使うとz-indexを指定しても最前面に表示されないので暫定対応
-          }
-        }
-      }
-    },
-    [userInfo, deleteUserData, onTransit]
-  )
-
-  const handleConfirmPassword = useCallback(
-    async (nextAction: "deleteUser" | "changePassword" | "changeEmail") => {
-      switch (nextAction) {
-        case "deleteUser":
-          onCloseConfirmationDeleteUserModal()
-          onOpenGetLatestAuthCredentialModal()
-          break
-        case "changePassword":
-          // TODO: パスワード変更処理
-          break
-        case "changeEmail":
-          // TODO: メールアドレス変更処理
-          break
-      }
-    },
-    [onOpenGetLatestAuthCredentialModal, onCloseConfirmationDeleteUserModal]
-  )
-
-  const handleCancelGetLatestAuthCredentialModal = useCallback(
-    async (action: "deleteUser" | "changePassword" | "changeEmail") => {
-      switch (action) {
-        case "deleteUser":
-          onCloseGetLatestAuthCredentialModal()
-          onOpenConfirmationDeleteUserModal()
-          break
-        case "changePassword":
-          // TODO: パスワード変更処理
-          break
-        case "changeEmail":
-          // TODO: メールアドレス変更処理
-          break
-      }
-    },
-    [onCloseGetLatestAuthCredentialModal, onOpenConfirmationDeleteUserModal]
-  )
+    onOpenConfirmationDeleteUserModal,
+    onCloseConfirmationDeleteUserModal,
+    isConfirmationChangePasswordModalOpen,
+    onOpenConfirmationChangePasswordModal,
+    onCloseConfirmationChangePasswordModal,
+    isInputModalForDeleteUserOpen,
+    onOpenInputModalForDeleteUser,
+    onCloseInputModalForDeleteUser,
+    isInputCurrentPasswordModalForChangePasswordOpen,
+    onOpenInputCurrentPasswordModalForChangePassword,
+    onCloseInputCurrentPasswordModalForChangePassword,
+    isInputAfterPasswordModalForChangePasswordOpen,
+    onOpenInputAfterPasswordModalForChangePassword,
+    onCloseInputAfterPasswordModalForChangePassword,
+    handleConfirmForDeleteUser,
+    handleConfirmForChangePassword
+  } = useSettingModal({ onCloseModal: onClose })
 
   const footerFunctions = useMemo(() => {
     if (breakPoint === "SmartPhone") {
@@ -150,7 +72,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
             <Button size="xs" variant="outline" color="gray">
               メールアドレス変更
             </Button>
-            <Button size="xs" variant="outline" color="gray">
+            <Button
+              size="xs"
+              variant="outline"
+              color="gray"
+              onClick={onOpenConfirmationChangePasswordModal}
+            >
               パスワード変更
             </Button>
           </Group>
@@ -176,7 +103,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         <Button size="xs" variant="outline" color="gray">
           メールアドレス変更
         </Button>
-        <Button size="xs" variant="outline" color="gray">
+        <Button
+          size="xs"
+          variant="outline"
+          color="gray"
+          onClick={onOpenConfirmationChangePasswordModal}
+        >
           パスワード変更
         </Button>
         <Button
@@ -192,7 +124,11 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         </Button>
       </Group>
     )
-  }, [breakPoint, onOpenConfirmationDeleteUserModal])
+  }, [
+    breakPoint,
+    onOpenConfirmationDeleteUserModal,
+    onOpenConfirmationChangePasswordModal
+  ])
 
   return (
     <>
@@ -286,19 +222,72 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
 
       <ConfirmationModal
         isOpen={isConfirmationDeleteUserModalOpen}
-        title="確認"
         confirmButtonText="削除する"
         cancelButtonText="やめる"
-        onConfirm={() => handleConfirmPassword("deleteUser")}
+        onConfirm={() => {
+          onCloseConfirmationDeleteUserModal()
+          onOpenInputModalForDeleteUser()
+        }}
         onCancel={onCloseConfirmationDeleteUserModal}
       >
         アカウントに紐づいているユーザーデーターは一度削除すると復元できません。アカウントを削除してもよろしいですか？
       </ConfirmationModal>
 
-      <GetLatestAuthCredentialModal
-        isOpen={isGetLatestAuthCredentialModalOpen}
-        onExecute={executeDeleteUser}
-        onCancel={() => handleCancelGetLatestAuthCredentialModal("deleteUser")}
+      <ConfirmationModal
+        isOpen={isConfirmationChangePasswordModalOpen}
+        confirmButtonText="変更する"
+        cancelButtonText="やめる"
+        onConfirm={() => {
+          onCloseConfirmationChangePasswordModal()
+          onOpenInputCurrentPasswordModalForChangePassword()
+        }}
+        onCancel={onCloseConfirmationChangePasswordModal}
+      >
+        パスワードを変更するとSpotifyやWebDAVサーバーの接続設定が再度必要になります。よろしいですか？
+      </ConfirmationModal>
+
+      <InputModal
+        type="password"
+        title="パスワードを入力"
+        isOpen={isInputModalForDeleteUserOpen}
+        confirmButtonText="削除する"
+        onConfirm={handleConfirmForDeleteUser}
+        onCancel={() => {
+          onCloseInputModalForDeleteUser()
+          onOpenConfirmationDeleteUserModal()
+        }}
+      />
+
+      <InputModal
+        type="password"
+        title="現在のパスワードを入力"
+        isOpen={isInputCurrentPasswordModalForChangePasswordOpen}
+        confirmButtonText="次へ"
+        onConfirm={async password => {
+          try {
+            await reAuth(password)
+            onCloseInputCurrentPasswordModalForChangePassword()
+            onOpenInputAfterPasswordModalForChangePassword()
+          } catch (e) {
+            if (e instanceof FirebaseError) showSimpleError(e)
+          }
+        }}
+        onCancel={() => {
+          onCloseInputCurrentPasswordModalForChangePassword()
+          onOpenConfirmationChangePasswordModal()
+        }}
+      />
+
+      <InputModal
+        type="password"
+        title="変更後のパスワードを入力"
+        isOpen={isInputAfterPasswordModalForChangePasswordOpen}
+        confirmButtonText="変更する"
+        onConfirm={handleConfirmForChangePassword}
+        onCancel={() => {
+          onCloseInputAfterPasswordModalForChangePassword()
+          onOpenConfirmationChangePasswordModal()
+        }}
       />
     </>
   )

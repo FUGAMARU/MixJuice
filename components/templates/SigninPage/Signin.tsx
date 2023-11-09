@@ -28,11 +28,8 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
   const { showError } = useErrorModal()
 
   const { checkUserExists, signIn } = useAuth()
-  const {
-    getCurrentUserData,
-    createHashedPassword,
-    setDecryptionVerifyString
-  } = useStorage({ initialize: false })
+  const { getCurrentUserData, setHashedPassword, setDecryptionVerifyString } =
+    useStorage({ initialize: false })
   const { getSettingState: getSpotifySettingState } = useSpotifySettingState({
     initialize: false
   })
@@ -59,7 +56,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
         return
       }
 
-      createHashedPassword(passwordInput)
+      setHashedPassword(passwordInput)
       await setDecryptionVerifyString(emailInput)
 
       const userData = await getCurrentUserData(emailInput)
@@ -92,7 +89,7 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     getCurrentUserData,
     getSpotifySettingState,
     getWebDAVSettingState,
-    createHashedPassword,
+    setHashedPassword,
     setDecryptionVerifyString
   ])
 

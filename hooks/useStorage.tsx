@@ -57,7 +57,7 @@ const useStorage = ({ initialize }: Args) => {
     return CryptoJS.AES.decrypt(cipherText, key).toString(CryptoJS.enc.Utf8)
   }, [])
 
-  const createHashedPassword = useCallback((password: string) => {
+  const setHashedPassword = useCallback((password: string) => {
     const hash = CryptoJS.SHA256(password).toString()
     localStorage.setItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY, hash)
   }, [])
@@ -254,7 +254,7 @@ const useStorage = ({ initialize }: Args) => {
   ])
 
   return {
-    createHashedPassword,
+    setHashedPassword,
     createNewUserDocument,
     setDecryptionVerifyString,
     userData,
