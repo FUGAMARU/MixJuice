@@ -17,7 +17,7 @@ const useAuth = () => {
   })
 
   const checkUserExists = useCallback(async (email: string) => {
-    // fetchSignInMethodsForEmailを使っても空配列しか返ってこないのでFirestoreから該当UUIDのコレクションがあるかどうかで判定する
+    // fetchSignInMethodsForEmailを使っても空配列しか返ってこないのでFirestoreに該当するメアドのドキュメントが存在するかどうかで判定する
     const res = await getDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email))
     return res.exists()
   }, [])

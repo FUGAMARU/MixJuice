@@ -51,25 +51,40 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     isConfirmationChangePasswordModalOpen,
     onOpenConfirmationChangePasswordModal,
     onCloseConfirmationChangePasswordModal,
+    isConfirmationChangeEmailModalOpen,
+    onOpenConfirmationChangeEmailModal,
+    onCloseConfirmationChangeEmailModal,
     isInputModalForDeleteUserOpen,
     onOpenInputModalForDeleteUser,
     onCloseInputModalForDeleteUser,
     isInputCurrentPasswordModalForChangePasswordOpen,
     onOpenInputCurrentPasswordModalForChangePassword,
     onCloseInputCurrentPasswordModalForChangePassword,
-    isInputAfterPasswordModalForChangePasswordOpen,
-    onOpenInputAfterPasswordModalForChangePassword,
-    onCloseInputAfterPasswordModalForChangePassword,
+    isInputNewPasswordModalForChangePasswordOpen,
+    onOpenInputNewPasswordModalForChangePassword,
+    onCloseInputNewPasswordModalForChangePassword,
+    isInputCurrentPasswordModalForChangeEmailOpen,
+    onOpenInputCurrentPasswordModalForChangeEmail,
+    onCloseInputCurrentPasswordModalForChangeEmail,
+    isInputNewEmailModalForChangeEmailOpen,
+    onOpenInputNewEmailModalForChangeEmail,
+    onCloseInputNewEmailModalForChangeEmail,
     handleConfirmForDeleteUser,
-    handleConfirmForChangePassword
+    handleConfirmForChangePassword,
+    handleConfirmForChangeEmail
   } = useSettingModal({ onCloseModal: onClose })
 
-  const footerFunctions = useMemo(() => {
+  const footerActions = useMemo(() => {
     if (breakPoint === "SmartPhone") {
       return (
         <Stack spacing="xs">
           <Group spacing="xs" position="right" grow>
-            <Button size="xs" variant="outline" color="gray">
+            <Button
+              size="xs"
+              variant="outline"
+              color="gray"
+              onClick={onOpenConfirmationChangeEmailModal}
+            >
               メールアドレス変更
             </Button>
             <Button
@@ -100,7 +115,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
 
     return (
       <Group spacing="xs" position="right" grow>
-        <Button size="xs" variant="outline" color="gray">
+        <Button
+          size="xs"
+          variant="outline"
+          color="gray"
+          onClick={onOpenConfirmationChangeEmailModal}
+        >
           メールアドレス変更
         </Button>
         <Button
@@ -127,7 +147,8 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
   }, [
     breakPoint,
     onOpenConfirmationDeleteUserModal,
-    onOpenConfirmationChangePasswordModal
+    onOpenConfirmationChangePasswordModal,
+    onOpenConfirmationChangeEmailModal
   ])
 
   return (
@@ -212,7 +233,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         <Divider my="sm" />
 
         <Box ta="center">
-          {footerFunctions}
+          {footerActions}
 
           <Text fz="0.7rem" color="#868e96">
             ※完了後サインアウトされます
@@ -246,6 +267,19 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         パスワードを変更するとSpotifyやWebDAVサーバーの接続設定が再度必要になります。よろしいですか？
       </ConfirmationModal>
 
+      <ConfirmationModal
+        isOpen={isConfirmationChangeEmailModalOpen}
+        confirmButtonText="変更する"
+        cancelButtonText="やめる"
+        onConfirm={() => {
+          onCloseConfirmationChangeEmailModal()
+          onOpenInputCurrentPasswordModalForChangeEmail()
+        }}
+        onCancel={onCloseConfirmationChangeEmailModal}
+      >
+        今現在メールアドレスを変更しようとするとエラーが発生する可能性がありますが、やってみますか？
+      </ConfirmationModal>
+
       <InputModal
         type="password"
         title="パスワードを入力"
@@ -267,7 +301,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
           try {
             await reAuth(password)
             onCloseInputCurrentPasswordModalForChangePassword()
-            onOpenInputAfterPasswordModalForChangePassword()
+            onOpenInputNewPasswordModalForChangePassword()
           } catch (e) {
             if (e instanceof FirebaseError) showSimpleError(e)
           }
@@ -281,12 +315,44 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
       <InputModal
         type="password"
         title="変更後のパスワードを入力"
-        isOpen={isInputAfterPasswordModalForChangePasswordOpen}
+        isOpen={isInputNewPasswordModalForChangePasswordOpen}
         confirmButtonText="変更する"
         onConfirm={handleConfirmForChangePassword}
         onCancel={() => {
-          onCloseInputAfterPasswordModalForChangePassword()
+          onCloseInputNewPasswordModalForChangePassword()
           onOpenConfirmationChangePasswordModal()
+        }}
+      />
+
+      <InputModal
+        type="password"
+        title="現在のパスワードを入力"
+        isOpen={isInputCurrentPasswordModalForChangeEmailOpen}
+        confirmButtonText="次へ"
+        onConfirm={async password => {
+          try {
+            await reAuth(password)
+            onCloseInputCurrentPasswordModalForChangeEmail()
+            onOpenInputNewEmailModalForChangeEmail()
+          } catch (e) {
+            if (e instanceof FirebaseError) showSimpleError(e)
+          }
+        }}
+        onCancel={() => {
+          onCloseInputCurrentPasswordModalForChangeEmail()
+          onOpenConfirmationChangeEmailModal()
+        }}
+      />
+
+      <InputModal
+        type="email"
+        title="新しいメールアドレスを入力"
+        isOpen={isInputNewEmailModalForChangeEmailOpen}
+        confirmButtonText="変更する"
+        onConfirm={handleConfirmForChangeEmail}
+        onCancel={() => {
+          onCloseInputNewEmailModalForChangeEmail()
+          onOpenConfirmationChangeEmailModal()
         }}
       />
     </>

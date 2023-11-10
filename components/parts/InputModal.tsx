@@ -32,7 +32,7 @@ const InputModal = ({
   const isConfirmButtonDisabled = useMemo(() => {
     switch (type) {
       case "email":
-        return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(inputValue)
+        return !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(inputValue)
       case "password":
         return inputValue.length < 6 // 6文字以上なのはFirebaseの仕様
     }

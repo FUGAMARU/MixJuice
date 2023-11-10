@@ -4,7 +4,8 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   deleteUser,
-  updatePassword
+  updatePassword,
+  updateEmail
 } from "firebase/auth"
 import { useCallback, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
@@ -24,7 +25,7 @@ const useSettingModal = ({ onCloseModal }: Args) => {
   const { deleteUserData, deleteAllUserData } = useStorage({
     initialize: false
   })
-  const { signOut } = useAuth()
+  const { signOut, checkUserExists } = useAuth()
   const { onTransit } = useTransit()
 
   const [isProcessingSignout, setIsProcessingSignout] = useState(false)
@@ -79,6 +80,13 @@ const useSettingModal = ({ onCloseModal }: Args) => {
       close: onCloseConfirmationChangePasswordModal
     }
   ] = useDisclosure(false)
+  const [
+    isConfirmationChangeEmailModalOpen,
+    {
+      open: onOpenConfirmationChangeEmailModal,
+      close: onCloseConfirmationChangeEmailModal
+    }
+  ] = useDisclosure(false)
 
   /** ログイン情報の入力を受け付けるモーダルの表示に関する状態管理 */
   const [
@@ -96,10 +104,24 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     }
   ] = useDisclosure(false)
   const [
-    isInputAfterPasswordModalForChangePasswordOpen,
+    isInputNewPasswordModalForChangePasswordOpen,
     {
-      open: onOpenInputAfterPasswordModalForChangePassword,
-      close: onCloseInputAfterPasswordModalForChangePassword
+      open: onOpenInputNewPasswordModalForChangePassword,
+      close: onCloseInputNewPasswordModalForChangePassword
+    }
+  ] = useDisclosure(false)
+  const [
+    isInputCurrentPasswordModalForChangeEmailOpen,
+    {
+      open: onOpenInputCurrentPasswordModalForChangeEmail,
+      close: onCloseInputCurrentPasswordModalForChangeEmail
+    }
+  ] = useDisclosure(false)
+  const [
+    isInputNewEmailModalForChangeEmailOpen,
+    {
+      open: onOpenInputNewEmailModalForChangeEmail,
+      close: onCloseInputNewEmailModalForChangeEmail
     }
   ] = useDisclosure(false)
 
@@ -140,6 +162,26 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     [deleteAllUserData, showSimpleError, userInfo, onTransit, signOut]
   )
 
+  const handleConfirmForChangeEmail = useCallback(
+    async (email: string) => {
+      try {
+        if (!isDefined(userInfo)) return
+
+        const isUserExists = await checkUserExists(email)
+        if (isUserExists)
+          throw new Error("既に利用されているメールアドレスです")
+
+        await updateEmail(userInfo, email) // TODO: なぜかエラーが出て変更できない
+        await signOut()
+        await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
+      } catch (e) {
+        if (e instanceof FirebaseError) showSimpleError(e)
+        if (e instanceof Error) alert(e.message)
+      }
+    },
+    [showSimpleError, userInfo, checkUserExists, onTransit, signOut]
+  )
+
   return {
     isProcessingSignout,
     handleSignoutButtonClick,
@@ -151,17 +193,27 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     isConfirmationChangePasswordModalOpen,
     onOpenConfirmationChangePasswordModal,
     onCloseConfirmationChangePasswordModal,
+    isConfirmationChangeEmailModalOpen,
+    onOpenConfirmationChangeEmailModal,
+    onCloseConfirmationChangeEmailModal,
     isInputModalForDeleteUserOpen,
     onOpenInputModalForDeleteUser,
     onCloseInputModalForDeleteUser,
     isInputCurrentPasswordModalForChangePasswordOpen,
     onOpenInputCurrentPasswordModalForChangePassword,
     onCloseInputCurrentPasswordModalForChangePassword,
-    isInputAfterPasswordModalForChangePasswordOpen,
-    onOpenInputAfterPasswordModalForChangePassword,
-    onCloseInputAfterPasswordModalForChangePassword,
+    isInputNewPasswordModalForChangePasswordOpen,
+    onOpenInputNewPasswordModalForChangePassword,
+    onCloseInputNewPasswordModalForChangePassword,
+    isInputCurrentPasswordModalForChangeEmailOpen,
+    onOpenInputCurrentPasswordModalForChangeEmail,
+    onCloseInputCurrentPasswordModalForChangeEmail,
+    isInputNewEmailModalForChangeEmailOpen,
+    onOpenInputNewEmailModalForChangeEmail,
+    onCloseInputNewEmailModalForChangeEmail,
     handleConfirmForDeleteUser,
-    handleConfirmForChangePassword
+    handleConfirmForChangePassword,
+    handleConfirmForChangeEmail
   } as const
 }
 
