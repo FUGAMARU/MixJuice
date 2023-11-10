@@ -15,6 +15,7 @@ import useTransit from "@/hooks/useTransit"
 import useWebDAVSettingState from "@/hooks/useWebDAVSettingState"
 import { SigninPageType } from "@/types/SigninPageType"
 import { isDefined } from "@/utils/isDefined"
+import { isValidEmail, isValidPassword } from "@/utils/validation"
 
 type Props = {
   className: string
@@ -93,17 +94,14 @@ const Signin = ({ className, isDisplay, slideTo }: Props) => {
     setDecryptionVerifyString
   ])
 
-  const isValidEmail = useMemo(
-    () => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput),
-    [emailInput]
-  )
-  const isValidPassword = useMemo(
-    () => passwordInput.length >= 6, // 6文字以上なのはFirebaseの仕様
+  const hasValidEmail = useMemo(() => isValidEmail(emailInput), [emailInput])
+  const hasValidPassword = useMemo(
+    () => isValidPassword(passwordInput),
     [passwordInput]
   )
   const isSigninButtonDisabled = useMemo(
-    () => !isValidEmail || !isValidPassword,
-    [isValidEmail, isValidPassword]
+    () => !hasValidEmail || !hasValidPassword,
+    [hasValidEmail, hasValidPassword]
   )
 
   const handlePasswordKeyDown = useCallback(

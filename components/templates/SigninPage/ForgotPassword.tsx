@@ -11,6 +11,7 @@ import useAuth from "@/hooks/useAuth"
 import useErrorModal from "@/hooks/useErrorModal"
 import useStorage from "@/hooks/useStorage"
 import { auth } from "@/utils/firebase"
+import { isValidEmail } from "@/utils/validation"
 
 type Props = {
   className: string
@@ -29,10 +30,7 @@ const ForgotPassword = ({ className, isDisplay, onBack }: Props) => {
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [emailInput, setEmailInput] = useState("")
-  const isValidEmail = useMemo(
-    () => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(emailInput),
-    [emailInput]
-  )
+  const hasValidEmail = useMemo(() => isValidEmail(emailInput), [emailInput])
 
   const handleSendPasswordResetEmailButtonClick = useCallback(async () => {
     try {
@@ -78,11 +76,11 @@ const ForgotPassword = ({ className, isDisplay, onBack }: Props) => {
 
   const handleEmailKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.nativeEvent.isComposing || e.key !== "Enter" || !isValidEmail)
+      if (e.nativeEvent.isComposing || e.key !== "Enter" || !hasValidEmail)
         return
       handleSendPasswordResetEmailButtonClick()
     },
-    [handleSendPasswordResetEmailButtonClick, isValidEmail]
+    [handleSendPasswordResetEmailButtonClick, hasValidEmail]
   )
 
   return (
@@ -109,7 +107,7 @@ const ForgotPassword = ({ className, isDisplay, onBack }: Props) => {
         ff="notoSansJP"
         fz="0.9rem"
         fw={600}
-        disabled={!isValidEmail}
+        disabled={!hasValidEmail}
         loading={isProcessing}
         onClick={handleSendPasswordResetEmailButtonClick}
       >

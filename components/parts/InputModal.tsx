@@ -8,6 +8,7 @@ import {
 } from "@mantine/core"
 import { memo, useCallback, useState, KeyboardEvent, useMemo } from "react"
 import { STYLING_VALUES } from "@/constants/StylingValues"
+import { isValidEmail, isValidPassword } from "@/utils/validation"
 
 type Props = {
   isOpen: boolean
@@ -32,9 +33,9 @@ const InputModal = ({
   const isConfirmButtonDisabled = useMemo(() => {
     switch (type) {
       case "email":
-        return !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(inputValue)
+        return !isValidEmail(inputValue)
       case "password":
-        return inputValue.length < 6 // 6文字以上なのはFirebaseの仕様
+        return !isValidPassword(inputValue)
     }
   }, [inputValue, type])
 

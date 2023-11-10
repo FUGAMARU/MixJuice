@@ -1,5 +1,5 @@
 import { Stack, Center } from "@mantine/core"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { HiOutlineMail } from "react-icons/hi"
 import { PiPasswordBold } from "react-icons/pi"
 import ArrowTextButton from "@/components/parts/ArrowTextButton"
@@ -7,6 +7,7 @@ import GradientButton from "@/components/parts/GradientButton"
 import LabeledInput from "@/components/parts/LabeledInput"
 import useAuth from "@/hooks/useAuth"
 import useErrorModal from "@/hooks/useErrorModal"
+import { isValidEmail, isValidPassword } from "@/utils/validation"
 
 type Props = {
   className: string
@@ -28,6 +29,16 @@ const Signup = ({
   const [passwordInput, setPasswordInput] = useState("")
   const [retypePasswordInput, setRetypePasswordInput] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const hasValidEmail = useMemo(() => isValidEmail(emailInput), [emailInput])
+  const hasValidPassword = useMemo(
+    () => isValidPassword(passwordInput),
+    [passwordInput]
+  )
+  const isSignUpButtonDisabled = useMemo(
+    () => !hasValidEmail || !hasValidPassword,
+    [hasValidEmail, hasValidPassword]
+  )
 
   const handleSignupButtonClick = useCallback(async () => {
     setIsProcessing(true)
@@ -93,9 +104,7 @@ const Signup = ({
         fz="0.9rem"
         fw={600}
         disabled={
-          emailInput === "" ||
-          passwordInput === "" ||
-          passwordInput !== retypePasswordInput
+          isSignUpButtonDisabled || passwordInput !== retypePasswordInput
         }
         loading={isProcessing}
         onClick={handleSignupButtonClick}
