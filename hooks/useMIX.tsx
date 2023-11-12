@@ -1,9 +1,13 @@
+import { useLocalStorage } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useCallback, useMemo } from "react"
 import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useWebDAVServer from "./useWebDAVServer"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
+import { SettingValues } from "@/types/DefaultSettings"
 import { NavbarItem } from "@/types/NavbarItem"
 import {
   Track,
@@ -16,6 +20,11 @@ import { shuffleArray } from "@/utils/shuffleArray"
 let webDAVTrackInfoCachingProgress = 0
 
 const useMIX = () => {
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
+
   const { showError, showWarning } = useErrorModal()
   const { getPlaylistTracks } = useSpotifyApi({ initialize: false })
   const {
@@ -193,12 +202,20 @@ const useMIX = () => {
 
       if (spotifyPlaylistTracks.length > 0)
         baseTracks = [...baseTracks, ...spotifyPlaylistTracks]
-      if (webdavFolderTracks)
+      if (webdavFolderTracks.length > 0)
         baseTracks = [...baseTracks, ...webdavFolderTracks]
+
+      if (settings.REMOVE_DUPLICATES_ON_MIX) {
+        const uniqueTracks = baseTracks.filter(
+          (track, index, self) =>
+            self.findIndex(t => t.id === track.id) === index
+        )
+        baseTracks = uniqueTracks
+      }
 
       return shuffleArray(baseTracks)
     },
-    [getSpotifyPlaylistTracks, getWebDAVFolderTracks]
+    [getSpotifyPlaylistTracks, getWebDAVFolderTracks, settings]
   )
 
   return { mixAllTracks } as const
