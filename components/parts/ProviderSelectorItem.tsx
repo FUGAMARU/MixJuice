@@ -8,7 +8,7 @@ import { ProviderSettingState } from "@/types/ProviderSettingState"
 
 type Props = {
   provider: Provider
-  settingState: ProviderSettingState
+  settingState: ProviderSettingState | undefined
   onButtonClick: () => void
 }
 
