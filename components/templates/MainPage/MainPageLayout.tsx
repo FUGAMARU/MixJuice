@@ -1,4 +1,5 @@
 import { Flex, Box } from "@mantine/core"
+import { useLocalStorage } from "@mantine/hooks"
 import {
   Dispatch,
   SetStateAction,
@@ -12,10 +13,12 @@ import { useRecoilValue } from "recoil"
 import { navbarAtom } from "@/atoms/navbarAtom"
 import LayoutNavbar from "@/components/layout/LayoutNavbar"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { ZINDEX_NUMBERS } from "@/constants/ZIndexNumbers"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import { Children } from "@/types/Children"
+import { SettingValues } from "@/types/DefaultSettings"
 import { Provider } from "@/types/Provider"
 import { Queue } from "@/types/Queue"
 import { Track } from "@/types/Track"
@@ -46,6 +49,10 @@ const MainPageLayout = ({
 }: Props) => {
   const { breakPoint } = useBreakPoints()
   const isNavbarOpened = useRecoilValue(navbarAtom)
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
 
   const [navbarDraggedWidth, setNavbarDraggedWidth] = useState(0)
   useEffect(() => {
@@ -139,23 +146,25 @@ const MainPageLayout = ({
       <Box sx={{ flex: 1 }}>
         {children}
 
-        <Box
-          w="6rem"
-          p="xs"
-          ta="center"
-          pos="absolute"
-          bottom={15}
-          right={15}
-          bg="white"
-          c="#0a83ff"
-          fz="xs"
-          sx={{
-            borderRadius: "20px",
-            boxShadow: "0 0 4px rgba(0, 0, 0, 0.2);"
-          }}
-        >
-          {breakPoint}
-        </Box>
+        {settings.DEBUGMODE && (
+          <Box
+            w="6rem"
+            p="xs"
+            ta="center"
+            pos="absolute"
+            bottom={15}
+            right={15}
+            bg="white"
+            c="#0a83ff"
+            fz="xs"
+            sx={{
+              borderRadius: "20px",
+              boxShadow: "0 0 4px rgba(0, 0, 0, 0.2);"
+            }}
+          >
+            {breakPoint}
+          </Box>
+        )}
       </Box>
     </Flex>
   )

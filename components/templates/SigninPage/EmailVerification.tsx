@@ -8,6 +8,7 @@ import GradientButton from "@/components/parts/GradientButton"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import useAuth from "@/hooks/useAuth"
 import useErrorModal from "@/hooks/useErrorModal"
+import useLogger from "@/hooks/useLogger"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
 
@@ -18,6 +19,7 @@ type Props = {
 }
 
 const EmailVerification = ({ className, isDisplay, onBack }: Props) => {
+  const showLog = useLogger()
   const { showError } = useErrorModal()
   const [userInfo] = useAuthState(auth)
   const { signOut } = useAuth()
@@ -35,11 +37,11 @@ const EmailVerification = ({ className, isDisplay, onBack }: Props) => {
       await sendEmailVerification(userInfo)
       setIsResendVerificationMailButtonLoading(false)
     } catch (e) {
-      console.log("🟥ERROR: ", e)
+      showLog("error", e)
       showError(new Error("メールアドレス認証用メールの送信に失敗しました"))
       onBack()
     }
-  }, [showError, userInfo, onBack])
+  }, [showError, userInfo, onBack, showLog])
 
   const handleClickedButtonClick = useCallback(async () => {
     await signOut()

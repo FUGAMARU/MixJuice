@@ -4,6 +4,7 @@ import retry from "async-retry"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { useRecoilCallback, useRecoilState } from "recoil"
+import useLogger from "./useLogger"
 import useMediaSession from "./useMediaSession"
 import useSpotifyPlayer from "./useSpotifyPlayer"
 import useWebDAVPlayer from "./useWebDAVPlayer"
@@ -35,6 +36,7 @@ const usePlayer = ({ initialize }: Props) => {
   })
   const [isPlaying, setIsPlaying] = useState(false)
   const [isPreparingPlayback, setIsPreparingPlayback] = useState(false)
+  const showLog = useLogger()
 
   const hasNextTrack = useMemo(() => queue.length > 0, [queue.length])
   const hasPreviousTrack = useMemo(
@@ -310,7 +312,7 @@ const usePlayer = ({ initialize }: Props) => {
             retries: 3,
             factor: 1.5,
             minTimeout: 500,
-            onRetry: () => console.log("🟧DEBUG: onPlay()をリトライします...")
+            onRetry: () => showLog("warning", "onPlay()をリトライします...")
           }
         )
 
@@ -323,8 +325,8 @@ const usePlayer = ({ initialize }: Props) => {
         }
       } catch (e) {
         /** エラーモーダルは表示せずにトースト表示のみ */
-        console.log("🟥ERROR: onPlay()実行時にエラーが発生しました")
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", "onPlay()実行時にエラーが発生しました")
+        showLog("error", e)
 
         onNextTrack()
         notifications.show({
@@ -346,7 +348,8 @@ const usePlayer = ({ initialize }: Props) => {
       setPlaybackHistory,
       setPlaybackHistoryIndex,
       smartPause,
-      currentTrackInfo
+      currentTrackInfo,
+      showLog
     ]
   )
 

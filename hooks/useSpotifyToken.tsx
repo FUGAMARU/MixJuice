@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRecoilState } from "recoil"
+import useLogger from "./useLogger"
 import useStorage from "./useStorage"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
@@ -16,6 +17,7 @@ type Props = {
 const useSpotifyToken = ({ initialize }: Props) => {
   /** 参考: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow */
 
+  const showLog = useLogger()
   const [accessToken, setAccessToken] = useRecoilState(spotifyAccessTokenAtom) // useStateを使うとSpotifyの設定画面を離れた場合にアクセストークンが消えるのでRecoilを使う
   const { userData, updateUserData, deleteUserData } = useStorage({
     initialize: false
@@ -129,13 +131,13 @@ const useSpotifyToken = ({ initialize }: Props) => {
 
         sessionStorage.removeItem(SESSION_STORAGE_KEYS.SPOTIFY_PKCE_CONFIG)
       } catch (e) {
-        console.log("🟥ERROR: ", e)
+        showLog("error", e)
         throw new SpotifyAuthError(
           "Spotify APIのアクセストークンの取得に失敗しました。Spotifyに再ログインしてください。"
         )
       }
     },
-    [setAccessToken, updateUserData]
+    [setAccessToken, updateUserData, showLog]
   )
 
   const deleteAuthConfig = useCallback(async () => {
@@ -144,7 +146,7 @@ const useSpotifyToken = ({ initialize }: Props) => {
   }, [setAccessToken, deleteUserData])
 
   const refreshAccessToken = useCallback(async () => {
-    console.log("🟦DEBUG: Spotify APIのアクセストークンを更新します")
+    showLog("info", "Spotify APIのアクセストークンを更新します")
 
     const refreshToken =
       userData?.[FIRESTORE_DOCUMENT_KEYS.SPOTIFY_REFRESH_TOKEN]
@@ -173,8 +175,9 @@ const useSpotifyToken = ({ initialize }: Props) => {
       const expiresAt =
         Math.floor(Date.now() / 1000) + Number(res.data.expires_in)
 
-      console.log("🟩DEBUG: Spotify APIのアクセストークンの更新に成功しました")
-      console.log(
+      showLog("success", "Spotify APIのアクセストークンの更新に成功しました")
+      showLog(
+        "none",
         `新しく取得したSpotify APIのアクセストークンの失効日時は ${new Date(
           expiresAt * 1000
         )} です`
@@ -192,13 +195,20 @@ const useSpotifyToken = ({ initialize }: Props) => {
 
       return token
     } catch (e) {
-      console.log("🟥ERROR: ", e)
+      showLog("error", e)
       await deleteAuthConfig()
       throw new SpotifyAuthError(
         "Spotify APIのアクセストークンの更新に失敗しました。Spotifyに再ログインしてください。"
       )
     }
-  }, [setAccessToken, deleteAuthConfig, updateUserData, userData, clientId])
+  }, [
+    setAccessToken,
+    deleteAuthConfig,
+    updateUserData,
+    userData,
+    clientId,
+    showLog
+  ])
 
   /* useMemoにすると、Date.nowがaccessTokenの取得が完了した時点で固定されるのでuseCallbackにする必要がある */
   const hasValidAccessTokenState = useCallback(() => {

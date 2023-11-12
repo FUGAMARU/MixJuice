@@ -2,6 +2,7 @@ import axios from "axios"
 import { useCallback, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import useErrorModal from "./useErrorModal"
+import useLogger from "./useLogger"
 import useSpotifyToken from "./useSpotifyToken"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { SpotifyAuthError } from "@/classes/SpotifyAuthError"
@@ -27,6 +28,7 @@ type Props = {
 }
 
 const useSpotifyApi = ({ initialize }: Props) => {
+  const showLog = useLogger()
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const { refreshAccessToken, hasValidAccessTokenState } = useSpotifyToken({
     initialize: false
@@ -70,8 +72,8 @@ const useSpotifyApi = ({ initialize }: Props) => {
       },
       error => {
         /** リクエストエラーの処理 */
-        console.log("🟥ERROR: [useSpotifyApi] Interceptor リクエストエラー")
-        console.log(error)
+        showLog("error", "[useSpotifyApi] Interceptor リクエストエラー")
+        showLog("error", error)
         return Promise.reject(error)
       }
     )
@@ -84,8 +86,8 @@ const useSpotifyApi = ({ initialize }: Props) => {
       },
       error => {
         /** レスポンス異常 (ステータスコードが2xx以外) */
-        console.log("🟥ERROR: [useSpotifyApi] Interceptor レスポンスエラー")
-        console.log(error)
+        showLog("error", "[useSpotifyApi] Interceptor レスポンスエラー")
+        showLog("error", error)
         return Promise.reject(error)
       }
     )
@@ -99,7 +101,8 @@ const useSpotifyApi = ({ initialize }: Props) => {
     refreshAccessToken,
     hasValidAccessTokenState,
     initialize,
-    showError
+    showError,
+    showLog
   ])
 
   /**
@@ -124,54 +127,57 @@ const useSpotifyApi = ({ initialize }: Props) => {
         if (res.data.next === null) break
       }
     } catch (e) {
-      console.log("🟥ERROR: ", e)
+      showLog("error", e)
       throw Error("ユーザーのSpotifyプレイリスト一覧の取得に失敗しました")
     }
 
     return playlists
-  }, [])
+  }, [showLog])
 
   /**
    * プレイリストのトラック一覧を取得する
    * https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
    */
-  const getPlaylistTracks = useCallback(async (playlistId: string) => {
-    let tracks: SpotifyTrack[] = []
+  const getPlaylistTracks = useCallback(
+    async (playlistId: string) => {
+      let tracks: SpotifyTrack[] = []
 
-    try {
-      while (true) {
-        const res = await spotifyApi.get<SpotifyApiPlaylistTracksResponse>(
-          `/playlists/${playlistId}/tracks`,
-          {
-            params: {
-              limit: 50,
-              offset: tracks.length,
-              market: "JP",
-              fields:
-                "next, items(track(album(name,images),artists(name),name,id,uri,duration_ms))" // nextの指定を忘れると無限ループになってしまう
+      try {
+        while (true) {
+          const res = await spotifyApi.get<SpotifyApiPlaylistTracksResponse>(
+            `/playlists/${playlistId}/tracks`,
+            {
+              params: {
+                limit: 50,
+                offset: tracks.length,
+                market: "JP",
+                fields:
+                  "next, items(track(album(name,images),artists(name),name,id,uri,duration_ms))" // nextの指定を忘れると無限ループになってしまう
+              }
             }
-          }
-        )
-
-        const obj = res.data.items
-          .filter(
-            item => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
           )
-          .map(item => item.track)
 
-        tracks = [...tracks, ...obj]
+          const obj = res.data.items
+            .filter(
+              item => !item.track.uri.includes("spotify:local") // ローカルファイルは除外 | 参考: https://developer.spotify.com/documentation/web-api/concepts/playlists
+            )
+            .map(item => item.track)
 
-        if (res.data.next === null) break
+          tracks = [...tracks, ...obj]
+
+          if (res.data.next === null) break
+        }
+      } catch (e) {
+        showLog("error", e)
+        throw Error(
+          `Spotifyプレイリストに含まれるトラック一覧の取得に失敗しました (playlistId: ${playlistId})`
+        )
       }
-    } catch (e) {
-      console.log("🟥ERROR: ", e)
-      throw Error(
-        `Spotifyプレイリストに含まれるトラック一覧の取得に失敗しました (playlistId: ${playlistId})`
-      )
-    }
 
-    return tracks
-  }, [])
+      return tracks
+    },
+    [showLog]
+  )
 
   /**
    * トラックの再生を開始する
@@ -192,45 +198,48 @@ const useSpotifyApi = ({ initialize }: Props) => {
           }
         )
       } catch (e) {
-        console.log("🟥ERROR: ", e)
+        showLog("error", e)
         throw Error(
           `Spotifyトラックの再生開始に失敗しました (trackId: ${trackId})`
         )
       }
     },
-    []
+    [showLog]
   )
 
   /**
    * 楽曲をキーワード検索する
    * https://developer.spotify.com/documentation/web-api/reference/search
    */
-  const searchTracks = useCallback(async (query: string, offset: number) => {
-    try {
-      const res = await spotifyApi.get<SpotifyApiTrackSearchResponse>(
-        "/search",
-        {
-          params: {
-            q: query,
-            type: "track",
-            market: "JP",
-            limit: 5,
-            offset
+  const searchTracks = useCallback(
+    async (query: string, offset: number) => {
+      try {
+        const res = await spotifyApi.get<SpotifyApiTrackSearchResponse>(
+          "/search",
+          {
+            params: {
+              q: query,
+              type: "track",
+              market: "JP",
+              limit: 5,
+              offset
+            }
           }
-        }
-      )
+        )
 
-      return {
-        data: res.data.tracks.items,
-        nextOffset: res.data.tracks.next
-          ? extractOffsetValue(res.data.tracks.next)
-          : undefined
+        return {
+          data: res.data.tracks.items,
+          nextOffset: res.data.tracks.next
+            ? extractOffsetValue(res.data.tracks.next)
+            : undefined
+        }
+      } catch (e) {
+        showLog("error", e)
+        throw Error(`Spotifyトラックの検索に失敗しました (query: ${query})`)
       }
-    } catch (e) {
-      console.log("🟥ERROR: ", e)
-      throw Error(`Spotifyトラックの検索に失敗しました (query: ${query})`)
-    }
-  }, [])
+    },
+    [showLog]
+  )
 
   return {
     getPlaylists,

@@ -1,6 +1,7 @@
 import { parseBuffer } from "music-metadata-browser"
 import { useCallback } from "react"
 import { AuthType, createClient } from "webdav"
+import useLogger from "./useLogger"
 import useStorage from "./useStorage"
 import { FIRESTORE_DOCUMENT_KEYS } from "@/constants/Firestore"
 import { TrackWithPath, removePathProperty } from "@/types/Track"
@@ -11,6 +12,7 @@ import { getMimeType } from "@/utils/getMimeType"
 import { isDefined } from "@/utils/isDefined"
 
 const useWebDAVServer = () => {
+  const showLog = useLogger()
   const { userData } = useStorage({ initialize: false })
 
   const getClient = useCallback(() => {
@@ -41,13 +43,13 @@ const useWebDAVServer = () => {
           password
         }).getQuota()
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         throw new Error(
           "指定された認証情報でWebDAVサーバに接続・認証できませんでした"
         )
       }
     },
-    []
+    [showLog]
   )
 
   const checkIsFolderExists = useCallback(
@@ -59,11 +61,11 @@ const useWebDAVServer = () => {
         const isExists = await client.exists(folderPath)
         return isExists
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         return false
       }
     },
-    [getClient]
+    [getClient, showLog]
   )
 
   /** 1. LocalStorageにWebDAVサーバーへの接続情報が記録されているか
@@ -80,7 +82,7 @@ const useWebDAVServer = () => {
       try {
         await client.getQuota()
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         throw new Error(
           "設定されている認証情報でWebDAVサーバに接続・認証できませんでした"
         )
@@ -94,7 +96,7 @@ const useWebDAVServer = () => {
           `WebDAVサーバー上に指定されたフォルダーが存在しませんでした (folderPath: ${path})`
         )
     },
-    [getClient]
+    [getClient, showLog]
   )
 
   const getFolderTracks = useCallback(
@@ -121,13 +123,13 @@ const useWebDAVServer = () => {
 
         return audioFilesFiltered
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         throw new Error(
           `WebDAVサーバーのフォルダーに含まれるトラック一覧の取得に失敗しました (folderPath: ${folderPath})`
         )
       }
     },
-    [getClient, checkServerConnectionRoutine]
+    [getClient, checkServerConnectionRoutine, showLog]
   )
 
   const getTrackInfo = useCallback(
@@ -174,13 +176,13 @@ const useWebDAVServer = () => {
         const expandedTrackInfo = await expandTrackInfo(trackInfo)
         return expandedTrackInfo as TrackWithPath
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         throw new Error(
           `WebDAVサーバーのフォルダーに含まれるトラック情報の取得に失敗しました (filepath: ${fileInfo.filename})`
         )
       }
     },
-    [getClient, checkServerConnectionRoutine]
+    [getClient, checkServerConnectionRoutine, showLog]
   )
 
   const searchTracksByFilename = useCallback(
@@ -204,13 +206,13 @@ const useWebDAVServer = () => {
           removePathProperty(trackWithPath)
         )
       } catch (e) {
-        console.log(`🟥ERROR: ${e}`)
+        showLog("error", e)
         throw new Error(
           "WebDAVサーバーのフォルダーに含まれるトラックの検索に失敗しました"
         )
       }
     },
-    [getFolderTracks, getTrackInfo, checkServerConnectionRoutine]
+    [getFolderTracks, getTrackInfo, checkServerConnectionRoutine, showLog]
   )
 
   return {

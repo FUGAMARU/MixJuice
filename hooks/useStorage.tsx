@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useRecoilCallback, useRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
+import useLogger from "./useLogger"
 import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
 import { userDataAtom } from "@/atoms/userDataAtom"
 import { UserDataOperationError } from "@/classes/UserDataOperationError"
@@ -27,6 +28,7 @@ import { isDefined } from "@/utils/isDefined"
 type Args = { initialize: boolean }
 
 const useStorage = ({ initialize }: Args) => {
+  const showLog = useLogger()
   const { showError } = useErrorModal()
   const [userData, setUserData] = useRecoilState(userDataAtom)
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
@@ -77,9 +79,9 @@ const useStorage = ({ initialize }: Args) => {
         [FIRESTORE_DOCUMENT_KEYS.DECRYPTION_VERIFY_STRING]:
           encryptedDecryptionVerifyString
       })
-      console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+      showLog("warning", "Firestoreへの書き込みが発生しました")
     },
-    [decryptionVerifyString, encryptText]
+    [decryptionVerifyString, encryptText, showLog]
   )
 
   const createNewUserDocument = useCallback(
@@ -99,9 +101,9 @@ const useStorage = ({ initialize }: Args) => {
       } satisfies UserData
 
       await setDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), userData)
-      console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+      showLog("warning", "Firestoreへの書き込みが発生しました")
     },
-    [encryptText, decryptionVerifyString]
+    [encryptText, decryptionVerifyString, showLog]
   )
 
   const updateUserData = useRecoilCallback(
@@ -128,7 +130,7 @@ const useStorage = ({ initialize }: Args) => {
             doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email),
             data
           )
-          console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+          showLog("warning", "Firestoreへの書き込みが発生しました")
 
           const currentUserData = await snapshot.getPromise(userDataAtom)
 
@@ -155,7 +157,7 @@ const useStorage = ({ initialize }: Args) => {
         await updateDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {
           [key]: deleteField()
         })
-        console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
+        showLog("warning", "Firestoreへの書き込みが発生しました")
 
         if (!isDefined(userData))
           throw new Error("ユーザーデーターがundefinedです")
@@ -166,15 +168,18 @@ const useStorage = ({ initialize }: Args) => {
         showError(e)
       }
     },
-    [showError, userInfo, userData, setUserData]
+    [showError, userInfo, userData, setUserData, showLog]
   )
 
   /** ユーザーのデーターを削除するのであってユーザードキュメント自体は削除しない */
-  const deleteAllUserData = useCallback(async (email: string) => {
-    await setDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {})
-    console.log("🟧DEBUG: Firestoreへの書き込みが発生しました")
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
-  }, [])
+  const deleteAllUserData = useCallback(
+    async (email: string) => {
+      await setDoc(doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email), {})
+      showLog("warning", "Firestoreへの書き込みが発生しました")
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY)
+    },
+    [showLog]
+  )
 
   /** ユーザーが退会する時に使うやつ */
   const deleteUserData = useCallback(
@@ -202,7 +207,7 @@ const useStorage = ({ initialize }: Args) => {
       const userDataDocument = await getDoc(
         doc(db, FIRESTORE_USERDATA_COLLECTION_NAME, email)
       )
-      console.log("🟧DEBUG: Firestoreからの読み込みが発生しました")
+      showLog("warning", "Firestoreからの読み込みが発生しました")
 
       if (!userDataDocument.exists())
         throw new Error("ユーザーデーターが存在しません")
@@ -225,7 +230,7 @@ const useStorage = ({ initialize }: Args) => {
 
       return decryptedUserData
     },
-    [decryptText, userInfo, decryptionVerifyString]
+    [decryptText, userInfo, decryptionVerifyString, showLog]
   )
 
   /** MixJuiceを起動した時にFirestoreのデーターをローカルのRecoilStateに取り込む */
@@ -237,8 +242,9 @@ const useStorage = ({ initialize }: Args) => {
       try {
         const userData = await getCurrentUserData()
         setUserData(userData)
-        console.log(
-          "🟩DEBUG: Firestore上のユーザーデータをRecoilStateに取り込みました"
+        showLog(
+          "success",
+          "Firestore上のユーザーデータをRecoilStateに取り込みました"
         )
       } catch (e) {
         showError(e)
@@ -250,7 +256,8 @@ const useStorage = ({ initialize }: Args) => {
     isLoadingUserInfo,
     setUserData,
     showError,
-    getCurrentUserData
+    getCurrentUserData,
+    showLog
   ])
 
   return {

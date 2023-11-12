@@ -7,11 +7,13 @@ import {
 } from "firebase/auth"
 import { getDoc, doc } from "firebase/firestore"
 import { useCallback } from "react"
+import useLogger from "./useLogger"
 import useStorage from "./useStorage"
 import { FIRESTORE_USERDATA_COLLECTION_NAME } from "@/constants/Firestore"
 import { db, auth } from "@/utils/firebase"
 
 const useAuth = () => {
+  const showLog = useLogger()
   const { setHashedPassword, createNewUserDocument } = useStorage({
     initialize: false
   })
@@ -44,13 +46,13 @@ const useAuth = () => {
                 "サインインに失敗しました。パスワードが間違っている可能性があります。"
               )
             default:
-              console.log("🟥ERROR: ", e)
+              showLog("error", e)
               throw new Error("何らかの原因でサインインに失敗しました")
           }
         }
       }
     },
-    [setHashedPassword]
+    [setHashedPassword, showLog]
   )
 
   const signOut = useCallback(async () => {

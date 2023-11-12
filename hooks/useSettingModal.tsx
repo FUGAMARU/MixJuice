@@ -10,6 +10,7 @@ import {
 import { useCallback, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import useAuth from "./useAuth"
+import useLogger from "./useLogger"
 import useStorage from "./useStorage"
 import useTransit from "./useTransit"
 import { PAGE_PATH } from "@/constants/PagePath"
@@ -21,6 +22,7 @@ type Args = {
 }
 
 const useSettingModal = ({ onCloseModal }: Args) => {
+  const showLog = useLogger()
   const [userInfo] = useAuthState(auth)
   const { deleteUserData, deleteAllUserData } = useStorage({
     initialize: false
@@ -36,20 +38,23 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
   }, [signOut, onCloseModal, onTransit])
 
-  const showSimpleError = useCallback((e: FirebaseError) => {
-    switch (
-      e.code // TODO: エラーコード対応拡充？？ (https://firebase.google.com/docs/reference/js/v8/firebase.FirebaseError#code)
-    ) {
-      case "auth/invalid-login-credentials":
-        alert(
-          "サインインに失敗しました。パスワードが間違っている可能性があります。"
-        ) // TODO: useErrorModalのshowErrorを使うとz-indexを指定しても最前面に表示されないのでwindow.alertにて暫定対応
-        break
-      default:
-        console.log("🟥ERROR: ", e)
-        alert("何らかの原因でサインインに失敗しました") // TODO: useErrorModalのshowErrorを使うとz-indexを指定しても最前面に表示されないのでwindow.alertにて暫定対応
-    }
-  }, [])
+  const showSimpleError = useCallback(
+    (e: FirebaseError) => {
+      switch (
+        e.code // TODO: エラーコード対応拡充？？ (https://firebase.google.com/docs/reference/js/v8/firebase.FirebaseError#code)
+      ) {
+        case "auth/invalid-login-credentials":
+          alert(
+            "サインインに失敗しました。パスワードが間違っている可能性があります。"
+          ) // TODO: useErrorModalのshowErrorを使うとz-indexを指定しても最前面に表示されないのでwindow.alertにて暫定対応
+          break
+        default:
+          showLog("error", e)
+          alert("何らかの原因でサインインに失敗しました") // TODO: useErrorModalのshowErrorを使うとz-indexを指定しても最前面に表示されないのでwindow.alertにて暫定対応
+      }
+    },
+    [showLog]
+  )
 
   const reAuth = useCallback(
     async (password: string) => {

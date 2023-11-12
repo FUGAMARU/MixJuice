@@ -13,6 +13,7 @@ import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useErrorModal from "@/hooks/useErrorModal"
+import useLogger from "@/hooks/useLogger"
 import useStorage from "@/hooks/useStorage"
 import useWebDAVServer from "@/hooks/useWebDAVServer"
 import styles from "@/styles/WebDAVConnector.module.css"
@@ -25,6 +26,7 @@ type Props = {
 }
 
 const WebDAVConnector = ({ className, onBack }: Props) => {
+  const showLog = useLogger()
   const theme = useMantineTheme()
   const { breakPoint } = useBreakPoints()
   const { showError } = useErrorModal()
@@ -77,7 +79,7 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     try {
       setIsConnecting(true)
       await tryServerConnection(address, user, password)
-      console.log("🟩DEBUG: WebDAVサーバーへの接続に成功しました")
+      showLog("success", "WebDAVサーバーへの接続に成功しました")
       await updateUserData(
         FIRESTORE_DOCUMENT_KEYS.WEBDAV_SERVER_CREDENTIALS,
         JSON.stringify({
@@ -99,7 +101,8 @@ const WebDAVConnector = ({ className, onBack }: Props) => {
     tryServerConnection,
     onFolderPathInputModalOpen,
     showError,
-    updateUserData
+    updateUserData,
+    showLog
   ])
 
   return (

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react"
+import useLogger from "./useLogger"
 import { Track } from "@/types/Track"
 import { createSilentAudioBlob } from "@/utils/createSilentAudioBlob"
 
@@ -31,6 +32,7 @@ const useMediaSession = ({
   onPreviousTrack,
   onSeekTo
 }: Props) => {
+  const showLog = useLogger()
   const dummyAudioRef = useRef<HTMLAudioElement>()
 
   const setMediaMetadata = useCallback((trackInfo: Track) => {
@@ -49,23 +51,26 @@ const useMediaSession = ({
     })
   }, [])
 
-  const onPlayDummyAudio = useCallback(async (duration: number) => {
-    try {
-      const audioBlob = await createSilentAudioBlob(duration)
-      console.log("🟩DEBUG: AudioBlobの生成が完了しました")
-      console.log(audioBlob)
+  const onPlayDummyAudio = useCallback(
+    async (duration: number) => {
+      try {
+        const audioBlob = await createSilentAudioBlob(duration)
+        showLog("success", "AudioBlobの生成が完了しました")
+        showLog("none", audioBlob)
 
-      const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
-      dummyAudioRef.current = dummyAudio
-      dummyAudio.play()
-      navigator.mediaSession.playbackState = "playing"
-    } catch (e) {
-      console.log("🟥ERROR: ", e)
-      throw new Error(
-        "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
-      )
-    }
-  }, [])
+        const dummyAudio = new Audio(URL.createObjectURL(audioBlob))
+        dummyAudioRef.current = dummyAudio
+        dummyAudio.play()
+        navigator.mediaSession.playbackState = "playing"
+      } catch (e) {
+        showLog("error", e)
+        throw new Error(
+          "AudioBlobの生成に失敗しました。Media Session APIは利用できません。"
+        )
+      }
+    },
+    [showLog]
+  )
 
   const onPauseDummyAudio = useCallback(() => {
     dummyAudioRef.current?.pause()

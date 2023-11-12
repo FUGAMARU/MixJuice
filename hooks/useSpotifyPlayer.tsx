@@ -8,6 +8,7 @@ import {
   useState
 } from "react"
 import { useRecoilCallback, useRecoilValue } from "recoil"
+import useLogger from "./useLogger"
 import useSpotifyApi from "./useSpotifyApi"
 import { spotifyAccessTokenAtom } from "@/atoms/spotifyAccessTokenAtom"
 import { isDefined } from "@/utils/isDefined"
@@ -27,6 +28,7 @@ const useSpotifyPlayer = ({
   volume,
   onTrackFinish
 }: Props) => {
+  const showLog = useLogger()
   const accessToken = useRecoilValue(spotifyAccessTokenAtom)
   const [player, setPlayer] = useState<Spotify.Player>()
   const [playbackState, setPlaybackState] = useState<Spotify.PlaybackState>()
@@ -42,7 +44,7 @@ const useSpotifyPlayer = ({
   const onPlay = useCallback(
     async (trackId: string) => {
       while (deviceId.current === "") {
-        console.log("🟦DEBUG: デバイスIDの取得完了を待機しています…")
+        showLog("info", "デバイスIDの取得完了を待機しています…")
         await new Promise(resolve => setTimeout(resolve, 500))
       }
 
@@ -53,7 +55,7 @@ const useSpotifyPlayer = ({
         setIsPreparingPlayback(false)
       }
     },
-    [startPlayback, setIsPreparingPlayback]
+    [startPlayback, setIsPreparingPlayback, showLog]
   )
 
   const onPause = useCallback(async () => {
@@ -107,13 +109,13 @@ const useSpotifyPlayer = ({
       setPlayer(spotifyPlayer)
 
       spotifyPlayer.addListener("ready", ({ device_id }) => {
-        console.log("🟩DEBUG: Spotify WebPlaybackSDKの準備が完了しました")
-        console.log("デバイスID: ", device_id)
+        showLog("success", "Spotify WebPlaybackSDKの準備が完了しました")
+        showLog("none", `デバイスID: ${device_id}`)
         deviceId.current = device_id
       })
 
       spotifyPlayer.addListener("not_ready", ({ device_id }) => {
-        console.log("🟧DEBUG: Spotify WebPlaybackSDKがNot Readyになりました")
+        showLog("warning", "Spotify WebPlaybackSDKがNot Readyになりました")
         deviceId.current = device_id
       })
 
@@ -144,7 +146,15 @@ const useSpotifyPlayer = ({
     return () => {
       document.body.removeChild(script)
     }
-  }, [accessToken, initialize, onTrackFinish, player, getLatestToken, volume])
+  }, [
+    accessToken,
+    initialize,
+    onTrackFinish,
+    player,
+    getLatestToken,
+    volume,
+    showLog
+  ])
 
   /** 音量の値をプレイヤーと同期させる */
   useEffect(() => {
