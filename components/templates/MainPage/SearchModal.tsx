@@ -1,4 +1,5 @@
 import { Box, Center, Flex, Input, Loader, Stack, Text } from "@mantine/core"
+import { useLocalStorage } from "@mantine/hooks"
 import { memo, useCallback, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import ArrowTextButton from "../../parts/ArrowTextButton"
@@ -9,8 +10,11 @@ import ProviderHeading from "../../parts/ProviderHeading"
 import QueueOperator from "../../parts/QueueOperator"
 import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import useSearch from "@/hooks/useSearch"
+import { SettingValues } from "@/types/DefaultSettings"
 import { Track } from "@/types/Track"
 
 type Props = {
@@ -33,6 +37,10 @@ const SearchModal = ({
   onAddNewTrackToFront
 }: Props) => {
   const { breakPoint } = useBreakPoints()
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
   const {
     keyword,
     handleKeywordChange,
@@ -51,11 +59,16 @@ const SearchModal = ({
 
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
-      onClose()
+      if (settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED) onClose()
       await onPlay(track)
       resetAll()
     },
-    [onClose, onPlay, resetAll]
+    [
+      onClose,
+      onPlay,
+      resetAll,
+      settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED
+    ]
   )
 
   return (

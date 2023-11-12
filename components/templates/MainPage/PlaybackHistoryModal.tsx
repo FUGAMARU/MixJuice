@@ -1,4 +1,5 @@
 import { Badge, Box, Divider, Flex, Text } from "@mantine/core"
+import { useLocalStorage } from "@mantine/hooks"
 import { memo, useCallback } from "react"
 import { BsClockHistory } from "react-icons/bs"
 import { FixedSizeList } from "react-window"
@@ -6,7 +7,10 @@ import ListItem from "@/components/parts/ListItem"
 import ListItemContainer from "@/components/parts/ListItemContainer"
 import ModalDefault from "@/components/parts/ModalDefault"
 import QueueOperator from "@/components/parts/QueueOperator"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { SettingValues } from "@/types/DefaultSettings"
 import { Track } from "@/types/Track"
 import { millisecondsToHoursMinutesSeconds } from "@/utils/millisecondsToHoursMinutesSeconds"
 import { remToPx } from "@/utils/remToPx"
@@ -35,13 +39,21 @@ const PlaybackHistoryModal = ({
   onClose
 }: Props) => {
   const { breakPoint } = useBreakPoints()
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
 
   const handleArtworkPlayButtonClick = useCallback(
     async (index: number) => {
-      onClose()
+      if (settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED) onClose()
       await onPlayFromPlaybackHistory(index)
     },
-    [onClose, onPlayFromPlaybackHistory]
+    [
+      onClose,
+      onPlayFromPlaybackHistory,
+      settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED
+    ]
   )
 
   const {

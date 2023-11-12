@@ -1,4 +1,5 @@
 import { Box, Flex, Loader } from "@mantine/core"
+import { useLocalStorage } from "@mantine/hooks"
 import Image from "next/image"
 import { memo, useCallback } from "react"
 import { FixedSizeList } from "react-window"
@@ -6,8 +7,11 @@ import ListItem from "@/components/parts/ListItem"
 import ListItemContainer from "@/components/parts/ListItemContainer"
 import ModalDefault from "@/components/parts/ModalDefault"
 import QueueOperator from "@/components/parts/QueueOperator"
+import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PROVIDER_ICON_SRC } from "@/constants/ProviderIconSrc"
+import { DEFAULT_SETTING_VALUES } from "@/constants/Settings"
 import useBreakPoints from "@/hooks/useBreakPoints"
+import { SettingValues } from "@/types/DefaultSettings"
 import { MergedWebDAVSearchResult } from "@/types/MergedWebDAVSearchResult"
 import { Provider } from "@/types/Provider"
 import { Track } from "@/types/Track"
@@ -41,13 +45,17 @@ const TrackModal = ({
   onAddNewTrackToFront
 }: Props) => {
   const { breakPoint } = useBreakPoints()
+  const [settings] = useLocalStorage<SettingValues>({
+    key: LOCAL_STORAGE_KEYS.SETTINGS,
+    defaultValue: DEFAULT_SETTING_VALUES
+  })
 
   const handleArtworkPlayButtonClick = useCallback(
     async (track: Track) => {
-      onClose()
+      if (settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED) onClose()
       await onPlay(track)
     },
-    [onClose, onPlay]
+    [onClose, onPlay, settings.CLOSE_MODAL_AUTOMATICALLY_WHEN_TRACK_SELECTED]
   )
 
   /** 冗長だが見返しやすいのでこの書き方をしている */
