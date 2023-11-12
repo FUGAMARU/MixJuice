@@ -57,11 +57,13 @@ const Curtain = ({ children }: Children) => {
        * ③ユーザーデーターをFirestoreから引っ張ってくる作業が完了していない
        * のいずれかに該当する場合はローディング画面を表示したままにする
        */
-      if (
+      /*if (
         !isSigninPage &&
         (isLoadingUserInfo || !isDefined(userInfo) || !isDefined(userData))
       )
-        return
+        return*/
+
+      if (!isDefined(isLoading.stateChangedOn)) return
 
       if (!isLoading.state) {
         await new Promise(resolve => setTimeout(resolve, 1500))
@@ -72,7 +74,7 @@ const Curtain = ({ children }: Children) => {
         return
       }
 
-      if (isLoading.state && isDefined(isLoading.stateChangedOn)) {
+      if (isLoading.state) {
         setIsDisplayLoadingScreen(true)
         setClassName("animate__animated animate__fadeIn")
       }
