@@ -3,7 +3,7 @@ import { signOut } from "firebase/auth"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useSetRecoilState } from "recoil"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifySettingState from "./useSpotifySettingState"
@@ -13,6 +13,7 @@ import useTouchDevice from "./useTouchDevice"
 import useWebDAVSettingState from "./useWebDAVSettingState"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
 import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
 import { PAGE_PATH } from "@/constants/PagePath"
 import { isPagePath } from "@/types/PagePath"
@@ -31,6 +32,8 @@ const useInitializer = () => {
   const { showWarning } = useErrorModal()
   const os = useOs()
   const isTouchDevice = useTouchDevice()
+  const spotifySettingState = useRecoilValue(spotifySettingStateAtom)
+  const webDAVSettingState = useRecoilValue(spotifySettingStateAtom)
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
@@ -62,12 +65,12 @@ const useInitializer = () => {
         })
       }
     })()
-  }, [pathname, searchParams, setIsLoading, showWarning, os])
+  }, [pathname, searchParams, setIsLoading, showWarning])
 
   useEffect(() => {
-    ;async () => {
+    ;(async () => {
       /** 【サインインページに飛ばす条件】
-       * ユーザーの認証情報が読み込み中でない、かつ
+       * サインインページ以外においてユーザーの認証情報が読み込み中でない、かつ
        * ①ユーザー情報が空 (ユーザー登録が済んでいない or ログインしていない)
        * ②メールアドレスの認証が完了していない
        * ③LocalStorageにデーターの復号化キーが存在しない
@@ -77,6 +80,7 @@ const useInitializer = () => {
         LOCAL_STORAGE_KEYS.DATA_DECRYPTION_KEY
       )
       if (
+        pathname !== PAGE_PATH.SIGNIN_PAGE &&
         !isLoadingUserInfo &&
         userInfo !== undefined && // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
         (userInfo === null || // isDefinedは使えないので注意(nullとundefinedを区別する必要があるため)
@@ -88,12 +92,38 @@ const useInitializer = () => {
         return
       }
 
+      /** 【接続ページに飛ばす条件】
+       *  接続ページ以外においてSpotifyとWebDAVの設定が完了していない場合は接続ページに飛ばす
+       * (どちらかの設定が完了しているならばリダイレクトの対象としない)
+       */
+      if (
+        pathname !== PAGE_PATH.CONNECT_PAGE &&
+        spotifySettingState !== "done" &&
+        webDAVSettingState !== "done"
+      ) {
+        router.push(PAGE_PATH.CONNECT_PAGE)
+        return
+      }
+
+      /** ここに処理が来る時点でログインや各サービスとの接続設定は完了しているので、サインインページにアクセスしてきた時は強制的にメインページに飛ばす */
+      if (pathname === PAGE_PATH.SIGNIN_PAGE) {
+        router.push(PAGE_PATH.MAIN_PAGE)
+      }
+
       setIsLoading({
         stateChangedOn: PAGE_PATH.MAIN_PAGE,
         state: false
       })
-    }
-  }, [setIsLoading, isLoadingUserInfo, userInfo, router])
+    })()
+  }, [
+    setIsLoading,
+    isLoadingUserInfo,
+    userInfo,
+    router,
+    pathname,
+    spotifySettingState,
+    webDAVSettingState
+  ])
 
   /** 不要説 */
   useEffect(() => {

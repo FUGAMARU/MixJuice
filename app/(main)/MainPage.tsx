@@ -2,8 +2,7 @@
 
 import { Box } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
-import { useRouter } from "next/navigation"
-import { memo, useCallback, useEffect, useState } from "react"
+import { memo, useCallback, useState } from "react"
 import { useRecoilState } from "recoil"
 import { searchModalAtom } from "@/atoms/searchModalAtom"
 import MainPageLayout from "@/components/templates/MainPage/MainPageLayout"
@@ -13,15 +12,11 @@ import Queue from "@/components/templates/MainPage/Queue"
 import SearchModal from "@/components/templates/MainPage/SearchModal"
 import SettingModal from "@/components/templates/MainPage/SettingModal"
 import TrackModal from "@/components/templates/MainPage/TrackModal"
-import { LOCAL_STORAGE_KEYS } from "@/constants/LocalStorageKeys"
-import { PAGE_PATH } from "@/constants/PagePath"
 import useBreakPoints from "@/hooks/useBreakPoints"
 import usePlayer from "@/hooks/usePlayer"
 import useTarckModal from "@/hooks/useTrackModal"
-import { isDefined } from "@/utils/isDefined"
 
 const MainPage = () => {
-  const router = useRouter()
   const { setRespVal } = useBreakPoints()
   const [isSearchModalOpen, setIsSearchModalOpen] =
     useRecoilState(searchModalAtom)
@@ -46,20 +41,6 @@ const MainPage = () => {
     isSettingModalOpen,
     { open: onOpenSettingModal, close: onCloseSettingModal }
   ] = useDisclosure(false)
-
-  useEffect(() => {
-    const selectedSpotifyPlaylists = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.SPOTIFY_SELECTED_PLAYLISTS
-    )
-    const webDAVFolderPaths = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.WEBDAV_FOLDER_PATHS
-    )
-
-    if (!isDefined(selectedSpotifyPlaylists) && !isDefined(webDAVFolderPaths)) {
-      router.push(PAGE_PATH.CONNECT_PAGE)
-      return
-    }
-  }, [router])
 
   const {
     queue,
