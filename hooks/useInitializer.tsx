@@ -30,7 +30,7 @@ const useInitializer = () => {
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
   const { showWarning } = useErrorModal()
   const os = useOs()
-  const { isTouchDevice } = useTouchDevice()
+  const isTouchDevice = useTouchDevice()
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })

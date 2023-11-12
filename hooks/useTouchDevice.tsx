@@ -7,9 +7,7 @@ const useTouchDevice = () => {
     setTouchDevice("ontouchstart" in window)
   }, [])
 
-  return {
-    isTouchDevice
-  } as const
+  return isTouchDevice
 }
 
 export default useTouchDevice

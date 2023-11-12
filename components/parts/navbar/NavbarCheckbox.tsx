@@ -21,7 +21,7 @@ const NavbarCheckbox = ({
   onLabelClick
 }: Props) => {
   const theme = useMantineTheme()
-  const { isTouchDevice } = useTouchDevice()
+  const isTouchDevice = useTouchDevice()
   const { hovered, ref } = useHover()
   const transition = useMemo(
     () => (isTouchDevice ? "" : "all .2s ease-in-out"),

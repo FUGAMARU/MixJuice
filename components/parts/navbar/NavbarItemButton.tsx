@@ -10,7 +10,7 @@ type Props = {
 } & Children
 
 const NavbarItemButton = ({ icon, onClick, children }: Props) => {
-  const { isTouchDevice } = useTouchDevice()
+  const isTouchDevice = useTouchDevice()
   const { hovered, ref } = useHover()
   const transition = useMemo(
     () => (isTouchDevice ? "" : "all .2s ease-in-out"),

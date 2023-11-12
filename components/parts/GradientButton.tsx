@@ -26,7 +26,7 @@ const GradientButton = ({
   onClick,
   children
 }: Props) => {
-  const { isTouchDevice } = useTouchDevice()
+  const isTouchDevice = useTouchDevice()
 
   return (
     <Button
