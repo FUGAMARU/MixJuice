@@ -102,7 +102,10 @@ const ErrorModal = () => {
       pos="fixed"
       top={0}
       left={0}
-      sx={{ display: isDisplayContainer ? "flex" : "none" }}
+      sx={{
+        display: isDisplayContainer ? "flex" : "none",
+        zIndex: ZINDEX_NUMBERS.MODAL_OVERLAY
+      }}
       onAnimationEnd={handleAnimationEnd}
     >
       {modalStack.map((config, idx) => (
@@ -185,7 +188,6 @@ const ErrorModal = () => {
         left={0}
         bg="rgba(0, 0, 0, 0.2)"
         sx={{
-          zIndex: ZINDEX_NUMBERS.MODAL_OVERLAY,
           ["--animate-duration"]: "0.2s"
         }}
       />
