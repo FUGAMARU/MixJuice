@@ -118,6 +118,7 @@ const ErrorModal = () => {
           }
           w="100%"
           h="100%"
+          p="md"
           pos="fixed"
           top={0}
           left={0}

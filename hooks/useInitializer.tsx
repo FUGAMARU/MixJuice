@@ -1,12 +1,15 @@
+import { useOs } from "@mantine/hooks"
 import { signOut } from "firebase/auth"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { useSetRecoilState } from "recoil"
+import useErrorModal from "./useErrorModal"
 import useSpotifyApi from "./useSpotifyApi"
 import useSpotifySettingState from "./useSpotifySettingState"
 import useSpotifyToken from "./useSpotifyToken"
 import useStorage from "./useStorage"
+import useTouchDevice from "./useTouchDevice"
 import useWebDAVSettingState from "./useWebDAVSettingState"
 import { faviconIndexAtom } from "@/atoms/faviconIndexAtom"
 import { loadingAtom } from "@/atoms/loadingAtom"
@@ -25,6 +28,9 @@ const useInitializer = () => {
   const searchParams = useSearchParams()
   const setIsLoading = useSetRecoilState(loadingAtom)
   const [userInfo, isLoadingUserInfo] = useAuthState(auth)
+  const { showWarning } = useErrorModal()
+  const os = useOs()
+  const { isTouchDevice } = useTouchDevice()
 
   useSpotifyApi({ initialize: true })
   useSpotifyToken({ initialize: true })
@@ -38,10 +44,17 @@ const useInitializer = () => {
     setFaviconIndex(generateRandomNumber(1, 12))
   }, [setFaviconIndex])
 
+  useEffect(() => {
+    if (os === "undetermined") return
+    if (os === "ios" || (os === "macos" && isTouchDevice)) {
+      showWarning("iOSまたはiPad OSでは楽曲の再生ができません")
+    }
+  }, [os, showWarning, isTouchDevice])
+
   /** ページ遷移完了のイベントはここで拾う */
   useEffect(() => {
     ;(async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 500))
       if (isPagePath(pathname)) {
         setIsLoading({
           stateChangedOn: pathname,
@@ -49,7 +62,7 @@ const useInitializer = () => {
         })
       }
     })()
-  }, [pathname, searchParams, setIsLoading])
+  }, [pathname, searchParams, setIsLoading, showWarning, os])
 
   useEffect(() => {
     ;async () => {
