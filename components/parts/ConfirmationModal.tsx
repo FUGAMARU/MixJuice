@@ -1,5 +1,5 @@
 import { Button, Group, Modal, Stack } from "@mantine/core"
-import { memo } from "react"
+import { memo, useCallback, useState } from "react"
 import { STYLING_VALUES } from "@/constants/StylingValues"
 import { Children } from "@/types/Children"
 
@@ -9,6 +9,7 @@ type Props = {
   cancelButtonText: string
   onConfirm: () => void
   onCancel: () => void
+  withLoadingAnimation?: boolean | undefined
 } & Children
 
 const ConfirmationModal = ({
@@ -17,8 +18,20 @@ const ConfirmationModal = ({
   confirmButtonText,
   cancelButtonText,
   onConfirm,
-  onCancel
+  onCancel,
+  withLoadingAnimation = false
 }: Props) => {
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const handleConfirmButtonClick = useCallback(async () => {
+    try {
+      if (withLoadingAnimation) setIsProcessing(true)
+      await onConfirm()
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [onConfirm, withLoadingAnimation])
+
   return (
     <Modal
       size="md"
@@ -36,7 +49,9 @@ const ConfirmationModal = ({
       <Stack mah="30rem" spacing="xl">
         {children}
         <Group position="right">
-          <Button onClick={onConfirm}>{confirmButtonText}</Button>
+          <Button onClick={handleConfirmButtonClick} loading={isProcessing}>
+            {confirmButtonText}
+          </Button>
           <Button onClick={onCancel}>{cancelButtonText}</Button>
         </Group>
       </Stack>

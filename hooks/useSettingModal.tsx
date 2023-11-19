@@ -9,10 +9,14 @@ import {
 } from "firebase/auth"
 import { useCallback, useState } from "react"
 import { useAuthState } from "react-firebase-hooks/auth"
+import { useSetRecoilState } from "recoil"
 import useAuth from "./useAuth"
 import useLogger from "./useLogger"
 import useStorage from "./useStorage"
 import useTransit from "./useTransit"
+import useWebDAVTrackDatabase from "./useWebDAVTrackDatabase"
+import { spotifySettingStateAtom } from "@/atoms/spotifySettingStateAtom"
+import { webDAVSettingStateAtom } from "@/atoms/webDAVSettingStateAtom"
 import { PAGE_PATH } from "@/constants/PagePath"
 import { auth } from "@/utils/firebase"
 import { isDefined } from "@/utils/isDefined"
@@ -27,8 +31,11 @@ const useSettingModal = ({ onCloseModal }: Args) => {
   const { deleteUserData, deleteAllUserData } = useStorage({
     initialize: false
   })
+  const { clearAllData } = useWebDAVTrackDatabase()
   const { signOut, checkUserExists } = useAuth()
   const { onTransit } = useTransit()
+  const setSpotifySettingState = useSetRecoilState(spotifySettingStateAtom)
+  const setWebDAVSettingState = useSetRecoilState(webDAVSettingStateAtom)
 
   const [isProcessingSignout, setIsProcessingSignout] = useState(false)
   const handleSignoutButtonClick = useCallback(async () => {
@@ -70,6 +77,14 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     [userInfo]
   )
 
+  const handleClearAllCaches = useCallback(async () => {
+    localStorage.clear()
+    await clearAllData()
+    setWebDAVSettingState("none")
+    setSpotifySettingState("none")
+    await onTransit(PAGE_PATH.MAIN_PAGE, PAGE_PATH.SIGNIN_PAGE)
+  }, [clearAllData, onTransit, setSpotifySettingState, setWebDAVSettingState])
+
   /** 操作確認モーダルの表示に関する状態管理 */
   const [
     isConfirmationDeleteUserModalOpen,
@@ -90,6 +105,13 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     {
       open: onOpenConfirmationChangeEmailModal,
       close: onCloseConfirmationChangeEmailModal
+    }
+  ] = useDisclosure(false)
+  const [
+    isConfirmationClearAllCachesModalOpen,
+    {
+      open: onOpenConfirmationClearAllCachesModal,
+      close: onCloseConfirmationClearAllCachesModal
     }
   ] = useDisclosure(false)
 
@@ -192,6 +214,7 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     handleSignoutButtonClick,
     showSimpleError,
     reAuth,
+    handleClearAllCaches,
     isConfirmationDeleteUserModalOpen,
     onOpenConfirmationDeleteUserModal,
     onCloseConfirmationDeleteUserModal,
@@ -201,6 +224,9 @@ const useSettingModal = ({ onCloseModal }: Args) => {
     isConfirmationChangeEmailModalOpen,
     onOpenConfirmationChangeEmailModal,
     onCloseConfirmationChangeEmailModal,
+    isConfirmationClearAllCachesModalOpen,
+    onOpenConfirmationClearAllCachesModal,
+    onCloseConfirmationClearAllCachesModal,
     isInputModalForDeleteUserOpen,
     onOpenInputModalForDeleteUser,
     onCloseInputModalForDeleteUser,

@@ -45,6 +45,7 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     handleSignoutButtonClick,
     showSimpleError,
     reAuth,
+    handleClearAllCaches,
     isConfirmationDeleteUserModalOpen,
     onOpenConfirmationDeleteUserModal,
     onCloseConfirmationDeleteUserModal,
@@ -54,6 +55,9 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     isConfirmationChangeEmailModalOpen,
     onOpenConfirmationChangeEmailModal,
     onCloseConfirmationChangeEmailModal,
+    isConfirmationClearAllCachesModalOpen,
+    onOpenConfirmationClearAllCachesModal,
+    onCloseConfirmationClearAllCachesModal,
     isInputModalForDeleteUserOpen,
     onOpenInputModalForDeleteUser,
     onCloseInputModalForDeleteUser,
@@ -105,7 +109,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
             >
               アカウント削除
             </Button>
-            <Button size="xs" variant="outline" color="gray">
+            <Button
+              size="xs"
+              variant="outline"
+              color="gray"
+              onClick={onOpenConfirmationClearAllCachesModal}
+            >
               キャッシュ削除
             </Button>
           </Group>
@@ -139,7 +148,12 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         >
           アカウント削除
         </Button>
-        <Button size="xs" variant="outline" color="gray">
+        <Button
+          size="xs"
+          variant="outline"
+          color="gray"
+          onClick={onOpenConfirmationClearAllCachesModal}
+        >
           キャッシュ削除
         </Button>
       </Group>
@@ -148,7 +162,8 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
     breakPoint,
     onOpenConfirmationDeleteUserModal,
     onOpenConfirmationChangePasswordModal,
-    onOpenConfirmationChangeEmailModal
+    onOpenConfirmationChangeEmailModal,
+    onOpenConfirmationClearAllCachesModal
   ])
 
   return (
@@ -278,6 +293,17 @@ const SettingModal = ({ isOpen, onClose }: Props) => {
         onCancel={onCloseConfirmationChangeEmailModal}
       >
         今現在メールアドレスを変更しようとするとエラーが発生する可能性がありますが、やってみますか？
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={isConfirmationClearAllCachesModalOpen}
+        confirmButtonText="削除する"
+        cancelButtonText="やめる"
+        onConfirm={handleClearAllCaches}
+        onCancel={onCloseConfirmationClearAllCachesModal}
+        withLoadingAnimation
+      >
+        SpotifyプレイリストやWebDAVサーバー上のフォルダーの紐付け情報、WebDAVサーバーから取得した楽曲のメタデーターのキャッシュが削除されます。よろしいですか？
       </ConfirmationModal>
 
       <InputModal
