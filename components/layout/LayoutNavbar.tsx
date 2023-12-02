@@ -19,7 +19,7 @@ import {
   useState
 } from "react"
 import { BiSearchAlt } from "react-icons/bi"
-import { BsClockHistory, BsInfoCircle } from "react-icons/bs"
+import { BsClockHistory } from "react-icons/bs"
 import { GrConnect } from "react-icons/gr"
 import { IoSettingsOutline } from "react-icons/io5"
 import { useRecoilState, useSetRecoilState } from "recoil"
@@ -372,10 +372,6 @@ const LayoutNavbar = ({
             onClick={onSettingModalOpen}
           >
             一般設定
-          </NavbarItemButton>
-
-          <NavbarItemButton icon={<BsInfoCircle />}>
-            MixJuiceについて
           </NavbarItemButton>
         </Box>
       </Navbar.Section>
