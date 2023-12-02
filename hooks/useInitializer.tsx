@@ -51,7 +51,7 @@ const useInitializer = () => {
   useEffect(() => {
     if (os === "undetermined") return
     if (os === "ios" || (os === "macos" && isTouchDevice)) {
-      showWarning("iOSまたはiPad OSでは楽曲の再生ができません")
+      showWarning("iOSまたはiPad OSでは楽曲の再生が自動で開始されません")
     }
   }, [os, showWarning, isTouchDevice])
 
