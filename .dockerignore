@@ -1,0 +1,22 @@
+# Exclude local files from the build context
+node_modules
+.next/cache
+.next/trace
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# VCS
+.git
+.gitignore
+
+# Editor/OS
+.vscode
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env files (mount in runtime or use build args/secrets)
+.env*
+!.env.example
