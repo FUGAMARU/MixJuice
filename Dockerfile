@@ -33,7 +33,7 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
-
+COPY --from=builder /app/next.config.js ./
 
 RUN chown -R nextjs:nodejs /app
 USER nextjs
