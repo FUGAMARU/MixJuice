@@ -3,6 +3,7 @@ const withInterceptStdout = require("next-intercept-stdout")
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   images: {
     remotePatterns: [
       {
